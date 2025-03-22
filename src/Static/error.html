@@ -1,0 +1,10 @@
+<div style="border: 1px solid; display: grid; grid-template-columns: 60px auto; font-family: sans-serif;">
+    <div style="margin: 10px 5px 10px 10px;">
+        <img src="{$image}" alt="error icon" style="width: 100%;"/>
+    </div>
+    <div style="margin: 10px 10px 10px 5px;">
+        <strong>{$type}</strong> [{$no}] <strong>in file:</strong> [{$file}] <strong>at line:</strong> [{$line}]
+        <hr style="color: red;"/>
+        <pre>{$message}</pre>
+    </div>
+</div>

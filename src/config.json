@@ -1,0 +1,12 @@
+{
+    "application": {
+        "name": "CSMS-R",
+        "description": "Construction Site Management System - Railways",
+        "version": "0.0.1"
+    },
+    "router": {
+        "namespace": "Application\\Controllers",
+        "default_controller": "Main",
+        "default_action": "Index"
+    }
+}
