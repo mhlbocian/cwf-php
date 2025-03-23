@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Custom Application Framework
+ * 
+ * Author: Michał Bocian <mhl.bocian@gmail.com>
+ * License: 3-clause BSD
+ */
+
 namespace Framework;
 
 class View {
@@ -13,7 +20,7 @@ class View {
         if (!file_exists(self::VIEWDIR . DS . "{$view}.php")) {
             throw new \Exception("View {$view} does not exist!");
         }
-        
+
         $this->view = $view;
     }
 
@@ -30,10 +37,10 @@ class View {
             ob_end_clean();
             throw $ex;
         }
-        
+
         return ob_get_clean();
     }
-    
+
     public function __toString(): string {
         return $this->Render();
     }

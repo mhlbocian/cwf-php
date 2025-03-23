@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Custom Application Framework
+ * 
+ * Author: Michał Bocian <mhl.bocian@gmail.com>
+ * License: 3-clause BSD
+ */
+
 namespace Framework;
 
 /**
@@ -22,9 +29,9 @@ class Router {
     private array $data = [];
 
     public function __construct(?string $route) {
-        $this->namespace = Config::Get("router")['namespace'];
-        $this->default_controller = Config::Get("router")['default_controller'];
-        $this->default_action = Config::Get("router")['default_action'];
+        $this->namespace = Config::Get("router")["namespace"];
+        $this->default_controller = Config::Get("router")["default_controller"];
+        $this->default_action = Config::Get("router")["default_action"];
 
         if ($route == null) {
             $this->controller = $this->default_controller;

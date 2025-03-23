@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Custom Application Framework
+ * 
+ * Author: Michał Bocian <mhl.bocian@gmail.com>
+ * License: 3-clause BSD
+ */
+
 define("APPDIR", __DIR__);
 define("DS", DIRECTORY_SEPARATOR);
 

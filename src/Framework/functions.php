@@ -1,7 +1,14 @@
 <?php
 
+/*
+ * Custom Application Framework
+ * 
+ * Author: Michał Bocian <mhl.bocian@gmail.com>
+ * License: 3-clause BSD
+ */
+
 if (!defined("APPDIR"))
-    die();
+    die(); // not expected to be run beyond bootstrap
 
 function static_getfile(string $filename): string {
     if (!file_exists($path = APPDIR . DS . "Static" . DS . "{$filename}")) {

@@ -1,7 +1,17 @@
 <?php
 
+/*
+ * Custom Application Framework
+ * 
+ * Author: Michał Bocian <mhl.bocian@gmail.com>
+ * License: 3-clause BSD
+ */
+
 namespace Framework;
 
+/**
+ * Class for manipulate data from config files
+ */
 class Config {
 
     private const string CFGDIR = APPDIR . DS . "Application" . DS . "Config";
@@ -9,7 +19,13 @@ class Config {
     private static array $app_config = []; // for main config.json
     private static array $custom_config = []; // for custom configs
 
-    public static function Load(?string $cfg = null) {
+    /**
+     * Loads configuration file contents.
+     * 
+     * @param string|null $cfg Configuration file to load.
+     * @throws \Exception
+     */
+    private static function Load(?string $cfg = null) {
         if ($cfg == null) { // if $cfg null, load main config.json file
             $path = APPDIR . DS . "config.json";
         } else {
@@ -30,6 +46,13 @@ class Config {
         }
     }
 
+    /**
+     * Gets a value from configuration file
+     * 
+     * @param string $key Key from configuration
+     * @param string|null $cfg Configuration file
+     * @return mixed
+     */
     public static function Get(string $key, ?string $cfg = null): mixed {
         if ($cfg == null) { // main config.json
             if (empty(self::$app_config)) { // if config.json is not yet loaded

@@ -14,14 +14,20 @@ class Main {
     }
 
     public function Index(...$args): void {
-        $content = new View("Hello");
+        $view = new View("Main.Index");
         $this->main->Bind("title", "Strona główna");
-        $this->main->Bind("content", "Index");
+        $this->main->Bind("page", "Index Page");
+        $this->main->Bind("content", $view);
+        $this->main->Bind("link", "/Main/About");
     }
 
     public function About(...$args): void {
+        $view = new View("Main.About");
+        $view->Bind("cfg_value", Config::Get("change", "test"));
         $this->main->Bind("title", "O nas");
-        $this->main->Bind("content", "Test");
+        $this->main->Bind("page", "About Page");
+        $this->main->Bind("content", $view);
+        $this->main->Bind("link", "/Main/Index");
     }
 
     public function __destruct() {
