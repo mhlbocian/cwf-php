@@ -13,6 +13,9 @@ use Framework\RouterException;
 
 require_once '../bootstrap.php';
 
+// TODO: Filter PATH_INFO only for alphanumeric and slash chars
+// [!] NOW IT'S VERY UNSAFE AND USED ONLY FOR EARLY DEVELOPMENT
+
 $router = new Router($_SERVER["PATH_INFO"] ?? null);
 
 try {
