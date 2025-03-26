@@ -6,3 +6,8 @@ body{
     max-width: 1000px;
     margin: 0 auto;
 }
+
+nav > ul > li {
+    padding-right: 2em;
+    display: inline-block;
+}

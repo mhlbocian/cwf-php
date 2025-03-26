@@ -1,0 +1,6 @@
+{
+    "default" : {
+        "driver": "sqlite",
+        "database": "default.db"
+    }
+}

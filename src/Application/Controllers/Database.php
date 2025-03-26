@@ -4,10 +4,12 @@ namespace Application\Controllers;
 
 use Framework\Router;
 use Framework\View;
-use Framework\Config;
+use Framework\Database\Connection;
+use Framework\Database\Query;
+use Framework\Database\Operation;
 use Application\Models\Sitemap;
 
-class Main {
+class Database {
 
     private View $main;
 
@@ -18,16 +20,14 @@ class Main {
     }
 
     public function Index(...$args): void {
-        $view = new View("Main.Index");
-        
-        $this->main->Bind("content", $view);
-    }
-
-    public function About(...$args): void {
-        $view = new View("Main.About");
-        $view->Bind("cfg_value", Config::Get("change", "sample"));
-
-        $this->main->Bind("content", $view);
+        $content = "<pre>";
+        $db = new Connection();
+        $content .= "connection: ok <br/>";
+        $query = new Query(Operation::SELECT);
+        $query->Table("test_table");
+        $content .= $query;
+        $content .= "</pre>";
+        $this->main->Bind("content", $content);
     }
 
     public function __destruct() {

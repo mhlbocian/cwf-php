@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Custom Application Framework
+ * Custom Web Framework
  * 
  * Author: Michał Bocian <mhl.bocian@gmail.com>
  * License: 3-clause BSD
@@ -12,7 +12,7 @@ if (!defined("APPDIR"))
 
 function static_getfile(string $filename): string {
     if (!file_exists($path = APPDIR . DS . "Static" . DS . "{$filename}")) {
-        throw new Error("Static file {$path} does not exist!");
+        throw new Error("Static file {$path} does not exist");
     }
 
     return file_get_contents($path);

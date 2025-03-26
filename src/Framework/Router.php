@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Custom Application Framework
+ * Custom Web Framework
  * 
  * Author: Michał Bocian <mhl.bocian@gmail.com>
  * License: 3-clause BSD
@@ -26,6 +26,7 @@ class Router {
     private string $default_action;
     private string $controller;
     private string $action;
+    private static string $current;
     private array $data = [];
 
     public function __construct(?string $route) {
@@ -68,14 +69,19 @@ class Router {
         $class_name = $this->namespace . "\\" . $this->controller;
 
         if (!class_exists($class_name)) {
-            throw new RouterException("Class {$class_name} does not exist!");
+            throw new RouterException("Class {$class_name} does not exist");
         }
 
         if (!method_exists($class_name, $this->action)) {
-            throw new RouterException("Method {$this->action} does not exist!");
+            throw new RouterException("Method {$this->action} does not exist");
         }
 
+        self::$current = "{$this->controller}/{$this->action}";
         $controller = new $class_name();
         $controller->{$this->action}(...$this->data);
+    }
+
+    public static function Current(): string {
+        return self::$current;
     }
 }

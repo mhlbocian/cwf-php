@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Custom Application Framework
+ * Custom Web Framework
  * 
  * Author: Michał Bocian <mhl.bocian@gmail.com>
  * License: 3-clause BSD
@@ -9,12 +9,14 @@
 
 namespace Framework;
 
+use Exception;
+
 /**
  * Class for manipulate data from config files
  */
 class Config {
 
-    private const string CFGDIR = APPDIR . DS . "Application" . DS . "Config";
+    private const string CFGDIR = APPDIR . DS . "Config";
 
     private static array $app_config = []; // for main config.json
     private static array $custom_config = []; // for custom configs
@@ -33,7 +35,7 @@ class Config {
         }
 
         if (!file_exists($path)) {
-            throw new \Exception("File {$path} does not exist!");
+            throw new Exception("File {$path} does not exist");
         }
 
         $cnt = file_get_contents($path);

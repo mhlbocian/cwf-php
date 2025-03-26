@@ -1,9 +1,13 @@
+<?php
+
+use Framework\Url;
+?>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="<?= Url::Local("css/style.css") ?>" />
         <title>[CWF] <?= $title ?? "" ?></title>
     </head>
     <body>
@@ -12,13 +16,22 @@
                 <h1>Custom Web Framwework for PHP</h1>
             </header>
             <hr />
+            <nav>
+                <ul>
+                    <?php foreach ($menu as $item): ?>
+                        <?php if (!is_null($item[0])) : ?>
+                            <li><a href="<?= $item[0] ?>"><?= $item[1] ?></a></li>
+                        <?php else: ?>
+                            <li><b><?= $item[1] ?></b></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </nav>
+            <hr />
             <section>
                 <article>
-                    <h3><?= $page ?? "" ?></h3>
+                    <h3><?= $title ?? "" ?></h3>
                     <?= $content ?? "" ?>
-                    <p style="text-align: right;">
-                        <a href="<?= $link ?? "/" ?>">Switch page</a>
-                    </p>
                 </article>
             </section>
             <hr />
