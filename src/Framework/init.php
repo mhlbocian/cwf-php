@@ -13,7 +13,7 @@ if (!defined("APPDIR"))
     die(); // not expected to be run beyond bootstrap
 
 function static_getfile(string $filename): string {
-    if (!file_exists($path = APPDIR . DS . "Static" . DS . "{$filename}")) {
+    if (!file_exists($path = ROOTDIR . DS . "Static" . DS . "{$filename}")) {
         throw new Error("Static file {$path} does not exist");
     }
 
@@ -59,7 +59,7 @@ function app_exception_handler(Throwable $ex): void {
 }
 
 function app_autoload_function(string $class): void {
-    $file = APPDIR . DS . str_replace("\\", DS, $class) . ".php";
+    $file = ROOTDIR . DS . str_replace("\\", DS, $class) . ".php";
 
     if (!file_exists($file)) {
         return;

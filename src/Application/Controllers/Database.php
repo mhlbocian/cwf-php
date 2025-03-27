@@ -20,13 +20,27 @@ class Database {
     }
 
     public function Index(...$args): void {
-        $content = "<pre>";
         $db = new Connection();
-        $content .= "connection: ok <br/>";
+        $content = "<pre>";
+        
         $query = (new Query(Operation::SELECT))
                 ->Table("test")
-                ->Columns("id", "username");
+                ->Columns("id", "username")
+                ->OrderBy("id")
+                ->OrderBy("username", false)
+                ->Limit(10)
+                ->Offset(100);
+        
+        $content .= $query . "<br />";
+        
+        $query = (new Query(Operation::CREATE))
+                ->Table("test")
+                ->Colspec("id", "integer")
+                ->Colspec("username", "text")
+                ->Colspec("password", "text");
+        
         $content .= $query;
+        
         $content .= "</pre>";
         $this->main->Bind("content", $content);
     }

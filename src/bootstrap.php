@@ -9,17 +9,26 @@
  * License: 3-Clause BSD
  */
 
-define("APPDIR", __DIR__);
+// define directories constants
 define("DS", DIRECTORY_SEPARATOR);
+define("ROOTDIR", __DIR__);
+define("APPDIR", ROOTDIR . DS . "Application");
+define("CFGDIR", ROOTDIR . DS . "Config");
+define("DATADIR", ROOTDIR . DS . "Data");
 
-require_once APPDIR . DS . "Framework" . DS . "init.php";
+// initialize basic functions and handlers
+require_once ROOTDIR . DS . "Framework" . DS . "init.php";
 
 use Framework\Config;
 use Framework\Url;
 
+// initialize application info constants
 define("APPNAME", Config::Get("application")["name"]);
 define("APPDES", Config::Get("application")["description"]);
 define("APPVER", Config::Get("application")["version"]);
 
+// configure URL class
 Url::Configure();
+
+// start session
 session_start();

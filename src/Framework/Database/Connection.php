@@ -17,9 +17,6 @@ use Framework\Config;
 
 class Connection {
 
-    // Data directory for SQLite files
-    private const string DATADIR = APPDIR . DS . "Data";
-
     private string $driver;
     private string $database;
     private string $host;
@@ -41,7 +38,7 @@ class Connection {
         $this->password = $dbcfg["password"] ?? null;
 
         // create dsn and perform connection
-        $this->CreateDsn();
+        $this->Create_Dsn();
         $this->pdo = new PDO($this->dsn, $this->username, $this->password);
     }
     
@@ -50,14 +47,14 @@ class Connection {
         return $this->pdo;
     }
 
-    private function CreateDsn(): void {
+    private function Create_Dsn(): void {
         switch ($this->driver) {
             case "firebird":
             case "mysql":
             case "pgsql":
                 throw new Exception("Unimplemented database driver");
             case "sqlite":
-                $this->dsn = "sqlite:" . self::DATADIR . DS . $this->database;
+                $this->dsn = "sqlite:" . DATADIR . DS . $this->database;
                 break;
             default:
                 throw new Exception("Unknown database driver: {$this->driver}");

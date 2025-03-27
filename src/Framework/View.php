@@ -15,7 +15,7 @@ use Exception;
 
 class View {
 
-    private const VIEWDIR = APPDIR . DS . "Application" . DS . "Views";
+    private const VIEWDIR = APPDIR . DS . "Views";
 
     private string $view;
     private array $data = [];
