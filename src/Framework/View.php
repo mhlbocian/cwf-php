@@ -1,10 +1,12 @@
 <?php
 
 /*
- * Custom Web Framework
+ * CWF-PHP Framework
  * 
- * Author: Michał Bocian <mhl.bocian@gmail.com>
- * License: 3-clause BSD
+ * File: View.php
+ * Description: Framework\View class
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
  */
 
 namespace Framework;

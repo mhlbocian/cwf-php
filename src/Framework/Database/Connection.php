@@ -1,10 +1,12 @@
 <?php
 
 /*
- * Custom Web Framework
+ * CWF-PHP Framework
  * 
- * Author: Michał Bocian <mhl.bocian@gmail.com>
- * License: 3-clause BSD
+ * File: Connection.php
+ * Description: Framework\Database\Connection class
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
  */
 
 namespace Framework\Database;

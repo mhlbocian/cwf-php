@@ -7,6 +7,15 @@ body{
     margin: 0 auto;
 }
 
+a {
+    color: darkblue;
+}
+
+nav > ul {
+    margin: 0;
+    padding: 0;
+}
+
 nav > ul > li {
     padding-right: 2em;
     display: inline-block;

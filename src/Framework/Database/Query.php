@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * CWF-PHP Framework
+ * 
+ * File: Query.php
+ * Description: Framework\Database\Query class
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
+ */
+
 namespace Framework\Database;
 
 use Exception;

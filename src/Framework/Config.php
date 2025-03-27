@@ -1,19 +1,18 @@
 <?php
 
 /*
- * Custom Web Framework
+ * CWF-PHP Framework
  * 
- * Author: Michał Bocian <mhl.bocian@gmail.com>
- * License: 3-clause BSD
+ * File: Config.php
+ * Description: Framework\Config class
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
  */
 
 namespace Framework;
 
 use Exception;
 
-/**
- * Class for manipulate data from config files
- */
 class Config {
 
     private const string CFGDIR = APPDIR . DS . "Config";
@@ -25,7 +24,7 @@ class Config {
      * Loads configuration file contents.
      * 
      * @param string|null $cfg Configuration file to load.
-     * @throws \Exception
+     * @throws Exception
      */
     private static function Load(?string $cfg = null) {
         if ($cfg == null) { // if $cfg null, load main config.json file

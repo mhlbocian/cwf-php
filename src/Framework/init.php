@@ -1,10 +1,12 @@
 <?php
 
 /*
- * Custom Web Framework
+ * CWF-PHP Framework
  * 
- * Author: Michał Bocian <mhl.bocian@gmail.com>
- * License: 3-clause BSD
+ * File: init.php
+ * Description: Core script. Define basic functions and setup handlers
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
  */
 
 if (!defined("APPDIR"))
@@ -65,3 +67,8 @@ function app_autoload_function(string $class): void {
 
     require_once $file;
 }
+
+// setup handlers
+set_error_handler("app_error_handler");
+set_exception_handler("app_exception_handler");
+spl_autoload_register("app_autoload_function");

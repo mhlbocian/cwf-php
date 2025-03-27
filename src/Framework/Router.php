@@ -1,24 +1,22 @@
 <?php
 
 /*
- * Custom Web Framework
+ * CWF-PHP Framework
  * 
- * Author: Michał Bocian <mhl.bocian@gmail.com>
- * License: 3-clause BSD
+ * File: Router.php
+ * Description: Framework\Router class
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
  */
 
 namespace Framework;
 
-/**
- * RouterException class for invalid route exception
- */
-class RouterException extends \Exception {
-    
+use Exception;
+
+class RouterException extends Exception {
+    // RouterException class for invalid route exception
 }
 
-/**
- * Router class
- */
 class Router {
 
     private string $namespace;

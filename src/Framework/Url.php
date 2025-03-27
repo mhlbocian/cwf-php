@@ -1,14 +1,21 @@
 <?php
 
+/*
+ * CWF-PHP Framework
+ * 
+ * File: Url.php
+ * Description: Framework\Url class
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
+ */
+
 namespace Framework;
 
 use Framework\Config;
 
 class Url {
 
-    /**
-     * default values
-     */
+    // default values
     private static string $protocol = "http";
     private static string $host = "localhost";
     private static int $port = 80;
@@ -22,7 +29,7 @@ class Url {
      * 
      * @return void
      */
-    public static function Init(): void {
+    public static function Configure(): void {
         $cfg = Config::Get("url") ?? null;
         if (isset($cfg["protocol"])) {
             self::$protocol = $cfg["protocol"];
@@ -43,7 +50,7 @@ class Url {
             self::$omit_index = $cfg["omit_index"];
         }
     }
-    
+
     /**
      * Method for creating URLs for local resources in docroot, like css,
      * images etc.
@@ -63,10 +70,10 @@ class Url {
 
         return $url;
     }
-    
+
     /**
      * Like "Local" method, but for creating urls for actions (check if
-     * including "index.php" ('index' in url config) must be included)
+     * "index.php" ('index' in url config) must be included in address)
      * 
      * @param string $site
      * @return string Full URL to Controller/Action/[params]...

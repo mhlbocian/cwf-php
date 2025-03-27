@@ -9,7 +9,8 @@ class Sitemap {
     private static array $sitemap = [
         "Main" => [
             "Index" => "Main page",
-            "About" => "About project"
+            "About" => "About project",
+            "Examples" => "Code Examples"
         ],
         "Database" => [
             "Index" => "Database tests"
@@ -26,16 +27,16 @@ class Sitemap {
                 } else {
                     $url = Url::Site($site);
                 }
-                $output[] = [$url, $description];
+                $output[] = ["url" => $url, "description" => $description];
             }
         }
 
         return $output;
     }
 
-    public static function Title(string $curr_page): string {
-        $cont_act = explode("/", $curr_page);
+    public static function Title(string $current_page): string {
+        $ca_arr = explode("/", $current_page);
 
-        return self::$sitemap[$cont_act[0]][$cont_act[1]] ?? "";
+        return self::$sitemap[$ca_arr[0]][$ca_arr[1]] ?? "";
     }
 }

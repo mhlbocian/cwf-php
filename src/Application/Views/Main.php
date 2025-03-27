@@ -1,49 +1,39 @@
-<?php
-
-use Framework\Url;
-?>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="<?= Url::Local("css/style.css") ?>" />
-        <title>[CWF] <?= $title ?? "" ?></title>
+        <link rel="stylesheet" href="<?= Framework\Url::Local("css/style.css") ?>" />
+        <title>CWF-PHP: <?= $title ?? "Untitled page" ?></title>
     </head>
     <body>
         <div id="page-container">
             <header>
-                <h1>Custom Web Framwework for PHP</h1>
+                <h1>CWF-PHP Framework</h1>
             </header>
             <hr />
             <nav>
                 <ul>
                     <?php foreach ($menu as $item): ?>
-                        <?php if (!is_null($item[0])) : ?>
-                            <li><a href="<?= $item[0] ?>"><?= $item[1] ?></a></li>
+                        <?php if (!is_null($item["url"])) : ?>
+                            <li>
+                                <a href="<?= $item["url"] ?>">
+                                    <?= $item["description"] ?>
+                                </a>
+                            </li>
                         <?php else: ?>
-                            <li><b><?= $item[1] ?></b></li>
+                            <li><b><?= $item["description"] ?></b></li>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </ul>
             </nav>
             <hr />
-            <section>
-                <article>
-                    <h3><?= $title ?? "" ?></h3>
-                    <?= $content ?? "" ?>
-                </article>
-            </section>
+            <h3><?= $title ?? "Untitled page" ?></h3>
+            <?= $content ?? "<p>No content.</p>" ?>
             <hr />
             <footer>
-                <p>
-                    <b>Application info:</b> <?= APPNAME ?>
-                    <i>(<?= APPDES ?>)</i> &bullet; Version: <?= APPVER ?>
-                </p>
-                <p>
-                    &copy; <?= date("Y") ?> CWF by
-                    <a href="mailto:mhl.bocian@gmail.com">Michał Bocian</a>
-                </p>
+                &copy; <?= date("Y") ?> <?= APPNAME ?> <i>(<?= APPDES ?>)</i> ver. <?= APPVER ?>
+                &bullet; visit: <a href="https://github.com/mhlbocian/cwf-php" target="_blank">github</a>
             </footer>
         </div>
     </body>

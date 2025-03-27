@@ -23,8 +23,9 @@ class Database {
         $content = "<pre>";
         $db = new Connection();
         $content .= "connection: ok <br/>";
-        $query = new Query(Operation::SELECT);
-        $query->Table("test_table");
+        $query = (new Query(Operation::SELECT))
+                ->Table("test")
+                ->Columns("id", "username");
         $content .= $query;
         $content .= "</pre>";
         $this->main->Bind("content", $content);
