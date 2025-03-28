@@ -13,7 +13,7 @@ class Sitemap {
             "Examples" => "Code Examples"
         ],
         "Database" => [
-            "Index" => "Database tests"
+            "Index" => "Database support"
         ]
     ];
 

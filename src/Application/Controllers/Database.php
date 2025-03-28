@@ -20,29 +20,18 @@ class Database {
     }
 
     public function Index(...$args): void {
-        $db = new Connection();
-        $content = "<pre>";
-        
-        $query = (new Query(Operation::SELECT))
-                ->Table("test")
-                ->Columns("id", "username")
-                ->OrderBy("id")
-                ->OrderBy("username", false)
-                ->Limit(10)
-                ->Offset(100);
-        
-        $content .= $query . "<br />";
-        
-        $query = (new Query(Operation::CREATE))
-                ->Table("test")
-                ->Colspec("id", "integer")
-                ->Colspec("username", "text")
-                ->Colspec("password", "text");
-        
-        $content .= $query;
-        
-        $content .= "</pre>";
-        $this->main->Bind("content", $content);
+        $view = new View("Database.Index");
+
+        switch (in_array($args[0] ?? 0, range(1, 3))) {
+            case true:
+                $view->Bind("subpage", new View("Database.{$args[0]}"));
+                break;
+            default:
+                $view->Bind("subpage", "");
+                break;
+        }
+
+        $this->main->Bind("content", $view);
     }
 
     public function __destruct() {

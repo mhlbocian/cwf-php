@@ -1,10 +1,12 @@
 <?php
 
 /*
- * Custom Application Framework
+ * CWF-PHP Framework
  * 
- * Author: Michał Bocian <mhl.bocian@gmail.com>
- * License: 3-clause BSD
+ * File: index.php
+ * Description: Main index file
+ * Author: Michał Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
  */
 
 use Framework\Config;

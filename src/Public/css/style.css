@@ -1,14 +1,15 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
 body{
     font-family: sans-serif;
+    background-color: #003b55;
 }
 
-#page-container{
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-a {
-    color: darkblue;
+header, nav, footer{
+    padding: 10px 0;
 }
 
 nav > ul {
@@ -19,4 +20,36 @@ nav > ul {
 nav > ul > li {
     padding-right: 2em;
     display: inline-block;
+}
+
+section {
+    margin: 1em 0;
+}
+
+h3 {
+    padding: 1em 0;
+}
+
+a {
+    color: darkblue;
+}
+
+td{
+    vertical-align: top;
+}
+
+ul {
+    margin: 0.5em 2em;
+}
+
+p, pre {
+    margin-bottom: 0.5em;
+}
+
+#page-container{
+    background-color: white;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 10px;
+    box-shadow: 0 0 5px 5px #05222f;
 }

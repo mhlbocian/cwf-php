@@ -27,6 +27,11 @@ class Router {
     private static string $current;
     private array $data = [];
 
+    /**
+     * Parse route and prepares it for execution
+     * 
+     * @param string|null $route
+     */
     public function __construct(?string $route) {
         $this->namespace = Config::Get("router")["namespace"];
         $this->default_controller = Config::Get("router")["default_controller"];
@@ -62,7 +67,13 @@ class Router {
             }
         }
     }
-
+    
+    /**
+     * Parses route and executes it
+     * 
+     * @return void
+     * @throws RouterException
+     */
     public function Execute(): void {
         $class_name = $this->namespace . "\\" . $this->controller;
 

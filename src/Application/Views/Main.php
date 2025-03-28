@@ -28,8 +28,9 @@
                 </ul>
             </nav>
             <hr />
-            <h3><?= $title ?? "Untitled page" ?></h3>
-            <?= $content ?? "<p>No content.</p>" ?>
+            <section>
+                <?= $content ?? "<p>No content.</p>" ?>
+            </section>
             <hr />
             <footer>
                 &copy; <?= date("Y") ?> <?= APPNAME ?> <i>(<?= APPDES ?>)</i> ver. <?= APPVER ?>

@@ -20,6 +20,12 @@ class View {
     private string $view;
     private array $data = [];
 
+    /**
+     * Loads view
+     * 
+     * @param string $view
+     * @throws Exception
+     */
     function __construct(string $view) {
         if (!file_exists(self::VIEWDIR . DS . "{$view}.php")) {
             throw new Exception("View {$view} does not exist");
@@ -28,10 +34,23 @@ class View {
         $this->view = $view;
     }
 
+    /**
+     * Binds variables to view
+     * 
+     * @param string $var
+     * @param mixed $val
+     * @return void
+     */
     public function Bind(string $var, mixed $val): void {
         $this->data[$var] = $val;
     }
 
+    /**
+     * Renders view
+     * 
+     * @return string
+     * @throws Exception
+     */
     private function Render(): string {
         extract($this->data);
         ob_start();

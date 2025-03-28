@@ -13,6 +13,7 @@ namespace Framework\Database;
 
 use Exception;
 use PDO;
+use PDOStatement;
 use Framework\Config;
 
 class Connection {
@@ -41,10 +42,17 @@ class Connection {
         $this->Create_Dsn();
         $this->pdo = new PDO($this->dsn, $this->username, $this->password);
     }
-    
-    // temporary function, removed in the future
-    public function PDO(): PDO {
-        return $this->pdo;
+
+    public function Query(Query $query): PDOStatement {
+        $prep = $this->pdo->prepare($query);
+
+        foreach ($query->Get_Params() as $id => $param) {
+            $prep->bindValue(":{$id}", $param);
+        }
+
+        $prep->execute();
+
+        return $prep;
     }
 
     private function Create_Dsn(): void {

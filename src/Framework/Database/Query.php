@@ -13,25 +13,29 @@ namespace Framework\Database;
 
 use Exception;
 
-enum Operation: string {
+enum Operation {
 
-    case CREATE = "create";
-    case DELETE = "delete";
-    case INSERT = "insert";
-    case UPDATE = "update";
-    case SELECT = "select";
+    case CREATE;
+    case DELETE;
+    case INSERT;
+    case UPDATE;
+    case SELECT;
 }
 
 class Query {
 
     private bool $distinct = false;
+    private bool $if_not_exists = false;
     private ?int $limit = null;
     private ?int $offset = null;
+    private int $values_count = 0;
+    private int $param_ptr = 0;
     private string $table;
     private string $sql;
     private array $columns = [];
-    private array $colspec = [];
+    private array $col_spec = [];
     private array $orders = [];
+    private array $params = [];
     private Operation $operation;
 
     /**
@@ -42,6 +46,15 @@ class Query {
     public function __construct(Operation $operation) {
         $this->operation = $operation;
     }
+    
+    /**
+     * Returns parameters array for later bindings
+     * 
+     * @return array
+     */
+    public function Get_Params(): array{
+        return $this->params;
+    }
 
     /**
      * Set columns and their types. Used in CREATE TABLE
@@ -50,7 +63,7 @@ class Query {
      * @return Query
      */
     public function Colspec(string $name, string $type): Query {
-        $this->colspec[] = [$name, $type];
+        $this->col_spec[] = [$name, $type];
 
         return $this;
     }
@@ -74,6 +87,16 @@ class Query {
      */
     public function Distinct(): Query {
         $this->distinct = true;
+
+        return $this;
+    }
+
+    /**
+     * If invoked, add IF NOT EXISTS keyword to CREATE TABLE operation
+     * @return Query
+     */
+    public function IfNotExists(): Query {
+        $this->if_not_exists = true;
 
         return $this;
     }
@@ -121,18 +144,42 @@ class Query {
     }
 
     /**
+     * Add values to INSERT INTO operation. Can be invoked for each column
+     * separately or with multiple parameters for more columns.
+     * In the sum, the count of columns and values must be equal and non-zero
+     * 
+     * @param mixed $values
+     * @return Query
+     */
+    public function Values(mixed ...$values): Query {
+        $this->values_count += count($values);
+
+        foreach ($values as $value) {
+            $this->params[] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * Makes SQL query for CREATE TABLE operation
      * 
      * @return void
      */
     private function Query_Create(): void {
-        if (empty($this->colspec)) {
+        if (empty($this->col_spec)) {
             throw new Exception("SQL_CREATE: Empty column(s) specification");
         }
 
-        $this->sql = "CREATE TABLE {$this->table} (";
+        $this->sql = "CREATE TABLE";
 
-        foreach ($this->colspec as $col) {
+        if ($this->if_not_exists) {
+            $this->sql .= " IF NOT EXISTS";
+        }
+
+        $this->sql .= " {$this->table} (";
+
+        foreach ($this->col_spec as $col) {
             $this->sql .= "{$col[0]} {$col[1]}, ";
         }
 
@@ -154,7 +201,19 @@ class Query {
      * @return void
      */
     private function Query_Insert(): void {
-        $this->sql = "NOT IMPLEMENTED";
+        if (count($this->columns) != $this->values_count || !$this->values_count) {
+            throw new Exception("SQL_INSERT: cols and vals size mismatch");
+        }
+
+        $this->sql = "INSERT INTO {$this->table} (";
+        $this->sql .= implode(", ", $this->columns);
+        $this->sql .= ") VALUES (";
+
+        foreach ($this->params as $id => $param) {
+            $this->sql .= ":{$id}, ";
+        }
+
+        $this->sql = substr($this->sql, 0, -2) . ")";
     }
 
     /**
@@ -180,7 +239,6 @@ class Query {
         $this->sql .= " FROM {$this->table}";
 
         // [TODO]: WHERE
-        
         // SQL: ORDER BY
         if (!empty($this->orders)) {
             $this->sql .= " ORDER BY";
@@ -205,7 +263,7 @@ class Query {
      * @return string
      * @throws Exception
      */
-    public function Show_Query(): string {
+    public function Make_Query(): string {
         switch ($this->operation) {
             case Operation::CREATE:
                 $this->Query_Create();
@@ -228,6 +286,6 @@ class Query {
     }
 
     public function __toString(): string {
-        return $this->Show_Query();
+        return $this->Make_Query();
     }
 }
