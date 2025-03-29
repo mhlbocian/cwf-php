@@ -16,39 +16,27 @@ use Framework\Config;
 class Url {
 
     // default values
-    private static string $protocol = "http";
-    private static string $host = "localhost";
-    private static int $port = 80;
-    private static string $path = "/";
-    private static string $index = "index.php";
-    private static bool $omit_index = false;
+    private static string $protocol;
+    private static string $host;
+    private static int $port;
+    private static string $path;
+    private static string $index;
+    private static bool $omit_index;
 
     /**
-     * Load values from config.json ("url" section), and replace in-class
-     * defaults
+     * Load values from config.json ("url" section)
      * 
      * @return void
      */
-    public static function Configure(): void {
-        $cfg = Config::Get("url") ?? null;
-        if (isset($cfg["protocol"])) {
-            self::$protocol = $cfg["protocol"];
-        }
-        if (isset($cfg["host"])) {
-            self::$host = $cfg["host"];
-        }
-        if (isset($cfg["port"])) {
-            self::$port = $cfg["port"];
-        }
-        if (isset($cfg["path"])) {
-            self::$path = $cfg["path"];
-        }
-        if (isset($cfg["index"])) {
-            self::$index = $cfg["index"];
-        }
-        if (isset($cfg["omit_index"])) {
-            self::$omit_index = $cfg["omit_index"];
-        }
+    public static function Load_Config(): void {
+        $cfg = Config::Get("url");
+
+        self::$protocol = $cfg["protocol"];
+        self::$host = $cfg["host"];
+        self::$port = $cfg["port"];
+        self::$path = $cfg["path"];
+        self::$index = $cfg["index"];
+        self::$omit_index = $cfg["omit_index"];
     }
 
     /**
@@ -80,9 +68,11 @@ class Url {
      */
     public static function Site(string $site): string {
         $url = self::Local();
+
         if (!self::$omit_index) {
             $url .= self::$index . "/";
         }
+
         $url .= $site;
 
         return $url;

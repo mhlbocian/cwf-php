@@ -1,7 +1,5 @@
-<p><b>Available drivers:</b></p>
-<ul>
-    <li>SQLite</li>
-</ul>
+<h3>Database drivers support</h3>
+<p>&bullet; SQLite</p>
 <p><b>Database configuration file format</b></p>
 <p>Configuration file is stored in <code>Config/database.json</code>.</p>
 <pre>
@@ -16,7 +14,7 @@
     }
 }
 </pre>
-<p><b>NOTICE:</b> Some fields are necessary, it depends on driver.</p>
+<p><b>NOTICE:</b> Some fields are necessary and depends on driver.</p>
 <p>
     When <code>Framework\Database\Connection</code> object is created, you must
     specify connection name, otherwise framework fetch configuration from
@@ -46,3 +44,14 @@ HERE;
     highlight_string($code);
     ?>
 </p>
+<?php
+use Framework\Database\Query;
+use Framework\Database\Statement;
+
+$query = (new Query(Statement::UPDATE))
+        ->Table("my_table")
+        ->Columns("col1", "col2", "col3")
+        ->Values("value1")
+        ->Values("value2", "value3");
+
+echo $query;

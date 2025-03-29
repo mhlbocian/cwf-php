@@ -28,7 +28,7 @@ define("APPDES", Config::Get("application")["description"]);
 define("APPVER", Config::Get("application")["version"]);
 
 // configure URL class
-Url::Configure();
+Url::Load_Config();
 
 // start session
 session_start();

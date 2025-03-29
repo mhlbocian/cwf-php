@@ -13,7 +13,7 @@ namespace Framework\Database;
 
 use Exception;
 
-enum Operation {
+enum Statement {
 
     case CREATE;
     case DELETE;
@@ -22,38 +22,62 @@ enum Operation {
     case SELECT;
 }
 
+enum Operator: string {
+
+    case Eq = "=";
+    case Gt = ">";
+    case GEq = ">=";
+    case Lt = "<";
+    case LEq = "<=";
+    case NEq = "<>";
+    case Btw = "BETWEEN";
+    case In = "IN";
+    case Like = "LIKE";
+}
+
 class Query {
 
     private bool $distinct = false;
     private bool $if_not_exists = false;
     private ?int $limit = null;
     private ?int $offset = null;
-    private int $values_count = 0;
-    private int $param_ptr = 0;
+    private int $val_count = 0;
     private string $table;
     private string $sql;
     private array $columns = [];
     private array $col_spec = [];
     private array $orders = [];
     private array $params = [];
-    private Operation $operation;
+    private array $where = [];
+    private Statement $operation;
 
     /**
      * Query constructor. Defines SQL operation
      * 
      * @param Operation $operation
      */
-    public function __construct(Operation $operation) {
+    public function __construct(Statement $operation) {
         $this->operation = $operation;
     }
-    
+
     /**
      * Returns parameters array for later bindings
      * 
      * @return array
      */
-    public function Get_Params(): array{
-        return $this->params;
+    public function Params(): array {
+        $out = $this->params;
+
+        /*
+         * walk through $where array, and join their values as parameters with
+         * prefix 'w' (like :w0, :w1)
+         * 
+         */
+        foreach ($this->where as $id => $statement) {
+            $out["w{$id}"] = $statement["value"];
+        }
+
+        return $out;
     }
 
     /**
@@ -144,6 +168,72 @@ class Query {
     }
 
     /**
+     * 
+     * @param string $column
+     * @param Operator $op
+     * @param mixed $value
+     * @return Query
+     * @throws Exception
+     */
+    public function Where(string $column, Operator $op, mixed $value): Query {
+        if (!empty($this->where)) {
+            throw new Exception("'Where' method can be invoked only once");
+        }
+
+        $this->where[] = [
+            "column" => $column,
+            "operator" => $op,
+            "value" => $value
+        ];
+
+        return $this;
+    }
+
+    /**
+     * 
+     * @param string $column
+     * @param Operator $op
+     * @param mixed $value
+     * @return Query
+     */
+    public function And(string $column, Operator $op, mixed $value): Query {
+        if (empty($this->where)) {
+            throw new Exception("'And' method must be invoked after 'Where'");
+        }
+
+        $this->where[] = [
+            "before" => "AND",
+            "column" => $column,
+            "operator" => $op,
+            "value" => $value
+        ];
+
+        return $this;
+    }
+
+    /**
+     * 
+     * @param string $column
+     * @param Operator $op
+     * @param mixed $value
+     * @return Query
+     */
+    public function Or(string $column, Operator $op, mixed $value): Query {
+        if (empty($this->where)) {
+            throw new Exception("'Or' method must be invoked after 'Where'");
+        }
+
+        $this->where[] = [
+            "before" => "OR",
+            "column" => $column,
+            "operator" => $op,
+            "value" => $value
+        ];
+
+        return $this;
+    }
+
+    /**
      * Add values to INSERT INTO operation. Can be invoked for each column
      * separately or with multiple parameters for more columns.
      * In the sum, the count of columns and values must be equal and non-zero
@@ -152,7 +242,7 @@ class Query {
      * @return Query
      */
     public function Values(mixed ...$values): Query {
-        $this->values_count += count($values);
+        $this->val_count += count($values);
 
         foreach ($values as $value) {
             $this->params[] = $value;
@@ -162,13 +252,46 @@ class Query {
     }
 
     /**
+     * Helper function to check the number of specified columns and values.
+     * Must be equal and non-zero
+     * 
+     * @return void
+     * @throws Exception
+     */
+    private function Check_ColVal(): void {
+        if (count($this->columns) != $this->val_count || !$this->val_count) {
+            throw new Exception("Column(s) and value(s) count mismatch");
+        }
+    }
+
+    private function Make_Where(): string {
+        if (empty($this->where)) {
+            return "";
+        }
+
+        $where = " WHERE ";
+
+        foreach ($this->where as $id => $statement) {
+            if (isset($statement["before"])) {
+                $where .= $statement["before"] . " ";
+            }
+
+            $where .= $statement["column"] . " ";
+            $where .= ($statement["operator"])->value . " ";
+            $where .= ":w{$id} ";
+        }
+
+        return substr($where, 0, -1);
+    }
+
+    /**
      * Makes SQL query for CREATE TABLE operation
      * 
      * @return void
      */
     private function Query_Create(): void {
         if (empty($this->col_spec)) {
-            throw new Exception("SQL_CREATE: Empty column(s) specification");
+            throw new Exception("Empty column(s) specification");
         }
 
         $this->sql = "CREATE TABLE";
@@ -192,7 +315,9 @@ class Query {
      * @return void
      */
     private function Query_Delete(): void {
-        $this->sql = "NOT IMPLEMENTED";
+        $this->sql = "DELETE FROM {$this->table}";
+        // SQL: WHERE
+        $this->sql .= $this->Make_Where();
     }
 
     /**
@@ -201,15 +326,13 @@ class Query {
      * @return void
      */
     private function Query_Insert(): void {
-        if (count($this->columns) != $this->values_count || !$this->values_count) {
-            throw new Exception("SQL_INSERT: cols and vals size mismatch");
-        }
+        $this->Check_ColVal();
 
         $this->sql = "INSERT INTO {$this->table} (";
         $this->sql .= implode(", ", $this->columns);
         $this->sql .= ") VALUES (";
 
-        foreach ($this->params as $id => $param) {
+        foreach (array_keys($this->params) as $id) {
             $this->sql .= ":{$id}, ";
         }
 
@@ -222,7 +345,17 @@ class Query {
      * @return void
      */
     private function Query_Update(): void {
-        $this->sql = "NOT IMPLEMENTED";
+        $this->Check_ColVal();
+
+        $this->sql = "UPDATE {$this->table} SET ";
+
+        foreach (array_keys($this->params) as $id) {
+            $this->sql .= "{$this->columns[$id]} = :{$id}, ";
+        }
+
+        $this->sql = substr($this->sql, 0, -2);
+        // SQL: WHERE
+        $this->sql .= $this->Make_Where();
     }
 
     /**
@@ -238,7 +371,9 @@ class Query {
         }
         $this->sql .= " FROM {$this->table}";
 
-        // [TODO]: WHERE
+        // SQL: WHERE
+        $this->sql .= $this->Make_Where();
+
         // SQL: ORDER BY
         if (!empty($this->orders)) {
             $this->sql .= " ORDER BY";
@@ -265,19 +400,19 @@ class Query {
      */
     public function Make_Query(): string {
         switch ($this->operation) {
-            case Operation::CREATE:
+            case Statement::CREATE:
                 $this->Query_Create();
                 break;
-            case Operation::DELETE:
+            case Statement::DELETE:
                 $this->Query_Delete();
                 break;
-            case Operation::INSERT:
+            case Statement::INSERT:
                 $this->Query_Insert();
                 break;
-            case Operation::UPDATE:
+            case Statement::UPDATE:
                 $this->Query_Update();
                 break;
-            case Operation::SELECT:
+            case Statement::SELECT:
                 $this->Query_Select();
                 break;
         }

@@ -89,7 +89,12 @@ class Router {
         $controller = new $class_name();
         $controller->{$this->action}(...$this->data);
     }
-
+    
+    /**
+     * Returns current route {controller}/{action} without parameters.
+     * 
+     * @return string
+     */
     public static function Current(): string {
         return self::$current;
     }

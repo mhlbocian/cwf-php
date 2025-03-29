@@ -26,8 +26,8 @@ section {
     margin: 1em 0;
 }
 
-h3 {
-    padding: 1em 0;
+h2, h3, p, pre {
+    padding-bottom: 1em;
 }
 
 a {
@@ -40,10 +40,6 @@ td{
 
 ul {
     margin: 0.5em 2em;
-}
-
-p, pre {
-    margin-bottom: 0.5em;
 }
 
 #page-container{

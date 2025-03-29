@@ -26,7 +26,13 @@ class Connection {
     private ?string $password;
     private string $dsn;
     private PDO $pdo;
-
+    
+    /**
+     * Estabilish database connection. Fetches configuration from database.json.
+     * When $conn_name is null, loads "default" section
+     * 
+     * @param string $conn_name
+     */
     public function __construct(string $conn_name = "default") {
         $dbcfg = Config::Get($conn_name, "database");
         // both driver and database cannot be empty
@@ -43,18 +49,12 @@ class Connection {
         $this->pdo = new PDO($this->dsn, $this->username, $this->password);
     }
 
-    public function Query(Query $query): PDOStatement {
-        $prep = $this->pdo->prepare($query);
-
-        foreach ($query->Get_Params() as $id => $param) {
-            $prep->bindValue(":{$id}", $param);
-        }
-
-        $prep->execute();
-
-        return $prep;
-    }
-
+    /**
+     * Creates PDO 'dsn' for specific connection type
+     * 
+     * @return void
+     * @throws Exception
+     */
     private function Create_Dsn(): void {
         switch ($this->driver) {
             case "firebird":
@@ -67,5 +67,23 @@ class Connection {
             default:
                 throw new Exception("Unknown database driver: {$this->driver}");
         }
+    }
+
+    /**
+     * Executes query.
+     * 
+     * @param Query $query
+     * @return PDOStatement
+     */
+    public function Query(Query $query): PDOStatement {
+        $prep = $this->pdo->prepare($query);
+
+        foreach ($query->Params() as $id => $param) {
+            $prep->bindValue(":{$id}", $param);
+        }
+
+        $prep->execute();
+
+        return $prep;
     }
 }

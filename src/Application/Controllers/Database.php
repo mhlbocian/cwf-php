@@ -6,7 +6,7 @@ use Framework\Router;
 use Framework\View;
 use Framework\Database\Connection;
 use Framework\Database\Query;
-use Framework\Database\Operation;
+use Framework\Database\Statement;
 use Application\Models\Sitemap;
 
 class Database {
