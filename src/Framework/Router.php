@@ -4,7 +4,7 @@
  * CWF-PHP Framework
  * 
  * File: Router.php
- * Description: Framework\Router class
+ * Description: Router class
  * Author: Michał Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -19,13 +19,13 @@ class RouterException extends Exception {
 
 class Router {
 
-    private string $namespace;
-    private string $default_controller;
-    private string $default_action;
-    private string $controller;
-    private string $action;
-    private static string $current;
     private array $data = [];
+    private string $action;
+    private string $controller;
+    private string $default_action;
+    private string $default_controller;
+    private string $namespace;
+    private static string $current;
 
     /**
      * Parse route and prepares it for execution
@@ -67,7 +67,7 @@ class Router {
             }
         }
     }
-    
+
     /**
      * Parses route and executes it
      * 
@@ -78,20 +78,22 @@ class Router {
         $class_name = $this->namespace . "\\" . $this->controller;
 
         if (!class_exists($class_name)) {
-            throw new RouterException("Class {$class_name} does not exist");
+            throw new RouterException("Class '{$class_name}' does not exist");
         }
 
         if (!method_exists($class_name, $this->action)) {
-            throw new RouterException("Method {$this->action} does not exist");
+            throw new RouterException("Method '{$this->action}' does not "
+                            . "exist");
         }
 
         self::$current = "{$this->controller}/{$this->action}";
         $controller = new $class_name();
         $controller->{$this->action}(...$this->data);
     }
-    
+
     /**
-     * Returns current route {controller}/{action} without parameters.
+     * Returns current route {controller}/{action} without parameters. Aim to be
+     * used later in application code, to get current route.
      * 
      * @return string
      */

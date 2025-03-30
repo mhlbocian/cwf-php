@@ -4,7 +4,7 @@
  * CWF-PHP Framework
  * 
  * File: Config.php
- * Description: Framework\Config class
+ * Description: Config files management
  * Author: Michał Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -45,7 +45,7 @@ class Config {
         }
 
         if ($cfg != null && !self::Exists($cfg)) {
-            throw new Exception("Config file {$path} does not exist");
+            throw new Exception("Config file '{$path}' does not exist");
         }
 
         $cnt = file_get_contents($path);
@@ -104,28 +104,7 @@ class Config {
             return self::$rest_config[$cfg][$key];
         }
     }
-
-    /**
-     * Update local config file with current data
-     * 
-     * @param string $cfg
-     * @return void
-     */
-    public static function Update(string $cfg): void {
-        if (!isset(self::$rest_config[$cfg])) {
-            return; // nothing to do
-        }
-
-        $path = CFGDIR . DS . "{$cfg}.json";
-
-        if (!($fh = fopen($path, "w"))) {
-            throw new Exception("Cannot open file {$path}");
-        }
-
-        fwrite($fh, json_encode(self::$rest_config[$cfg]));
-        fclose($fh);
-    }
-
+    
     /**
      * Sets new data for local config file
      * 
@@ -144,5 +123,26 @@ class Config {
         }
 
         self::$rest_config[$cfg][$key] = $value;
+    }
+
+    /**
+     * Update local config file with current data
+     * 
+     * @param string $cfg
+     * @return void
+     */
+    public static function Update(string $cfg): void {
+        if (!isset(self::$rest_config[$cfg])) {
+            return; // nothing to do
+        }
+
+        $path = CFGDIR . DS . "{$cfg}.json";
+
+        if (!($fh = fopen($path, "w"))) {
+            throw new Exception("Cannot open file '{$path}'");
+        }
+
+        fwrite($fh, json_encode(self::$rest_config[$cfg]));
+        fclose($fh);
     }
 }

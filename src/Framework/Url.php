@@ -15,13 +15,12 @@ use Framework\Config;
 
 class Url {
 
-    // default values
-    private static string $protocol;
-    private static string $host;
-    private static int $port;
-    private static string $path;
-    private static string $index;
     private static bool $omit_index;
+    private static int $port;
+    private static string $host;
+    private static string $index;
+    private static string $path;
+    private static string $protocol;
 
     /**
      * Load values from config.json ("url" section)
@@ -30,7 +29,6 @@ class Url {
      */
     public static function Load_Config(): void {
         $cfg = Config::Get("url");
-
         self::$protocol = $cfg["protocol"];
         self::$host = $cfg["host"];
         self::$port = $cfg["port"];
@@ -54,6 +52,7 @@ class Url {
                 (self::$protocol == "https" && self::$port == 443))) {
             $url .= ":" . self::$port;
         }
+
         $url .= self::$path . $path;
 
         return $url;

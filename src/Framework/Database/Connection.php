@@ -4,7 +4,7 @@
  * CWF-PHP Framework
  * 
  * File: Connection.php
- * Description: Framework\Database\Connection class
+ * Description: Database connections class
  * Author: Michał Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -18,15 +18,15 @@ use Framework\Config;
 
 class Connection {
 
-    private string $driver;
+    private PDO $pdo;
     private string $database;
+    private string $driver;
+    private string $dsn;
     private string $host;
+    private ?string $password;
     private string $port;
     private ?string $username;
-    private ?string $password;
-    private string $dsn;
-    private PDO $pdo;
-    
+
     /**
      * Estabilish database connection. Fetches configuration from database.json.
      * When $conn_name is null, loads "default" section
@@ -43,7 +43,6 @@ class Connection {
         $this->port = $dbcfg["port"] ?? "";
         $this->username = $dbcfg["username"] ?? null;
         $this->password = $dbcfg["password"] ?? null;
-
         // create dsn and perform connection
         $this->Create_Dsn();
         $this->pdo = new PDO($this->dsn, $this->username, $this->password);

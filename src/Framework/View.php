@@ -17,8 +17,8 @@ class View {
 
     private const VIEWDIR = APPDIR . DS . "Views";
 
-    private string $view;
     private array $data = [];
+    private string $view;
 
     /**
      * Loads view
@@ -28,7 +28,8 @@ class View {
      */
     function __construct(string $view) {
         if (!file_exists(self::VIEWDIR . DS . "{$view}.php")) {
-            throw new Exception("View {$view} does not exist");
+
+            throw new Exception("View '{$view}' does not exist");
         }
 
         $this->view = $view;
@@ -54,10 +55,12 @@ class View {
     private function Render(): string {
         extract($this->data);
         ob_start();
+
         try {
             include self::VIEWDIR . DS . "{$this->view}.php";
         } catch (Exception $ex) {
             ob_end_clean();
+
             throw $ex;
         }
 

@@ -2,9 +2,9 @@
 
 /*
  * CWF-PHP Framework
- * 
+ *
  * File: Query.php
- * Description: Framework\Database\Query class
+ * Description: SQL query builder
  * Author: Michał Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -37,23 +37,23 @@ enum Operator: string {
 
 class Query {
 
-    private bool $distinct = false;
-    private bool $if_not_exists = false;
-    private ?int $limit = null;
-    private ?int $offset = null;
-    private int $val_count = 0;
-    private string $table;
-    private string $sql;
     private array $columns = [];
     private array $col_spec = [];
     private array $orders = [];
     private array $params = [];
     private array $where = [];
+    private bool $distinct = false;
+    private bool $if_not_exists = false;
+    private ?int $limit = null;
+    private ?int $offset = null;
+    private int $val_count = 0;
     private Statement $operation;
+    private string $table;
+    private string $sql;
 
     /**
      * Query constructor. Defines SQL operation
-     * 
+     *
      * @param Operation $operation
      */
     public function __construct(Statement $operation) {
@@ -62,27 +62,27 @@ class Query {
 
     /**
      * Returns parameters array for later bindings
-     * 
+     *
      * @return array
      */
     public function Params(): array {
-        $out = $this->params;
+        $params = $this->params;
 
         /*
          * walk through $where array, and join their values as parameters with
          * prefix 'w' (like :w0, :w1)
-         * 
+         *
          */
         foreach ($this->where as $id => $statement) {
-            $out["w{$id}"] = $statement["value"];
+            $params["w{$id}"] = $statement["value"];
         }
 
-        return $out;
+        return $params;
     }
 
     /**
      * Set columns and their types. Used in CREATE TABLE
-     * 
+     *
      * @param array $colspec
      * @return Query
      */
@@ -94,7 +94,7 @@ class Query {
 
     /**
      * Set columns
-     * 
+     *
      * @param string $columns
      * @return Query
      */
@@ -106,7 +106,7 @@ class Query {
 
     /**
      * If invoked, add DISTINCT keyword to SELECT operation
-     * 
+     *
      * @return Query
      */
     public function Distinct(): Query {
@@ -127,7 +127,7 @@ class Query {
 
     /**
      * Set LIMIT
-     * 
+     *
      * @param int $limit
      * @return Query
      */
@@ -139,7 +139,7 @@ class Query {
 
     /**
      * Set OFFSET
-     * 
+     *
      * @param int $offset
      * @return Query
      */
@@ -157,7 +157,7 @@ class Query {
 
     /**
      * Set table for query
-     * 
+     *
      * @param string $table
      * @return Query
      */
@@ -168,7 +168,8 @@ class Query {
     }
 
     /**
-     * 
+     * WHERE statement
+     *
      * @param string $column
      * @param Operator $op
      * @param mixed $value
@@ -190,7 +191,8 @@ class Query {
     }
 
     /**
-     * 
+     * AND statement, used after WHERE
+     *
      * @param string $column
      * @param Operator $op
      * @param mixed $value
@@ -212,7 +214,8 @@ class Query {
     }
 
     /**
-     * 
+     * OR statement, used after WHERE
+     *
      * @param string $column
      * @param Operator $op
      * @param mixed $value
@@ -237,7 +240,7 @@ class Query {
      * Add values to INSERT INTO operation. Can be invoked for each column
      * separately or with multiple parameters for more columns.
      * In the sum, the count of columns and values must be equal and non-zero
-     * 
+     *
      * @param mixed $values
      * @return Query
      */
@@ -254,7 +257,7 @@ class Query {
     /**
      * Helper function to check the number of specified columns and values.
      * Must be equal and non-zero
-     * 
+     *
      * @return void
      * @throws Exception
      */
@@ -269,31 +272,31 @@ class Query {
             return "";
         }
 
-        $where = " WHERE ";
+        $output = " WHERE ";
 
         foreach ($this->where as $id => $statement) {
             if (isset($statement["before"])) {
-                $where .= $statement["before"] . " ";
+                $output .= $statement["before"] . " ";
             }
 
-            $where .= $statement["column"] . " ";
-            $where .= ($statement["operator"])->value . " ";
-            $where .= ":w{$id} ";
+            $output .= $statement["column"] . " ";
+            $output .= ($statement["operator"])->value . " ";
+            $output .= ":w{$id} ";
         }
 
-        return substr($where, 0, -1);
+        return substr($output, 0, -1);
     }
 
     /**
      * Makes SQL query for CREATE TABLE operation
-     * 
+     *
      * @return void
      */
     private function Query_Create(): void {
         if (empty($this->col_spec)) {
             throw new Exception("Empty column(s) specification");
         }
-
+        // SQL: OPERATION HEADER
         $this->sql = "CREATE TABLE";
 
         if ($this->if_not_exists) {
@@ -301,20 +304,20 @@ class Query {
         }
 
         $this->sql .= " {$this->table} (";
-
+        // SQL: COLUMN SPECIFICATION
         foreach ($this->col_spec as $col) {
             $this->sql .= "{$col[0]} {$col[1]}, ";
         }
-
         $this->sql = substr($this->sql, 0, -2) . ")";
     }
 
     /**
      * Makes SQL query for DELETE operation
-     * 
+     *
      * @return void
      */
     private function Query_Delete(): void {
+        // SQL: OPERATION HEADER
         $this->sql = "DELETE FROM {$this->table}";
         // SQL: WHERE
         $this->sql .= $this->Make_Where();
@@ -322,12 +325,12 @@ class Query {
 
     /**
      * Makes SQL query for INSERT INTO operation
-     * 
+     *
      * @return void
      */
     private function Query_Insert(): void {
         $this->Check_ColVal();
-
+        // SQL: OPERATION HEADER
         $this->sql = "INSERT INTO {$this->table} (";
         $this->sql .= implode(", ", $this->columns);
         $this->sql .= ") VALUES (";
@@ -341,12 +344,12 @@ class Query {
 
     /**
      * Makes SQL query for UPDATE operation
-     * 
+     *
      * @return void
      */
     private function Query_Update(): void {
         $this->Check_ColVal();
-
+        // SQL: OPERATION HEADER
         $this->sql = "UPDATE {$this->table} SET ";
 
         foreach (array_keys($this->params) as $id) {
@@ -363,23 +366,26 @@ class Query {
      * @return void
      */
     private function Query_Select(): void {
+        // SQL: OPERATION HEADER
         $this->sql = "SELECT " . (($this->distinct) ? "DISTINCT " : "");
+
         if (empty($this->columns)) {
             $this->sql .= "*";
         } else {
             $this->sql .= implode(", ", $this->columns);
         }
-        $this->sql .= " FROM {$this->table}";
 
+        $this->sql .= " FROM {$this->table}";
         // SQL: WHERE
         $this->sql .= $this->Make_Where();
-
         // SQL: ORDER BY
         if (!empty($this->orders)) {
             $this->sql .= " ORDER BY";
+
             foreach ($this->orders as $order) {
                 $this->sql .= " {$order[0]} {$order[1]},";
             }
+
             $this->sql = substr($this->sql, 0, -1);
         }
         // SQL: LIMIT
@@ -394,11 +400,12 @@ class Query {
 
     /**
      * Returns generated query
-     * 
+     *
      * @return string
      * @throws Exception
      */
-    public function Make_Query(): string {
+    private function Make_Query(): string {
+        // DETERMINE OPERATION
         switch ($this->operation) {
             case Statement::CREATE:
                 $this->Query_Create();
