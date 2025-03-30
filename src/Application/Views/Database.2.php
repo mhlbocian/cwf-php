@@ -9,6 +9,7 @@ $cfg = Config::Fetch("database");
     <?php foreach ($cfg as $conn_name => $conn_params): ?>
         <li><?= $conn_name ?>
             (<?php foreach ($conn_params as $param => $value): ?>
+                <?php if ($param == "password") continue; ?>
                 <?= $param ?>: <i><?= $value ?></i>
             <?php endforeach; ?>)</li>
     <?php endforeach; ?>

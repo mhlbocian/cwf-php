@@ -19,7 +19,7 @@ $code = <<<'HERE'
 <?php
 use Framework\Config;
 
-Config::Set("key1", "example", "new_config");
+Config::Set("key1", "example", "test_config");
 Config::Set("key2", ["array", "test"=>"example"], "test_config");
 Config::Update("test_config");
 HERE;

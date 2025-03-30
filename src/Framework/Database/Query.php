@@ -117,6 +117,7 @@ class Query {
 
     /**
      * If invoked, add IF NOT EXISTS keyword to CREATE TABLE operation
+     * 
      * @return Query
      */
     public function IfNotExists(): Query {

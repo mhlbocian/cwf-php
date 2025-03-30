@@ -4,7 +4,7 @@
  * CWF-PHP Framework
  * 
  * File: Url.php
- * Description: Framework\Url class
+ * Description: Class for actions on URLs
  * Author: Michał Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -38,13 +38,13 @@ class Url {
     }
 
     /**
-     * Method for creating URLs for local resources in docroot, like css,
-     * images etc.
+     * Method for creating URLs for sites and local resources.
+     * To access local resource, set $site to false
      * 
      * @param string $path Path to resource in docroot
      * @return string Full URL
      */
-    public static function Local(string $path = ""): string {
+    public static function Site(string $path = "", bool $site = true): string {
         $url = self::$protocol . "://";
         $url .= self::$host;
         // omit port number if is protocol's default
@@ -53,27 +53,26 @@ class Url {
             $url .= ":" . self::$port;
         }
 
-        $url .= self::$path . $path;
+        $url .= self::$path;
+
+        if ($site && !self::$omit_index) {
+            $url .= self::$index . "/";
+        }
+
+        $url .= $path;
 
         return $url;
     }
 
     /**
-     * Like "Local" method, but for creating urls for actions (check if
-     * "index.php" ('index' in url config) must be included in address)
+     * Redirects to specified page or resource (when $site is false)
      * 
-     * @param string $site
-     * @return string Full URL to Controller/Action/[params]...
+     * @param string $path
+     * @param bool $site
+     * @return void
      */
-    public static function Site(string $site): string {
-        $url = self::Local();
-
-        if (!self::$omit_index) {
-            $url .= self::$index . "/";
-        }
-
-        $url .= $site;
-
-        return $url;
+    public static function Redirect(string $path = "", bool $site = true): void {
+        header("Location: " . self::Site($path, $site));
+        exit();
     }
 }

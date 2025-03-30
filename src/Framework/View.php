@@ -4,7 +4,7 @@
  * CWF-PHP Framework
  * 
  * File: View.php
- * Description: Framework\View class
+ * Description: Views support
  * Author: Michał Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */

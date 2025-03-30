@@ -15,6 +15,6 @@
         "port": 8000,
         "path": "/",
         "index": "index.php",
-        "omit_index": true
+        "omit_index": false
     }
 }

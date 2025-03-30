@@ -2,5 +2,13 @@
     "default" : {
         "driver": "sqlite",
         "database": "default.db"
+    },
+    "connection_1": {
+        "driver": "mysql",
+        "database": "db_name",
+        "host": "localhost",
+        "port": 5432,
+        "username": "user",
+        "password": "secret"
     }
 }

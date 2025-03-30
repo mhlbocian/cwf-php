@@ -20,12 +20,13 @@ class Connection {
 
     private PDO $pdo;
     private string $database;
-    private string $driver;
     private string $dsn;
     private string $host;
     private ?string $password;
     private string $port;
     private ?string $username;
+    public readonly string $conn_name;
+    public readonly string $driver;
 
     /**
      * Estabilish database connection. Fetches configuration from database.json.
@@ -35,6 +36,7 @@ class Connection {
      */
     public function __construct(string $conn_name = "default") {
         $dbcfg = Config::Get($conn_name, "database");
+        $this->conn_name = $conn_name;
         // both driver and database cannot be empty
         $this->driver = $dbcfg["driver"];
         $this->database = $dbcfg["database"];
@@ -57,14 +59,21 @@ class Connection {
     private function Create_Dsn(): void {
         switch ($this->driver) {
             case "firebird":
+                throw new Exception("Firebird is not supported.");
+                break;
             case "mysql":
+                $this->dsn = "mysql:host={$this->host};"
+                        . "dbname={$this->database}";
+                break;
             case "pgsql":
-                throw new Exception("Unimplemented database driver");
+                throw new Exception("PostgreSQL is not supported");
+                break;
             case "sqlite":
                 $this->dsn = "sqlite:" . DATADIR . DS . $this->database;
                 break;
             default:
-                throw new Exception("Unknown database driver: {$this->driver}");
+                throw new Exception("Invalid database driver '{$this->driver}'");
+                break;
         }
     }
 

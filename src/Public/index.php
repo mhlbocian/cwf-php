@@ -12,6 +12,7 @@
 use Framework\Config;
 use Framework\Router;
 use Framework\RouterException;
+use Framework\Url;
 
 require_once '../bootstrap.php';
 
@@ -24,6 +25,5 @@ try {
     $router->Execute();
 } catch (RouterException $ex) {
     // action for invalid route
-    header("Location: /");
-    exit();
+    Url::Redirect();
 }
