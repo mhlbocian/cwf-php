@@ -61,7 +61,7 @@ class Query {
     }
 
     /**
-     * Returns parameters array for later bindings
+     * Return parameters array for later bindings
      *
      * @return array
      */
@@ -268,6 +268,11 @@ class Query {
         }
     }
 
+    /**
+     * Make WHERE statement
+     * 
+     * @return string
+     */
     private function Make_Where(): string {
         if (empty($this->where)) {
             return "";
@@ -289,7 +294,7 @@ class Query {
     }
 
     /**
-     * Makes SQL query for CREATE TABLE operation
+     * Make SQL query for CREATE TABLE operation
      *
      * @return void
      */
@@ -313,7 +318,7 @@ class Query {
     }
 
     /**
-     * Makes SQL query for DELETE operation
+     * Make SQL query for DELETE operation
      *
      * @return void
      */
@@ -325,7 +330,7 @@ class Query {
     }
 
     /**
-     * Makes SQL query for INSERT INTO operation
+     * Make SQL query for INSERT INTO operation
      *
      * @return void
      */
@@ -344,7 +349,7 @@ class Query {
     }
 
     /**
-     * Makes SQL query for UPDATE operation
+     * Make SQL query for UPDATE operation
      *
      * @return void
      */
@@ -363,7 +368,7 @@ class Query {
     }
 
     /**
-     * Makes SQL query for SELECT operation
+     * Make SQL query for SELECT operation
      * @return void
      */
     private function Query_Select(): void {
@@ -400,7 +405,7 @@ class Query {
     }
 
     /**
-     * Returns generated query
+     * Return generated query
      *
      * @return string
      * @throws Exception

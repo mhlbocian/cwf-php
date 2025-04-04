@@ -29,7 +29,7 @@ class Config {
     }
 
     /**
-     * Loads configuration file contents.
+     * Load configuration file contents.
      * 
      * If main config file (config.json) load it to $main_config, else for
      * other config file load it to $rest_config
@@ -58,8 +58,8 @@ class Config {
     }
 
     /**
-     * Helper function for Fetch/Get. Checks if config file is already loaded.
-     * If not, loads it.
+     * Helper function for Fetch/Get. Check, if config file is already loaded.
+     * If not, load it.
      * 
      * @param string|null $cfg
      * @return void
@@ -89,7 +89,7 @@ class Config {
     }
 
     /**
-     * Gets a value from configuration file
+     * Get a value from configuration file
      * 
      * @param string $key Key from configuration
      * @param string|null $cfg Configuration file
@@ -106,7 +106,7 @@ class Config {
     }
     
     /**
-     * Sets new data for local config file
+     * Set a new data for local config file
      * 
      * @param string $key
      * @param mixed $value

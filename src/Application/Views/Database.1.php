@@ -44,14 +44,3 @@ HERE;
     highlight_string($code);
     ?>
 </p>
-<?php
-use Framework\Database\Query;
-use Framework\Database\Statement;
-
-$query = (new Query(Statement::UPDATE))
-        ->Table("my_table")
-        ->Columns("col1", "col2", "col3")
-        ->Values("value1")
-        ->Values("value2", "value3");
-
-echo $query;

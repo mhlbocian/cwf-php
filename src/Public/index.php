@@ -11,7 +11,7 @@
 
 use Framework\Config;
 use Framework\Router;
-use Framework\RouterException;
+use Framework\Invalid_Route;
 use Framework\Url;
 
 require_once '../bootstrap.php';
@@ -23,7 +23,7 @@ $router = new Router($_SERVER["PATH_INFO"] ?? null);
 
 try {
     $router->Execute();
-} catch (RouterException $ex) {
+} catch (Invalid_Route $ex) {
     // action for invalid route
     Url::Redirect();
 }

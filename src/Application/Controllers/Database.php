@@ -4,9 +4,6 @@ namespace Application\Controllers;
 
 use Framework\Router;
 use Framework\View;
-use Framework\Database\Connection;
-use Framework\Database\Query;
-use Framework\Database\Statement;
 use Application\Models\Sitemap;
 
 class Database {
@@ -15,16 +12,17 @@ class Database {
 
     public function __construct() {
         $this->main = new View("Main");
-        $this->main->Bind("menu", Sitemap::Menu(Router::Current()));
-        $this->main->Bind("title", Sitemap::Title(Router::Current()));
+        $this->main->Bind("menu", Sitemap::Menu(Router::Get_Route()));
+        $this->main->Bind("title", Sitemap::Title(Router::Get_Route()));
     }
 
-    public function Index(...$args): void {
+    public function Index(): void {
         $view = new View("Database.Index");
+        $page = Router::Get_Params()[0] ?? null;
 
-        switch (in_array($args[0] ?? 0, range(1, 3))) {
+        switch (in_array($page, range(1, 3))) {
             case true:
-                $view->Bind("subpage", new View("Database.{$args[0]}"));
+                $view->Bind("subpage", new View("Database.{$page}"));
                 break;
             default:
                 $view->Bind("subpage", "");

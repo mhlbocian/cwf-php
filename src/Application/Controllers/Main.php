@@ -12,21 +12,21 @@ class Main {
 
     public function __construct() {
         $this->main = new View("Main");
-        $this->main->Bind("menu", Sitemap::Menu(Router::Current()));
-        $this->main->Bind("title", Sitemap::Title(Router::Current()));
+        $this->main->Bind("menu", Sitemap::Menu(Router::Get_Route()));
+        $this->main->Bind("title", Sitemap::Title(Router::Get_Route()));
     }
 
-    public function Index(...$args): void {
+    public function Index(): void {
         $view = new View("Main.Index");
         $this->main->Bind("content", $view);
     }
 
-    public function About(...$args): void {
+    public function About(): void {
         $view = new View("Main.About");
         $this->main->Bind("content", $view);
     }
 
-    public function Examples(...$args): void {
+    public function Examples(): void {
         $view = new View("Main.Examples");
         $this->main->Bind("content", $view);
     }

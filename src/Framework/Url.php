@@ -65,7 +65,7 @@ class Url {
     }
 
     /**
-     * Redirects to specified page or resource (when $site is false)
+     * Redirect to specified page or resource (when $site is false)
      * 
      * @param string $path
      * @param bool $site

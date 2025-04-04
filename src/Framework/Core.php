@@ -39,7 +39,7 @@ class Core {
     }
 
     /**
-     * Checks directory write permission
+     * Check directories write permission
      * 
      * @param array $dirs
      * @return void
@@ -53,6 +53,12 @@ class Core {
         }
     }
 
+    /**
+     * Check required PHP version and modules
+     * 
+     * @return void
+     * @throws Error
+     */
     private static function Check_PHP_Env(): void {
         if (!version_compare(PHP_VERSION, self::$php_min_ver, ">=")) {
             throw new Error("PHP version '" . PHP_VERSION . "' is older "

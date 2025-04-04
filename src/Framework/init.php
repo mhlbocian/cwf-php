@@ -13,7 +13,7 @@ if (!defined("APPDIR"))
     die();
 
 /**
- * Returns contents of file in "ROOTDIR/Static" directory.
+ * Return contents of file in "ROOTDIR/Static" directory.
  * 
  * @param string $filename
  * @return string
@@ -100,7 +100,7 @@ function app_exception_handler(Throwable $ex): void {
 }
 
 /**
- * The core of the CWF-PHP functionality: autoloader function.
+ * The core of the CWF-PHP: autoloader function
  * 
  * @param string $class
  * @return void

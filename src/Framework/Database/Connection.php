@@ -29,7 +29,7 @@ class Connection {
     public readonly string $driver;
 
     /**
-     * Estabilish database connection. Fetches configuration from database.json.
+     * Establish database connection. Fetches configuration from database.json.
      * When $conn_name is null, loads "default" section
      * 
      * @param string $conn_name
@@ -51,7 +51,7 @@ class Connection {
     }
 
     /**
-     * Creates PDO 'dsn' for specific connection type
+     * Create PDO 'dsn' for specific connection type
      * 
      * @return void
      * @throws Exception
@@ -78,7 +78,7 @@ class Connection {
     }
 
     /**
-     * Executes query.
+     * Execute query.
      * 
      * @param Query $query
      * @return PDOStatement

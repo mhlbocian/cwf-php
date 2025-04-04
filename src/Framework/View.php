@@ -21,7 +21,7 @@ class View {
     private string $view;
 
     /**
-     * Loads view
+     * Load view
      * 
      * @param string $view
      * @throws Exception
@@ -36,7 +36,7 @@ class View {
     }
 
     /**
-     * Binds variables to view
+     * Bind variable to view
      * 
      * @param string $var
      * @param mixed $val
@@ -47,7 +47,7 @@ class View {
     }
 
     /**
-     * Renders view
+     * Render view
      * 
      * @return string
      * @throws Exception
