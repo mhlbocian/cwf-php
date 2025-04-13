@@ -8,10 +8,6 @@ Config::Get("sample_key", "sample");
 CODE;
 highlight_string($example);
 ?>
-<p>
-    Result: <code><?= Framework\Config::Get("sample_key", "sample"); ?></code>.
-    Change the <code>Config/sample.json</code> file to see changes here.
-</p>
 
 <h3>Creating new config files</h3>
 <?php

@@ -8,6 +8,6 @@ CWF-PHP Framework
 * Web server (tested on PHP development server)
 
 ## Run
-Copy the whole contents of this directory in the directory which is accessible
-for web server. Make sure, that "Config" and "Data" directories are writeable.
-Set DOCROOT to "Public" directory.
+Copy the whole contents of this directory into directory with right permissions
+for the web server. Make sure, that "Config" and "Data" directories are
+writeable. Set DOCROOT to the "Public" directory.

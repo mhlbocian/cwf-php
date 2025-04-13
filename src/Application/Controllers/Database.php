@@ -18,7 +18,7 @@ class Database {
 
     public function Index(): void {
         $view = new View("Database.Index");
-        $page = Router::Get_Params()[0] ?? null;
+        $page = Router::Get_Args()[0] ?? null;
 
         switch (in_array($page, range(1, 3))) {
             case true:

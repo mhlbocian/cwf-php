@@ -17,12 +17,14 @@ define("DATADIR", ROOTDIR . DS . "Data");
 // initialize basic functions and handlers
 require_once ROOTDIR . DS . "Framework" . DS . "init.php";
 
+use Framework\Auth;
 use Framework\Config;
 use Framework\Core;
 use Framework\Url;
 
 // configure core classes
 Core::Check_Env();
+Auth::Load_Config();
 Url::Load_Config();
 // initialize application info constants
 define("APPNAME", Config::Get("application")["name"]);

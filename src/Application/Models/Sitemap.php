@@ -10,7 +10,8 @@ class Sitemap {
         "Main" => [
             "Index" => "Main page",
             "About" => "About project",
-            "Examples" => "Code Examples"
+            "Examples" => "Code Examples",
+            "Auth" => "Authentication"
         ],
         "Database" => [
             "Index" => "Database support"

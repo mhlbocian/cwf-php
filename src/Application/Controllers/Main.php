@@ -30,6 +30,11 @@ class Main {
         $view = new View("Main.Examples");
         $this->main->Bind("content", $view);
     }
+    
+    public function Auth(): void {
+        $view = new View("Main.Auth");
+        $this->main->Bind("content", $view);
+    }
 
     public function __destruct() {
         echo $this->main;

@@ -38,7 +38,7 @@ class Connection {
         $dbcfg = Config::Get($conn_name, "database");
         $this->conn_name = $conn_name;
         // both driver and database cannot be empty
-        $this->driver = $dbcfg["driver"];
+        $this->driver = strtolower($dbcfg["driver"]);
         $this->database = $dbcfg["database"];
         // other fields depends on database driver
         $this->host = $dbcfg["host"] ?? "";
@@ -59,21 +59,18 @@ class Connection {
     private function Create_Dsn(): void {
         switch ($this->driver) {
             case "firebird":
-                throw new Exception("Firebird is not supported.");
-                break;
+                throw new Exception("DBCONN: Firebird is not supported");
             case "mysql":
                 $this->dsn = "mysql:host={$this->host};"
                         . "dbname={$this->database}";
                 break;
             case "pgsql":
-                throw new Exception("PostgreSQL is not supported");
-                break;
+                throw new Exception("DBCONN: PostgreSQL is not supported");
             case "sqlite":
                 $this->dsn = "sqlite:" . DATADIR . DS . $this->database;
                 break;
             default:
-                throw new Exception("Invalid database driver '{$this->driver}'");
-                break;
+                throw new Exception("DBCONN: unknown driver '{$this->driver}'");
         }
     }
 

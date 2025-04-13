@@ -21,11 +21,11 @@ class Router {
 
     private string $action;
     private string $controller;
-    private string $class;
+    private string $class_fqn;
     private string $default_action;
     private string $default_controller;
     private string $namespace;
-    private static array $params = [];
+    private static array $args = [];
     private static string $route = "";
 
     /**
@@ -39,8 +39,6 @@ class Router {
         $this->default_action = Config::Get("router")["default_action"];
 
         $this->Parse_Route($route);
-
-        $this->class = $this->namespace . "\\" . $this->controller;
     }
 
     /**
@@ -49,12 +47,12 @@ class Router {
      * @return void
      */
     private function Check_Requirements(): void {
-        if (!class_exists($this->class)) {
-            throw new Invalid_Route("Class '{$this->class}' does not exist");
+        if (!class_exists($this->class_fqn)) {
+            throw new Invalid_Route("ROUTER: class '{$this->class_fqn}' does not exist");
         }
 
-        if (!method_exists($this->class, $this->action)) {
-            throw new Invalid_Route("Method '{$this->action}' does not exist");
+        if (!method_exists($this->class_fqn, $this->action)) {
+            throw new Invalid_Route("ROUTER: method '{$this->action}' does not exist");
         }
     }
 
@@ -65,7 +63,7 @@ class Router {
      * @return void
      */
     private function Parse_Route(?string $route): void {
-        if ($route == null) {
+        if ($route == null || $route == "/") {
             $this->controller = $this->default_controller;
             $this->action = $this->default_action;
         } else {
@@ -91,10 +89,11 @@ class Router {
             }
 
             if (count($path_array) > 2 && $path_array[2] != "") {
-                self::$params = array_slice($path_array, 2);
+                self::$args = array_slice($path_array, 2);
             }
         }
 
+        $this->class_fqn = $this->namespace . "\\" . $this->controller;
         self::$route = "{$this->controller}/{$this->action}";
     }
 
@@ -107,23 +106,23 @@ class Router {
     public function Execute(): void {
         $this->Check_Requirements();
 
-        $ctrl_object = new $this->class();
+        $ctrl_object = new $this->class_fqn();
         $ctrl_object->{$this->action}();
     }
 
     /**
      * Return parameters array
-     * URL: {Controller}/{Action}[/Par1[/[Par2]...]]
+     * URL: {Controller}/{Action}[/Arg1[/[Arg2]...]]
      * 
      * @return array
      */
-    public static function Get_Params(): array {
+    public static function Get_Args(): array {
 
-        return self::$params;
+        return self::$args;
     }
 
     /**
-     * Return current route {controller}/{action} without parameters
+     * Return current route '{controller}/{action}' string
      * 
      * @return string
      */

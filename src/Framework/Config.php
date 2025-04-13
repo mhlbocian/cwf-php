@@ -45,7 +45,7 @@ class Config {
         }
 
         if ($cfg != null && !self::Exists($cfg)) {
-            throw new Exception("Config file '{$path}' does not exist");
+            throw new Exception("CONFIG: file '{$path}' does not exist");
         }
 
         $cnt = file_get_contents($path);
@@ -139,7 +139,7 @@ class Config {
         $path = CFGDIR . DS . "{$cfg}.json";
 
         if (!($fh = fopen($path, "w"))) {
-            throw new Exception("Cannot open file '{$path}'");
+            throw new Exception("CONFIG: cannot open file '{$path}'");
         }
 
         fwrite($fh, json_encode(self::$rest_config[$cfg]));

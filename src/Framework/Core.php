@@ -48,7 +48,7 @@ class Core {
     private static function Check_Dir_Perms(): void {
         foreach (self::$dirs_array as $dir) {
             if (!is_writable($dir)) {
-                throw new Error("Directory '{$dir}' is not writable.");
+                throw new Error("CORE: directory '{$dir}' is not writable");
             }
         }
     }
@@ -61,15 +61,13 @@ class Core {
      */
     private static function Check_PHP_Env(): void {
         if (!version_compare(PHP_VERSION, self::$php_min_ver, ">=")) {
-            throw new Error("PHP version '" . PHP_VERSION . "' is older "
-                            . "than required version '" . self::$php_min_ver
-                            . "'");
+            throw new Error("CORE: PHP version '" . PHP_VERSION . "' is older than required version "
+                            . "'" . self::$php_min_ver . "'");
         }
 
         foreach (self::$php_req_mods as $module) {
             if (!extension_loaded($module)) {
-                throw new Error("Required PHP extension '{$module}' is not "
-                                . "loaded");
+                throw new Error("CORE: required PHP extension '{$module}' is not loaded");
             }
         }
     }

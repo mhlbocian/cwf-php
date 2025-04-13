@@ -22,7 +22,7 @@ if (!defined("APPDIR"))
 function static_getfile(string $filename): string {
     if (!file_exists($path = ROOTDIR . DS . "Static" . DS . "{$filename}")) {
 
-        throw new Error("Static file '{$path}' does not exist");
+        throw new Error("CORE: static file '{$path}' does not exist");
     }
 
     return file_get_contents($path);

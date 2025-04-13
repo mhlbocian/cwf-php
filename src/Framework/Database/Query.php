@@ -39,6 +39,7 @@ class Query {
 
     private array $columns = [];
     private array $col_spec = [];
+    private array $constraints = [];
     private array $orders = [];
     private array $params = [];
     private array $where = [];
@@ -81,13 +82,48 @@ class Query {
     }
 
     /**
-     * Set columns and their types. Used in CREATE TABLE
+     * CREATE TABLE: Set columns and their types
      *
      * @param array $colspec
      * @return Query
      */
     public function Colspec(string $name, string $type): Query {
-        $this->col_spec[] = [$name, $type];
+        $this->col_spec[$name] = $type;
+
+        return $this;
+    }
+
+    /**
+     * CREATE TABLE: Set Foregin Key
+     * 
+     * @param string $column
+     * @param string $reference
+     * @return Query
+     * @throws Exception
+     */
+    public function ForeginKey(string $column, string $reference): Query {
+        if (!key_exists($column, $this->col_spec)) {
+            throw new Exception("QUERY: unknown PRIMARY KEY column");
+        }
+
+        $this->constraints["foreign_key"][$column] = $reference;
+
+        return $this;
+    }
+
+    /**
+     * CREATE TABLE: Set Primary Key
+     * 
+     * @param string $column
+     * @return Query
+     * @throws Exception
+     */
+    public function PrimaryKey(string $column): Query {
+        if (!key_exists($column, $this->col_spec)) {
+            throw new Exception("QUERY: invalid PRIMARY KEY column");
+        }
+
+        $this->constraints["primary_key"] = $column;
 
         return $this;
     }
@@ -179,7 +215,7 @@ class Query {
      */
     public function Where(string $column, Operator $op, mixed $value): Query {
         if (!empty($this->where)) {
-            throw new Exception("'Where' method can be invoked only once");
+            throw new Exception("QUERY: 'Where' method can be invoked only once");
         }
 
         $this->where[] = [
@@ -201,7 +237,7 @@ class Query {
      */
     public function And(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
-            throw new Exception("'And' method must be invoked after 'Where'");
+            throw new Exception("QUERY: 'And' method must be invoked after 'Where'");
         }
 
         $this->where[] = [
@@ -224,7 +260,7 @@ class Query {
      */
     public function Or(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
-            throw new Exception("'Or' method must be invoked after 'Where'");
+            throw new Exception("QUERY: 'Or' method must be invoked after 'Where'");
         }
 
         $this->where[] = [
@@ -264,7 +300,7 @@ class Query {
      */
     private function Check_ColVal(): void {
         if (count($this->columns) != $this->val_count || !$this->val_count) {
-            throw new Exception("Column(s) and value(s) count mismatch");
+            throw new Exception("QUERY: column(s) and value(s) count mismatch or zero");
         }
     }
 
@@ -285,9 +321,9 @@ class Query {
                 $output .= $statement["before"] . " ";
             }
 
-            $output .= $statement["column"] . " ";
-            $output .= ($statement["operator"])->value . " ";
-            $output .= ":w{$id} ";
+            $output .= "`{$statement["column"]}` ";
+            $output .= ($statement["operator"])->value;
+            $output .= " :w{$id} ";
         }
 
         return substr($output, 0, -1);
@@ -300,7 +336,7 @@ class Query {
      */
     private function Query_Create(): void {
         if (empty($this->col_spec)) {
-            throw new Exception("Empty column(s) specification");
+            throw new Exception("QUERY: empty column(s) specification");
         }
         // SQL: OPERATION HEADER
         $this->sql = "CREATE TABLE";
@@ -309,11 +345,20 @@ class Query {
             $this->sql .= " IF NOT EXISTS";
         }
 
-        $this->sql .= " {$this->table} (";
+        $this->sql .= " `{$this->table}` (";
         // SQL: COLUMN SPECIFICATION
-        foreach ($this->col_spec as $col) {
-            $this->sql .= "{$col[0]} {$col[1]}, ";
+        foreach ($this->col_spec as $col => $type) {
+            $this->sql .= "`{$col}` {$type}, ";
         }
+        // SQL: PRIMARY KEY
+        if (isset($this->constraints["primary_key"])) {
+            $this->sql .= "PRIMARY KEY (`{$this->constraints["primary_key"]}`), ";
+        }
+        // SQL: FOREIGN KEYS
+        foreach ($this->constraints["foreign_key"] ?? [] as $key => $ref) {
+            $this->sql .= "FOREIGN KEY (`{$key}`) REFERENCES `{$ref}`, ";
+        }
+
         $this->sql = substr($this->sql, 0, -2) . ")";
     }
 
@@ -324,7 +369,7 @@ class Query {
      */
     private function Query_Delete(): void {
         // SQL: OPERATION HEADER
-        $this->sql = "DELETE FROM {$this->table}";
+        $this->sql = "DELETE FROM `{$this->table}`";
         // SQL: WHERE
         $this->sql .= $this->Make_Where();
     }
@@ -337,9 +382,9 @@ class Query {
     private function Query_Insert(): void {
         $this->Check_ColVal();
         // SQL: OPERATION HEADER
-        $this->sql = "INSERT INTO {$this->table} (";
-        $this->sql .= implode(", ", $this->columns);
-        $this->sql .= ") VALUES (";
+        $this->sql = "INSERT INTO `{$this->table}` ('";
+        $this->sql .= implode("`, `", $this->columns);
+        $this->sql .= "`) VALUES (";
 
         foreach (array_keys($this->params) as $id) {
             $this->sql .= ":{$id}, ";
@@ -356,10 +401,10 @@ class Query {
     private function Query_Update(): void {
         $this->Check_ColVal();
         // SQL: OPERATION HEADER
-        $this->sql = "UPDATE {$this->table} SET ";
+        $this->sql = "UPDATE `{$this->table}` SET ";
 
         foreach (array_keys($this->params) as $id) {
-            $this->sql .= "{$this->columns[$id]} = :{$id}, ";
+            $this->sql .= "`{$this->columns[$id]}` = :{$id}, ";
         }
 
         $this->sql = substr($this->sql, 0, -2);
@@ -378,10 +423,10 @@ class Query {
         if (empty($this->columns)) {
             $this->sql .= "*";
         } else {
-            $this->sql .= implode(", ", $this->columns);
+            $this->sql .= "`" . implode("`, `", $this->columns) . "`";
         }
 
-        $this->sql .= " FROM {$this->table}";
+        $this->sql .= " FROM `{$this->table}`";
         // SQL: WHERE
         $this->sql .= $this->Make_Where();
         // SQL: ORDER BY
@@ -389,7 +434,7 @@ class Query {
             $this->sql .= " ORDER BY";
 
             foreach ($this->orders as $order) {
-                $this->sql .= " {$order[0]} {$order[1]},";
+                $this->sql .= " `{$order[0]}` {$order[1]},";
             }
 
             $this->sql = substr($this->sql, 0, -1);
