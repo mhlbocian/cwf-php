@@ -2,17 +2,68 @@
 
 namespace Application\Controllers;
 
+use Framework\Auth;
+use Framework\Url;
+use Framework\Router;
+use Framework\Database\{
+    Connection,
+    Query,
+    Statement
+};
+
 class Authenticate {
 
-    private \Framework\Database\Connection $conn;
+    private Connection $conn;
 
     public function __construct() {
-        $this->conn = new \Framework\Database\Connection();
+        $this->conn = new Connection();
+        $sites = [
+            "CreateSchema" => "Create schema for default config",
+            "AddUser" => "Add user",
+            "AddGroup" => "Add group",
+            "Auth" => "Authenticate user",
+            "Exists" => "Check existance of user or group"
+        ];
+
+        echo "<!doctype html><html><head><meta charset=\"utf-8\"/>";
+        echo "<link rel=\"stylesheet\" href=\"" . Url::Site("css/style.css", false) . "\"/>";
+        echo "<title>Authentication framework test suite</title></head>";
+        echo "<div id=\"page-container\">";
+        echo "<h1>Auth library tests</h1>";
+        echo "<ul>";
+
+        foreach ($sites as $site => $desc) {
+            echo "<li><a href=\"" . Url::Site("Authenticate/" . $site) . "\">{$desc}</a></li>";
+        }
+
+        echo "</ul>";
+        echo "<p>Sample use: ";
+        echo Url::Site("Authenticate/AddUser/[username]/[password]");
+        echo "</p><hr/>";
+    }
+
+    public function Index(): void {
+        echo "<b>Users:</b>";
+        echo "<ul>";
+
+        foreach (Auth::GetUsers() as $username => $fullname) {
+            echo "<li>{$username} ({$fullname})</li>";
+        }
+
+        echo "</ul>";
+        echo "<b>Groups:</b>";
+        echo "<ul>";
+
+        foreach (Auth::GetGroups() as $groupname => $description) {
+            echo "<li>{$groupname} ({$description})</li>";
+        }
+
+        echo "</ul>";
     }
 
     public function AddUser(): void {
-        $username = \Framework\Router::Get_Args()[0] ?? null;
-        $password = \Framework\Router::Get_Args()[1] ?? null;
+        $username = Router::Get_Args()[0] ?? null;
+        $password = Router::Get_Args()[1] ?? null;
 
         if ($username == null || $password == null) {
             echo "<b>Username and password required</b>";
@@ -22,11 +73,11 @@ class Authenticate {
 
         echo "Adding user: <b>{$username}</b> with password: <b>{$password}</b>";
 
-        $query = (new \Framework\Database\Query(\Framework\Database\Statement::INSERT))
+        $query = (new Query(Statement::INSERT))
                 ->Table("users")
                 ->Columns("username", "fullname", "password")
                 ->Values($username)
-                ->Values("Test User")
+                ->Values("Default Name")
                 ->Values(password_hash($password, PASSWORD_DEFAULT));
         echo "<br>{$query}";
         $this->conn->Query($query);
@@ -34,8 +85,8 @@ class Authenticate {
     }
 
     public function AddGroup(): void {
-        $groupname = \Framework\Router::Get_Args()[0] ?? null;
-        $description = \Framework\Router::Get_Args()[1] ?? null;
+        $groupname = Router::Get_Args()[0] ?? null;
+        $description = Router::Get_Args()[1] ?? null;
 
         if ($groupname == null || $description == null) {
             echo "<b>Name and description required</b>";
@@ -44,7 +95,7 @@ class Authenticate {
         }
 
         echo "Adding group with name: <b>{$groupname}</b> and description: <b>{$description}</b>";
-        $query = (new \Framework\Database\Query(\Framework\Database\Statement::INSERT))
+        $query = (new Query(Statement::INSERT))
                 ->Table("groups")
                 ->Columns("groupname", "description")
                 ->Values($groupname, $description);
@@ -52,9 +103,9 @@ class Authenticate {
         $this->conn->Query($query);
     }
 
-    public function AuthUser(): void {
-        $username = \Framework\Router::Get_Args()[0] ?? null;
-        $password = \Framework\Router::Get_Args()[1] ?? null;
+    public function Auth(): void {
+        $username = Router::Get_Args()[0] ?? null;
+        $password = Router::Get_Args()[1] ?? null;
 
         if ($username == null || $password == null) {
             echo "<b>You must specify username and password</b>";
@@ -63,15 +114,15 @@ class Authenticate {
         }
 
         echo "User: <b>{$username}</b>. Auth: <b>";
-        echo match (\Framework\Auth::AuthUser($username, $password)) {
+        echo match (Auth::AuthUser($username, $password)) {
             true => "passed!",
             false => "failed!"
         } . "</b>";
     }
 
     public function Exists(): void {
-        $type = \Framework\Router::Get_Args()[0] ?? null;
-        $name = \Framework\Router::Get_Args()[1] ?? null;
+        $type = Router::Get_Args()[0] ?? null;
+        $name = Router::Get_Args()[1] ?? null;
 
         if ($type == null || $name == null) {
             echo "<b>Specify action (user/group) and parameter (name)</b>";
@@ -84,14 +135,14 @@ class Authenticate {
         switch ($type) {
             case "user":
                 echo "User: <b>{$name}</b> ";
-                echo match (\Framework\Auth::UserExists($name)) {
+                echo match (Auth::UserExists($name)) {
                     true => "exists!",
                     false => "does not exist!"
                 };
                 break;
             case "group":
                 echo "Group: <b>{$name}</b> ";
-                echo match (\Framework\Auth::GroupExists($name)) {
+                echo match (Auth::GroupExists($name)) {
                     true => "exists!",
                     false => "does not exist!"
                 };
@@ -104,7 +155,8 @@ class Authenticate {
 
     public function CreateSchema(): void {
         // QUERY 1: users table
-        $query = (new \Framework\Database\Query(\Framework\Database\Statement::CREATE))
+        echo "<code>";
+        $query = (new Query(Statement::CREATE))
                 ->Table("users")
                 ->IfNotExists()
                 ->Colspec("username", "TEXT NOT NULL")
@@ -114,7 +166,7 @@ class Authenticate {
         echo $query . "<br>";
         $this->conn->Query($query);
         // QUERY 2: groups table
-        $query = (new \Framework\Database\Query(\Framework\Database\Statement::CREATE))
+        $query = (new Query(Statement::CREATE))
                 ->Table("groups")
                 ->IfNotExists()
                 ->Colspec("groupname", "TEXT NOT NULL")
@@ -123,14 +175,20 @@ class Authenticate {
         echo $query . "<br>";
         $this->conn->Query($query);
         // QUERY 3: membership table
-        $query = (new \Framework\Database\Query(\Framework\Database\Statement::CREATE))
+        $query = (new Query(Statement::CREATE))
                 ->Table("memberships")
                 ->IfNotExists()
                 ->Colspec("username", "TEXT NOT NULL")
                 ->Colspec("groupname", "TEXT NOT NULL")
                 ->ForeginKey("username", "users(username)")
                 ->ForeginKey("groupname", "groups(groupname)");
-        echo $query . "<br>";
+        echo $query . "</code>";
         $this->conn->Query($query);
+    }
+
+    public function __destruct() {
+        echo "<hr/><br><p style=\"text-align: right;\">";
+        echo "<a href=\"" . Url::Site("Authenticate") . "\">Return to index</a>";
+        echo "</p></div></body></html>";
     }
 }

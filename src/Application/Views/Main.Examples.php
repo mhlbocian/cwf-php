@@ -4,7 +4,7 @@ $example = <<<'CODE'
 <?php
 use Framework\Config;
     
-Config::Get("sample_key", "sample");
+Config::Get("config_file", "key");
 CODE;
 highlight_string($example);
 ?>
@@ -15,9 +15,9 @@ $code = <<<'HERE'
 <?php
 use Framework\Config;
 
-Config::Set("key1", "example", "test_config");
-Config::Set("key2", ["array", "test"=>"example"], "test_config");
-Config::Update("test_config");
+Config::Set("config_file", "key1", "value1");
+Config::Set("config_file", "key2", ["array", "test"=>"example"]);
+Config::Update("config_file");
 HERE;
 highlight_string($code);
 ?>

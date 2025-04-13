@@ -15,8 +15,7 @@ use Exception;
 
 class Config {
 
-    private static array $main_config = []; // for ROOT/config.json
-    private static array $rest_config = []; // for CFGDIR/*.json
+    private static array $config_data = [];
 
     /**
      * Check if custom config file exists
@@ -37,24 +36,15 @@ class Config {
      * @param string|null $cfg Configuration file to load.
      * @throws Exception
      */
-    private static function Load(?string $cfg = null) {
-        if ($cfg == null) { // if $cfg null, assume it is main config.json
-            $path = ROOTDIR . DS . "config.json";
-        } else {
-            $path = CFGDIR . DS . "{$cfg}.json";
-        }
+    private static function Load(string $cfg) {
+        $path = CFGDIR . DS . "{$cfg}.json";
 
-        if ($cfg != null && !self::Exists($cfg)) {
+        if (!self::Exists($cfg)) {
             throw new Exception("CONFIG: file '{$path}' does not exist");
         }
 
         $cnt = file_get_contents($path);
-
-        if ($cfg == null) {
-            self::$main_config = json_decode($cnt, true);
-        } else {
-            self::$rest_config[$cfg] = json_decode($cnt, true);
-        }
+        self::$config_data[$cfg] = json_decode($cnt, true);
     }
 
     /**
@@ -64,10 +54,8 @@ class Config {
      * @param string|null $cfg
      * @return void
      */
-    private static function Check_Load(?string $cfg): void {
-        if ($cfg == null && empty(self::$main_config)) {
-            self::Load();
-        } else if ($cfg != null && !isset(self::$rest_config[$cfg])) {
+    private static function Check_Load(string $cfg): void {
+        if (!isset(self::$config_data[$cfg])) {
             self::Load($cfg);
         }
     }
@@ -78,14 +66,10 @@ class Config {
      * @param string|null $cfg
      * @return array
      */
-    public static function Fetch(?string $cfg = null): array {
+    public static function Fetch(string $cfg): array {
         self::Check_Load($cfg);
 
-        if ($cfg == null) { // main config.json
-            return self::$main_config;
-        } else {
-            return self::$rest_config[$cfg];
-        }
+        return self::$config_data[$cfg];
     }
 
     /**
@@ -95,16 +79,12 @@ class Config {
      * @param string|null $cfg Configuration file
      * @return mixed
      */
-    public static function Get(string $key, ?string $cfg = null): mixed {
+    public static function Get(string $cfg, string $key): mixed {
         self::Check_Load($cfg);
 
-        if ($cfg == null) { // main config.json
-            return self::$main_config[$key];
-        } else {
-            return self::$rest_config[$cfg][$key];
-        }
+        return self::$config_data[$cfg][$key];
     }
-    
+
     /**
      * Set a new data for local config file
      * 
@@ -113,16 +93,16 @@ class Config {
      * @param string $cfg Config file name
      * @return void
      */
-    public static function Set(string $key, mixed $value, string $cfg): void {
+    public static function Set(string $cfg, string $key, mixed $value): void {
         /*
          * If the file exists and is not loaded - load it, to avoid wipeout
          * all other data
          */
-        if (self::Exists($cfg) && !isset(self::$rest_config[$cfg])) {
+        if (self::Exists($cfg) && !isset(self::$config_data[$cfg])) {
             self::Load();
         }
 
-        self::$rest_config[$cfg][$key] = $value;
+        self::$config_data[$cfg][$key] = $value;
     }
 
     /**
@@ -132,7 +112,7 @@ class Config {
      * @return void
      */
     public static function Update(string $cfg): void {
-        if (!isset(self::$rest_config[$cfg])) {
+        if (!isset(self::$config_data[$cfg])) {
             return; // nothing to do
         }
 
@@ -142,7 +122,7 @@ class Config {
             throw new Exception("CONFIG: cannot open file '{$path}'");
         }
 
-        fwrite($fh, json_encode(self::$rest_config[$cfg]));
+        fwrite($fh, json_encode(self::$config_data[$cfg]));
         fclose($fh);
     }
 }

@@ -34,9 +34,10 @@ class Router {
      * @param string|null $route
      */
     public function __construct(?string $route) {
-        $this->namespace = Config::Get("router")["namespace"];
-        $this->default_controller = Config::Get("router")["default_controller"];
-        $this->default_action = Config::Get("router")["default_action"];
+        $router_cfg = Config::Fetch("application")["router"];
+        $this->namespace = $router_cfg["namespace"];
+        $this->default_controller = $router_cfg["default_controller"];
+        $this->default_action = $router_cfg["default_action"];
 
         $this->Parse_Route($route);
     }

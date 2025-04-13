@@ -24,11 +24,11 @@ use Framework\Url;
 
 // configure core classes
 Core::Check_Env();
-Auth::Load_Config();
-Url::Load_Config();
+Auth::Init();
+Url::Init();
 // initialize application info constants
-define("APPNAME", Config::Get("application")["name"]);
-define("APPDES", Config::Get("application")["description"]);
-define("APPVER", Config::Get("application")["version"]);
+define("APPNAME", Config::Get("application", "application")["name"]);
+define("APPDES", Config::Get("application", "application")["description"]);
+define("APPVER", Config::Get("application", "application")["version"]);
 // start session
 session_start();

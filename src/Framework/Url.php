@@ -27,14 +27,14 @@ class Url {
      * 
      * @return void
      */
-    public static function Load_Config(): void {
-        $cfg = Config::Get("url");
-        self::$protocol = $cfg["protocol"];
-        self::$host = $cfg["host"];
-        self::$port = $cfg["port"];
-        self::$path = $cfg["path"];
-        self::$index = $cfg["index"];
-        self::$omit_index = $cfg["omit_index"];
+    public static function Init(): void {
+        $url_cfg = Config::Fetch("application")["url"];
+        self::$protocol = $url_cfg["protocol"];
+        self::$host = $url_cfg["host"];
+        self::$port = $url_cfg["port"];
+        self::$path = $url_cfg["path"];
+        self::$index = $url_cfg["index"];
+        self::$omit_index = $url_cfg["omit_index"];
     }
 
     /**

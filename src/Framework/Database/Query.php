@@ -352,11 +352,11 @@ class Query {
         }
         // SQL: PRIMARY KEY
         if (isset($this->constraints["primary_key"])) {
-            $this->sql .= "PRIMARY KEY (`{$this->constraints["primary_key"]}`), ";
+            $this->sql .= "PRIMARY KEY ({$this->constraints["primary_key"]}), ";
         }
         // SQL: FOREIGN KEYS
         foreach ($this->constraints["foreign_key"] ?? [] as $key => $ref) {
-            $this->sql .= "FOREIGN KEY (`{$key}`) REFERENCES `{$ref}`, ";
+            $this->sql .= "FOREIGN KEY ({$key}) REFERENCES {$ref}, ";
         }
 
         $this->sql = substr($this->sql, 0, -2) . ")";
@@ -382,7 +382,7 @@ class Query {
     private function Query_Insert(): void {
         $this->Check_ColVal();
         // SQL: OPERATION HEADER
-        $this->sql = "INSERT INTO `{$this->table}` ('";
+        $this->sql = "INSERT INTO `{$this->table}` (`";
         $this->sql .= implode("`, `", $this->columns);
         $this->sql .= "`) VALUES (";
 

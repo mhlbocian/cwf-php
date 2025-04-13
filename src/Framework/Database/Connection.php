@@ -35,16 +35,16 @@ class Connection {
      * @param string $conn_name
      */
     public function __construct(string $conn_name = "default") {
-        $dbcfg = Config::Get($conn_name, "database");
+        $db_cfg = Config::Get("database", $conn_name);
         $this->conn_name = $conn_name;
         // both driver and database cannot be empty
-        $this->driver = strtolower($dbcfg["driver"]);
-        $this->database = $dbcfg["database"];
+        $this->driver = strtolower($db_cfg["driver"]);
+        $this->database = $db_cfg["database"];
         // other fields depends on database driver
-        $this->host = $dbcfg["host"] ?? "";
-        $this->port = $dbcfg["port"] ?? "";
-        $this->username = $dbcfg["username"] ?? null;
-        $this->password = $dbcfg["password"] ?? null;
+        $this->host = $db_cfg["host"] ?? "";
+        $this->port = $db_cfg["port"] ?? "";
+        $this->username = $db_cfg["username"] ?? null;
+        $this->password = $db_cfg["password"] ?? null;
         // create dsn and perform connection
         $this->Create_Dsn();
         $this->pdo = new PDO($this->dsn, $this->username, $this->password);
