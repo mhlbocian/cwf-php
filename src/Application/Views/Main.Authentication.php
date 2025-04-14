@@ -5,7 +5,7 @@
     <code>Framework\Auth::Load_Config()</code> method. When <code>auth.json</code>
     file is not present, further execution of module's code is omitted.
 </p>
-<h4>Drivers</h4>
+<p><b>Drivers</b></p>
 <ul>
     <li>Database <i>(partially implemented)</i></li>
     <li>LDAP <i>(planned for implementation)</i></li>
@@ -53,7 +53,6 @@
 
 FOREIGN KEYS: username -> users.username, groupname -> groups.groupname
 </pre>
-<p>
-<a href="<?= Framework\Url::Site("Database/Auth_CreateScheme") ?>">Create basic
-    scheme</a> for default configuration (driver: database, connection: default).
+<p style="text-align: right;">
+<a href="<?= Framework\Url::Site("Authenticate") ?>">Authentication tests site</a>
 </p>

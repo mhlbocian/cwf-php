@@ -3,7 +3,7 @@
 use Framework\Url;
 ?>
 <div style="width: 20%; float: left;">
-    <h3>Select subpage</h3>
+    <p><b>Select subpage</b></p>
     <ul style="list-style: none; padding: 0; margin: 0;">
         <li><a href="<?= Url::Site("Database/Index/1") ?>">Drivers</a></li>
         <li><a href="<?= Url::Site("Database/Index/2") ?>">Connections</a></li>

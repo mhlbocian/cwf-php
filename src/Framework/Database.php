@@ -9,23 +9,67 @@
  * License: 3-Clause BSD
  */
 
-namespace Framework\Database;
+namespace Framework;
 
 use Exception;
 use PDO;
 use PDOStatement;
 use Framework\Config;
 
-class Connection {
+class Database {
 
+    /**
+     * 
+     * @var PDO Connection handler
+     */
     private PDO $pdo;
+    
+    /**
+     * 
+     * @var string Database name
+     */
     private string $database;
+    
+    /**
+     * 
+     * @var string PDO dsn
+     */
     private string $dsn;
+    
+    /**
+     * 
+     * @var string Database host
+     */
     private string $host;
+    
+    /**
+     * 
+     * @var string|null Database password
+     */
     private ?string $password;
+    
+    /**
+     * 
+     * @var string Database port
+     */
     private string $port;
+    
+    /**
+     * 
+     * @var string|null Database username
+     */
     private ?string $username;
+    
+    /**
+     * 
+     * @var string Connection data for specified name in CFGDIR/database.json
+     */
     public readonly string $conn_name;
+    
+    /**
+     * 
+     * @var string Database driver
+     */
     public readonly string $driver;
 
     /**
@@ -75,7 +119,7 @@ class Connection {
     }
 
     /**
-     * Execute query.
+     * Execute a query.
      * 
      * @param Query $query
      * @return PDOStatement

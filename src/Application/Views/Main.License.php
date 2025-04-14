@@ -1,9 +1,6 @@
-<p>
-    CWF-PHP Framwework is designed to be easy to learn. Write quick, learn less.
-</p>
 <h3>License</h3>
 <pre>
-Copyright 2025 Michał Bocian 
+Copyright 2025 Michał Bocian &lt;bocian.michal@outlook.com&gt;
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:

@@ -39,7 +39,8 @@ td{
 }
 
 ul {
-    margin: 0.5em 2em;
+    padding-left: 2em;
+    padding-bottom: 1em;
 }
 
 #page-container{

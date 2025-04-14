@@ -15,6 +15,10 @@ use Exception;
 
 class Config {
 
+    /**
+     * 
+     * @var array Array for storing decoded JSON data
+     */
     private static array $config_data = [];
 
     /**
@@ -82,15 +86,19 @@ class Config {
     public static function Get(string $cfg, string $key): mixed {
         self::Check_Load($cfg);
 
+        if (!key_exists($key, self::$config_data[$cfg])) {
+            throw new Exception("CONFIG: Key '{$key}' not found in '{$cfg}'");
+        }
+
         return self::$config_data[$cfg][$key];
     }
 
     /**
      * Set a new data for local config file
      * 
+     * @param string $cfg Config file name
      * @param string $key
      * @param mixed $value
-     * @param string $cfg Config file name
      * @return void
      */
     public static function Set(string $cfg, string $key, mixed $value): void {
@@ -99,7 +107,7 @@ class Config {
          * all other data
          */
         if (self::Exists($cfg) && !isset(self::$config_data[$cfg])) {
-            self::Load();
+            self::Load($cfg);
         }
 
         self::$config_data[$cfg][$key] = $value;

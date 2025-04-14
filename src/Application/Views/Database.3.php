@@ -1,34 +1,35 @@
-<h3>Sample queries</h3>
+<p><b>Sample queries</b></p>
 <!-- /////////////////////////////////////////////////////////////////////// -->
 <p><b>SQL Create table</b></p>
 <?php
 $code = <<<'HERE'
 <?php
-use Framework\Database\Query;
-use Framework\Database\Statement;
+use Framework\Query;
+use Framework\Query\Statement;
+
 $query = (new Query(Statement::CREATE))
         ->Table("new_table")
         ->IfNotExists()
-        ->Colspec("col1", "integer primary key")
-        ->Colspec("col2", "text")
-        ->Colspec("col3", "text");
+        ->ColType("col1", "INTEGER")
+        ->ColType("col2", "TEXT")
+        ->ColType("col3", "TEXT")
+        ->PrimaryKey("col1");
 
 echo $query;
 HERE;
 highlight_string($code);
 ?>
 <p>
-    <code>CREATE TABLE IF NOT EXISTS new_table (col1 integer primary key,
-        col2 text, col3 text)</code>
+    <code>CREATE TABLE IF NOT EXISTS `new_table` (`col1` INTEGER,
+        `col2` TEXT, `col3` TEXT, PRIMARY KEY (col1))</code>
 </p>
 <!-- /////////////////////////////////////////////////////////////////////// -->
 <p><b>SQL Delete</b></p>
 <?php
 $code = <<<'HERE'
 <?php
-use Framework\Database\Query;
-use Framework\Database\Statement;
-use Framework\Database\Operator;
+use Framework\Query;
+use Framework\Query\{Operator, Statement};
 
 $query = (new Query(Statement::DELETE))
         ->Table("users")
@@ -39,15 +40,16 @@ HERE;
 highlight_string($code);
 ?>
 <p>
-    <code>DELETE FROM users WHERE id = :w0</code>
+    <code>DELETE FROM `users` WHERE `id` = :w0</code>
 </p>
 <!-- /////////////////////////////////////////////////////////////////////// -->
 <p><b>SQL Select</b></p>
 <?php
 $code = <<<'HERE'
 <?php
-use Framework\Database\Query;
-use Framework\Database\Statement;
+use Framework\Query;
+use Framework\Query\Statement;
+
 $query = (new Query(Statement::SELECT))
         ->Table("sample_table")
         ->Columns("col1", "col2", "col3")
@@ -61,17 +63,16 @@ HERE;
 highlight_string($code);
 ?>
 <p>
-    <code>SELECT DISTINCT col1, col2, col3 FROM sample_table ORDER BY col1 ASC,
-        col2 DESC LIMIT 10 OFFSET 0</code>
+    <code>SELECT DISTINCT `col1`, `col2`, `col3` FROM `sample_table` ORDER BY `col1` ASC,
+        `col2` DESC LIMIT 10 OFFSET 0</code>
 </p>
 <!-- /////////////////////////////////////////////////////////////////////// -->
 <p><b>SQL Update</b></p>
 <?php
 $code = <<<'HERE'
 <?php
-use Framework\Database\Query;
-use Framework\Database\Operator;
-use Framework\Database\Statement;
+use Framework\Query;
+use Framework\Query\{Operator, Statement};
     
 $query = (new Query(Statement::UPDATE))
         ->Table("users")
@@ -83,16 +84,15 @@ HERE;
 highlight_string($code);
 ?>
 <p>
-    <code>UPDATE users SET username = :0 WHERE id = :w0</code>
+    <code>UPDATE `users` SET `username` = :0 WHERE `id` = :w0</code>
 </p>
 <!-- /////////////////////////////////////////////////////////////////////// -->
 <p><b>SQL Where/And/Or</b></p>
 <?php
 $code = <<<'HERE'
 <?php
-use Framework\Database\Query;
-use Framework\Database\Statement;
-use Framework\Database\Operator;
+use Framework\Query;
+use Framework\Query\{Operator, Statement};
 
 $query = (new Query(Statement::SELECT))
         ->Distinct()
@@ -110,8 +110,8 @@ HERE;
 highlight_string($code);
 ?>
 <p>
-    <code>SELECT DISTINCT id, author, title, isbn FROM books WHERE year >= :w0
-        AND country = :w1 OR country LIKE :w2 ORDER BY title ASC
+    <code>SELECT DISTINCT `id`, `author`, `title`, `isbn` FROM `books` WHERE `year` >= :w0
+        AND `country` = :w1 OR `country` LIKE :w2 ORDER BY `title` ASC
         LIMIT 10 OFFSET 0</code>
 </p>
 <!-- /////////////////////////////////////////////////////////////////////// -->
@@ -119,12 +119,10 @@ highlight_string($code);
 <?php
 $code = <<<'HERE'
 <?php
-use Framework\Database\Connection;
-use Framework\Database\Statement;
-use Framework\Database\Query;
-use Framework\Database\Statement;
+use Framework\{Database, Query};
+use Framework\Query\{Operator, Statement};
 
-$conn = new Connection(); // "default" connection
+$conn = new Database(); // "default" connection
 
 $query = (new Query(Statement::SELECT))
         ->Table("sample_table")
@@ -144,9 +142,8 @@ highlight_string($code);
 <?php
 $code = <<<'HERE'
 <?php
-use Framework\Database\Query;
-use Framework\Database\Statement;
-use Framework\Database\Operator;
+use Framework\Query;
+use Framework\Query\{Operator, Statement};
 
 $query = (new Query(Statement::UPDATE))
         ->Table("books")
@@ -164,8 +161,8 @@ var_dump($query->Params());
 HERE;
 highlight_string($code);
 ?>
-<code>UPDATE books SET old = :0, status = :1 WHERE year >= :w0 AND
-    country = :w1 OR country LIKE :w2</code>
+<code>UPDATE `books` SET `old` = :0, `status` = :1 WHERE `year` >= :w0 AND
+    `country` = :w1 OR `country` LIKE :w2</code>
 <pre>
 array(5) {
   [0]=>

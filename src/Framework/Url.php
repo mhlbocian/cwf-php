@@ -15,11 +15,40 @@ use Framework\Config;
 
 class Url {
 
+    /**
+     * 
+     * @var bool When true, generate URL without 'index.php' for sites
+     */
     private static bool $omit_index;
+    
+    /**
+     * 
+     * @var int Server port
+     */
     private static int $port;
+    
+    /**
+     * 
+     * @var string Server host
+     */
     private static string $host;
+    
+    /**
+     * 
+     * @var string Index file name (usually index.php)
+     */
     private static string $index;
+    
+    /**
+     * 
+     * @var string HTTP DOCROOT path (usually /)
+     */
     private static string $path;
+    
+    /**
+     * 
+     * @var string HTTP or HTTPS
+     */
     private static string $protocol;
 
     /**

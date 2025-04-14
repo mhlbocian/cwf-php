@@ -19,13 +19,52 @@ class Invalid_Route extends Exception {
 
 class Router {
 
+    /**
+     * 
+     * @var string Current action
+     */
     private string $action;
+    
+    /**
+     * 
+     * @var string Current controller
+     */
     private string $controller;
+    
+    /**
+     * 
+     * @var string Class FQN string (includes name space)
+     */
     private string $class_fqn;
+    
+    /**
+     * 
+     * @var string Default action (from CFGDIR/application.json)
+     */
     private string $default_action;
+    
+    /**
+     * 
+     * @var string Default controller (from CFGDIR/application.json)
+     */
     private string $default_controller;
+    
+    /**
+     * 
+     * @var string Controllers name space (from CFGDIR/application.json)
+     */
     private string $namespace;
+    
+    /**
+     * 
+     * @var array Action arguments
+     */
     private static array $args = [];
+    
+    /**
+     * 
+     * @var string Current route (available outside Router)
+     */
     private static string $route = "";
 
     /**

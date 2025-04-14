@@ -17,7 +17,16 @@ class View {
 
     private const VIEWDIR = APPDIR . DS . "Views";
 
+    /**
+     * 
+     * @var array Array of bind variables
+     */
     private array $data = [];
+    
+    /**
+     * 
+     * @var string View content
+     */
     private string $view;
 
     /**

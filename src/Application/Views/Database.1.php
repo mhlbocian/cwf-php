@@ -1,5 +1,8 @@
-<h3>Database drivers support</h3>
-<p>&bullet; SQLite</p>
+<p><b>Database drivers support</b></p>
+<ul>
+    <li>SQLite</li>
+    <li>MySQL (MariaDB)</li>
+</ul>
 <p><b>Database configuration file format</b></p>
 <p>Configuration file is stored in <code>Config/database.json</code>.</p>
 <pre>
@@ -16,7 +19,7 @@
 </pre>
 <p><b>NOTICE:</b> Some fields are necessary and depends on driver.</p>
 <p>
-    When <code>Framework\Database\Connection</code> object is created, you must
+    When <code>Framework\Database</code> object is created, you must
     specify connection name, otherwise framework fetch configuration from
     connection named <code>default</code>.
 </p>
@@ -38,8 +41,8 @@
     <?php
     $code = <<<'HERE'
 <?php
-use Framework\Database\Connection;
-$connection = new Connection(); // "default" connection
+use Framework\Database;
+$connection = new Database(); // "default" connection
 HERE;
     highlight_string($code);
     ?>

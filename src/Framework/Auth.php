@@ -13,144 +13,33 @@ namespace Framework;
 
 use Exception;
 use Framework\Config;
-use Framework\Database\{
-    Connection,
-    Operator,
-    Query,
-    Statement
-};
-
-enum Auth_Driver: string {
-
-    // define drivers and method prefixes
-    case Database = "Db";
-    case LDAP = "Ldap";
-}
-
-trait Auth_Driver_Db {
-
-    private static Connection $db_conn;
-    private static string $db_conn_name;
-    private static string $db_groups;
-    private static string $db_memberships;
-    private static string $db_users;
-
-    /**
-     * Setup database connection and driver-specific properties
-     * 
-     * @param string $connection
-     * @return void
-     */
-    private static function Db_Setup(): void {
-        self::$db_conn_name = self::$auth_cfg["connection"];
-        self::$db_groups = self::$auth_cfg["groups_table"];
-        self::$db_memberships = self::$auth_cfg["memberships_table"];
-        self::$db_users = self::$auth_cfg["users_table"];
-        self::$db_conn = new Connection(self::$db_conn_name);
-    }
-
-    /**
-     * Db driver implementation for: AuthUser
-     * 
-     * @param string $login
-     * @param string $password
-     * @return bool
-     */
-    private static function Db_AuthUser(string $username, string $password): bool {
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_users)
-                ->Where("username", Operator::Eq, $username);
-        $result = self::$db_conn->Query($query)->fetchAll();
-
-        if (count($result) != 1) {
-
-            return false;
-        }
-
-        return password_verify($password, $result[0]["password"]);
-    }
-
-    private static function Db_GetGroups(): array {
-        $output = [];
-
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_groups);
-        $result = self::$db_conn->Query($query);
-
-        foreach ($result as $row) {
-            $output[$row["groupname"]] = $row["description"];
-        }
-
-        return $output;
-    }
-
-    private static function Db_GetUsers(?string $group): array {
-        $output = [];
-
-        if ($group == null) {
-            $query = (new Query(Statement::SELECT))
-                    ->Table(self::$db_users);
-        } else {
-            // TODO: QUERY JOIN OPERATIONS, now return empty array
-            return $output;
-        }
-
-        $result = self::$db_conn->Query($query);
-
-        foreach ($result as $row) {
-            $output[$row["username"]] = $row["fullname"];
-        }
-
-        return $output;
-    }
-
-    private static function Db_GroupExists(string $groupname): bool {
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_groups)
-                ->Where("groupname", Operator::Eq, $groupname);
-        $result = self::$db_conn->Query($query)->fetchAll();
-
-        return (count($result) == 1);
-    }
-
-    /**
-     * Db driver implementation for: UserExists
-     * 
-     * @param string $login
-     * @return bool
-     */
-    private static function Db_UserExists(string $username): bool {
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_users)
-                ->Where("username", Operator::Eq, $username);
-        $result = self::$db_conn->Query($query)->fetchAll();
-
-        return (count($result) == 1);
-    }
-
-    private static function Db_UserInGroup(string $username, string $groupname): bool {
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_memberships)
-                ->Where("username", Operator::Eq, $username)
-                ->And("groupname", Operator::Eq, $groupname);
-        $result = self::$db_conn->Query($query)->fetchAll();
-
-        return (count($result) == 1);
-    }
-}
 
 class Auth {
 
     // import drivers
-    use Auth_Driver_Db;
+    use Auth\Driver_Db;
 
-    private static ?Auth_Driver $driver = null;
+    /**
+     * 
+     * @var Auth\Driver Authentication driver (like Db, Ldap)
+     */
+    private static Auth\Driver $driver;
+    
+    /**
+     * 
+     * @var array CFGDIR/authentication.json data
+     */
     private static array $auth_cfg;
+    
+    /**
+     * 
+     * @var bool When Auth is properly initialized, the value is true
+     */
     private static bool $is_init = false;
 
     /**
-     * Loads configuration stored in CFGDIR/auth.json, if file is not present
-     * does nothing
+     * Loads configuration stored in CFGDIR/authentication.json, if file is not
+     * present, then does nothing
      * 
      * @return void
      * @throws Exception
@@ -160,17 +49,17 @@ class Auth {
             throw new Exception("AUTH: Can be initialised only once");
         }
         // if no CFGDIR/auth.json file, do nothing
-        if (!Config::Exists("auth")) {
+        if (!Config::Exists("authentication")) {
 
             return;
         }
 
-        self::$auth_cfg = Config::Fetch("auth");
+        self::$auth_cfg = Config::Fetch("authentication");
         $driver = strtolower(self::$auth_cfg["driver"]);
 
         switch ($driver) {
             case "database":
-                self::$driver = Auth_Driver::Database;
+                self::$driver = Auth\Driver::Database;
                 break;
             case "ldap":
                 //self::$driver = Auth_Driver::LDAP;
@@ -195,16 +84,33 @@ class Auth {
         return self::Call_Driver("AuthUser", $username, $password);
     }
 
+    /**
+     * Return an array of groups
+     * 
+     * @return array ["groupname1"=>"description1", ...]
+     */
     public static function GetGroups(): array {
 
         return self::Call_Driver("GetGroups");
     }
 
+    /**
+     * Return an array of users
+     * 
+     * @param string|null $groupname
+     * @return array ["username1"=>"fullname1", ...]
+     */
     public static function GetUsers(?string $groupname = null): array {
 
         return self::Call_Driver("GetUsers", $groupname);
     }
 
+    /**
+     * Check, if group exists for given name
+     * 
+     * @param string $groupname
+     * @return bool
+     */
     public static function GroupExists(string $groupname): bool {
 
         return self::Call_Driver("GroupExists", $groupname);
@@ -221,6 +127,13 @@ class Auth {
         return self::Call_Driver("UserExists", $username);
     }
 
+    /**
+     * Check, if user belong to specified group
+     * 
+     * @param string $username
+     * @param string $groupname
+     * @return bool
+     */
     public static function UserInGroup(string $username, string $groupname): bool {
 
         return self::Call_Driver("UserInGroup", $username, $groupname);

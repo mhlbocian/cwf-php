@@ -2,63 +2,52 @@
 
 namespace Application\Controllers;
 
-use Framework\Auth;
-use Framework\Url;
-use Framework\Router;
-use Framework\Database\{
-    Connection,
+use Framework\{
+    Auth,
+    Url,
+    Router,
+    Database,
     Query,
-    Statement
+    View
 };
+use Framework\Query\Statement;
 
 class Authenticate {
 
-    private Connection $conn;
+    private Database $conn;
+    private View $view;
 
     public function __construct() {
-        $this->conn = new Connection();
+        $this->conn = new Database();
+        $this->view = new View("Authenticate");
         $sites = [
-            "CreateSchema" => "Create schema for default config",
+            "CreateSchema" => "Create schema",
             "AddUser" => "Add user",
             "AddGroup" => "Add group",
             "Auth" => "Authenticate user",
             "Exists" => "Check existance of user or group"
         ];
-
-        echo "<!doctype html><html><head><meta charset=\"utf-8\"/>";
-        echo "<link rel=\"stylesheet\" href=\"" . Url::Site("css/style.css", false) . "\"/>";
-        echo "<title>Authentication framework test suite</title></head>";
-        echo "<div id=\"page-container\">";
-        echo "<h1>Auth library tests</h1>";
-        echo "<ul>";
-
-        foreach ($sites as $site => $desc) {
-            echo "<li><a href=\"" . Url::Site("Authenticate/" . $site) . "\">{$desc}</a></li>";
-        }
-
-        echo "</ul>";
-        echo "<p>Sample use: ";
-        echo Url::Site("Authenticate/AddUser/[username]/[password]");
-        echo "</p><hr/>";
+        $this->view->Bind("sites", $sites);
     }
 
     public function Index(): void {
-        echo "<b>Users:</b>";
-        echo "<ul>";
+        $cnt = "<b>Users:</b>";
+        $cnt .= "<ul>";
 
         foreach (Auth::GetUsers() as $username => $fullname) {
-            echo "<li>{$username} ({$fullname})</li>";
+            $cnt .= "<li>{$username} ({$fullname})</li>";
         }
 
-        echo "</ul>";
-        echo "<b>Groups:</b>";
-        echo "<ul>";
+        $cnt .= "</ul>";
+        $cnt .= "<b>Groups:</b>";
+        $cnt .= "<ul>";
 
         foreach (Auth::GetGroups() as $groupname => $description) {
-            echo "<li>{$groupname} ({$description})</li>";
+            $cnt .= "<li>{$groupname} ({$description})</li>";
         }
 
-        echo "</ul>";
+        $cnt .= "</ul>";
+        $this->view->Bind("content", $cnt);
     }
 
     public function AddUser(): void {
@@ -66,12 +55,13 @@ class Authenticate {
         $password = Router::Get_Args()[1] ?? null;
 
         if ($username == null || $password == null) {
-            echo "<b>Username and password required</b>";
+            $cnt = "<b>Username and password required</b>";
+            $this->view->Bind("content", $cnt);
 
             return;
         }
 
-        echo "Adding user: <b>{$username}</b> with password: <b>{$password}</b>";
+        $cnt = "Adding user: <b>{$username}</b> with password: <b>{$password}</b>";
 
         $query = (new Query(Statement::INSERT))
                 ->Table("users")
@@ -79,9 +69,10 @@ class Authenticate {
                 ->Values($username)
                 ->Values("Default Name")
                 ->Values(password_hash($password, PASSWORD_DEFAULT));
-        echo "<br>{$query}";
+        $cnt .= "<br>{$query}";
         $this->conn->Query($query);
-        echo "<br>ok!";
+        $cnt .= "<br>ok!";
+        $this->view->Bind("content", $cnt);
     }
 
     public function AddGroup(): void {
@@ -89,18 +80,21 @@ class Authenticate {
         $description = Router::Get_Args()[1] ?? null;
 
         if ($groupname == null || $description == null) {
-            echo "<b>Name and description required</b>";
+            $cnt = "<b>Name and description required</b>";
+            $this->view->Bind("content", $cnt);
 
             return;
         }
 
-        echo "Adding group with name: <b>{$groupname}</b> and description: <b>{$description}</b>";
+        $cnt = "Adding group with name: <b>{$groupname}</b> and description: <b>{$description}</b>";
         $query = (new Query(Statement::INSERT))
                 ->Table("groups")
                 ->Columns("groupname", "description")
                 ->Values($groupname, $description);
-        echo "<br>{$query}";
+        $cnt .= "<br>{$query}";
         $this->conn->Query($query);
+        $cnt .= "<br>ok!";
+        $this->view->Bind("content", $cnt);
     }
 
     public function Auth(): void {
@@ -108,16 +102,18 @@ class Authenticate {
         $password = Router::Get_Args()[1] ?? null;
 
         if ($username == null || $password == null) {
-            echo "<b>You must specify username and password</b>";
+            $cnt = "<b>You must specify username and password</b>";
+            $this->view->Bind("content", $cnt);
 
             return;
         }
 
-        echo "User: <b>{$username}</b>. Auth: <b>";
-        echo match (Auth::AuthUser($username, $password)) {
-            true => "passed!",
-            false => "failed!"
-        } . "</b>";
+        $cnt = "User: <b>{$username}</b>. Auth: <b>";
+        $cnt .= match (Auth::AuthUser($username, $password)) {
+                    true => "passed!",
+                    false => "failed!"
+                } . "</b>";
+        $this->view->Bind("content", $cnt);
     }
 
     public function Exists(): void {
@@ -125,7 +121,8 @@ class Authenticate {
         $name = Router::Get_Args()[1] ?? null;
 
         if ($type == null || $name == null) {
-            echo "<b>Specify action (user/group) and parameter (name)</b>";
+            $cnt = "<b>Specify action (user/group) and parameter (name)</b>";
+            $this->view->Bind("content", $cnt);
 
             return;
         }
@@ -134,61 +131,62 @@ class Authenticate {
 
         switch ($type) {
             case "user":
-                echo "User: <b>{$name}</b> ";
-                echo match (Auth::UserExists($name)) {
+                $cnt = "User: <b>{$name}</b> ";
+                $cnt .= match (Auth::UserExists($name)) {
                     true => "exists!",
                     false => "does not exist!"
                 };
                 break;
             case "group":
-                echo "Group: <b>{$name}</b> ";
-                echo match (Auth::GroupExists($name)) {
+                $cnt = "Group: <b>{$name}</b> ";
+                $cnt .= match (Auth::GroupExists($name)) {
                     true => "exists!",
                     false => "does not exist!"
                 };
                 break;
             default:
-                echo "<b>Unknown action</b>";
+                $cnt = "<b>Unknown action</b>";
                 break;
         }
+        
+        $this->view->Bind("content", $cnt);
     }
 
     public function CreateSchema(): void {
         // QUERY 1: users table
-        echo "<code>";
+        $cnt = "<code>";
         $query = (new Query(Statement::CREATE))
                 ->Table("users")
                 ->IfNotExists()
-                ->Colspec("username", "TEXT NOT NULL")
-                ->Colspec("fullname", "TEXT NOT NULL")
-                ->Colspec("password", "TEXT NOT NULL")
+                ->ColType("username", "TEXT NOT NULL")
+                ->ColType("fullname", "TEXT NOT NULL")
+                ->ColType("password", "TEXT NOT NULL")
                 ->PrimaryKey("username");
-        echo $query . "<br>";
+        $cnt .= $query . "<br>QUERY OK.<br>";
         $this->conn->Query($query);
         // QUERY 2: groups table
         $query = (new Query(Statement::CREATE))
                 ->Table("groups")
                 ->IfNotExists()
-                ->Colspec("groupname", "TEXT NOT NULL")
-                ->Colspec("description", "TEXT NOT NULL")
+                ->ColType("groupname", "TEXT NOT NULL")
+                ->ColType("description", "TEXT NOT NULL")
                 ->PrimaryKey("groupname");
-        echo $query . "<br>";
+        $cnt .= $query . "<br>QUERY OK.<br>";
         $this->conn->Query($query);
         // QUERY 3: membership table
         $query = (new Query(Statement::CREATE))
                 ->Table("memberships")
                 ->IfNotExists()
-                ->Colspec("username", "TEXT NOT NULL")
-                ->Colspec("groupname", "TEXT NOT NULL")
+                ->ColType("username", "TEXT NOT NULL")
+                ->ColType("groupname", "TEXT NOT NULL")
                 ->ForeginKey("username", "users(username)")
                 ->ForeginKey("groupname", "groups(groupname)");
-        echo $query . "</code>";
+        $cnt .= $query . "<br>QUERY OK.</code>";
         $this->conn->Query($query);
+        $this->view->Bind("content", $cnt);
     }
 
     public function __destruct() {
-        echo "<hr/><br><p style=\"text-align: right;\">";
-        echo "<a href=\"" . Url::Site("Authenticate") . "\">Return to index</a>";
-        echo "</p></div></body></html>";
+        echo $this->view;
     }
 }

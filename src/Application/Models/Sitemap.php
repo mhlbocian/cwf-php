@@ -9,9 +9,9 @@ class Sitemap {
     private static array $sitemap = [
         "Main" => [
             "Index" => "Main page",
-            "About" => "About project",
+            "License" => "License",
             "Examples" => "Code Examples",
-            "Auth" => "Authentication"
+            "Authentication" => "Authentication"
         ],
         "Database" => [
             "Index" => "Database support"

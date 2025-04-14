@@ -21,8 +21,8 @@ class Main {
         $this->main->Bind("content", $view);
     }
 
-    public function About(): void {
-        $view = new View("Main.About");
+    public function License(): void {
+        $view = new View("Main.License");
         $this->main->Bind("content", $view);
     }
 
@@ -31,8 +31,8 @@ class Main {
         $this->main->Bind("content", $view);
     }
     
-    public function Auth(): void {
-        $view = new View("Main.Auth");
+    public function Authentication(): void {
+        $view = new View("Main.Authentication");
         $this->main->Bind("content", $view);
     }
 

@@ -15,16 +15,30 @@ use Error;
 
 class Core {
 
+    /**
+     * 
+     * @var array Array of directories with required write permission
+     */
     private static array $dirs_array = [
         CFGDIR,
         DATADIR,
     ];
+
+    /**
+     * 
+     * @var array Array of required PHP modules
+     */
     private static array $php_req_mods = [
         "filter",
         "json",
         "PDO",
         "session",
     ];
+
+    /**
+     * 
+     * @var string Minimal required PHP version
+     */
     private static string $php_min_ver = "8.3";
 
     /**
