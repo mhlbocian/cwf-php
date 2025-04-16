@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Driver_Db.php
- * Description: AUTH API - Database Driver
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Auth\Auth.php
+ * Description: Auth API - Database driver
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
@@ -211,7 +211,7 @@ trait Driver_Database {
     /**
      * Db driver implementation for: UserAuth
      * 
-     * @param string $login
+     * @param string $username
      * @param string $password
      * @return bool
      */
@@ -287,7 +287,7 @@ trait Driver_Database {
     /**
      * Db driver implementation for: UserExists
      * 
-     * @param string $login
+     * @param string $username
      * @return bool
      */
     private static function Db_UserExists(string $username): bool {

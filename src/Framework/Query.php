@@ -3,15 +3,14 @@
 /*
  * CWF-PHP Framework
  *
- * File: Query.php
+ * File: Framework\Query.php
  * Description: SQL query builder
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
 namespace Framework;
 
-use Exception;
 use Framework\Query\Statement;
 
 class Query {
@@ -124,7 +123,8 @@ class Query {
     /**
      * Define columns and types
      *
-     * @param array $colspec
+     * @param string $name
+     * @param string $type
      * @return Query
      */
     public function ColType(string $name, string $type): Query {

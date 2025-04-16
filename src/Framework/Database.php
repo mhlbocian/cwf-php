@@ -3,17 +3,14 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Connection.php
+ * File: Framework\Connection.php
  * Description: Database connections class
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
 namespace Framework;
 
-use Exception;
-use PDO;
-use PDOStatement;
 use Framework\Config;
 
 class Database {
@@ -22,7 +19,7 @@ class Database {
      * 
      * @var PDO Connection handler
      */
-    private PDO $pdo;
+    private \PDO $pdo;
     
     /**
      * 
@@ -62,7 +59,7 @@ class Database {
     
     /**
      * 
-     * @var string Connection data for specified name in CFGDIR/database.json
+     * @var string Connection data for specified name in `CFGDIR/database.json`
      */
     public readonly string $conn_name;
     
@@ -73,8 +70,8 @@ class Database {
     public readonly string $driver;
 
     /**
-     * Establish database connection. Fetches configuration from database.json.
-     * When $conn_name is null, loads "default" section
+     * Establish database connection. Fetches configuration from
+     * `CFGDIR/database.json`. When $conn_name is null, loads `default` section
      * 
      * @param string $conn_name
      */
@@ -91,11 +88,11 @@ class Database {
         $this->password = $db_cfg["password"] ?? null;
         // create dsn and perform connection
         $this->Create_Dsn();
-        $this->pdo = new PDO($this->dsn, $this->username, $this->password);
+        $this->pdo = new \PDO($this->dsn, $this->username, $this->password);
     }
 
     /**
-     * Create PDO 'dsn' for specific connection type
+     * Create PDO `dsn` for specific connection type
      * 
      * @return void
      * @throws Exception
@@ -103,28 +100,28 @@ class Database {
     private function Create_Dsn(): void {
         switch ($this->driver) {
             case "firebird":
-                throw new Exception("DBCONN: Firebird is not supported");
+                throw new \Exception("DB: Firebird is not supported");
             case "mysql":
                 $this->dsn = "mysql:host={$this->host};"
                         . "dbname={$this->database}";
                 break;
             case "pgsql":
-                throw new Exception("DBCONN: PostgreSQL is not supported");
+                throw new \Exception("DB: PostgreSQL is not supported");
             case "sqlite":
                 $this->dsn = "sqlite:" . DATADIR . DS . $this->database;
                 break;
             default:
-                throw new Exception("DBCONN: unknown driver '{$this->driver}'");
+                throw new \Exception("DB: unknown driver '{$this->driver}'");
         }
     }
 
     /**
-     * Execute a query.
+     * Execute a query
      * 
      * @param Query $query
      * @return PDOStatement
      */
-    public function Query(Query $query): PDOStatement {
+    public function Query(Query $query): \PDOStatement {
         $prep = $this->pdo->prepare($query);
 
         foreach ($query->Params() as $id => $param) {

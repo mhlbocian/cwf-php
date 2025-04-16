@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  *
- * File: Constraints.php
- * Description: Query: Functions for constraints
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Query\Constraints.php
+ * Description: Query - constraints methods
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 

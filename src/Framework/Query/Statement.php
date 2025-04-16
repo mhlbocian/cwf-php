@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  *
- * File: Statement.php
- * Description: Query: Statements
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Query\Statement.php
+ * Description: Query - statements
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 

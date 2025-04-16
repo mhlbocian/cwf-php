@@ -5,7 +5,7 @@
  * 
  * File: bootstrap.php
  * Description: Bootstrap CWF-PHP Framework
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 // define directories constants

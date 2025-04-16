@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Url.php
+ * File: Framework\Url.php
  * Description: Class for actions on URLs
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
@@ -17,7 +17,7 @@ class Url {
 
     /**
      * 
-     * @var bool When true, generate URL without 'index.php' for sites
+     * @var bool When true, generate URL without `index.php` for sites
      */
     private static bool $omit_index;
     
@@ -35,13 +35,13 @@ class Url {
     
     /**
      * 
-     * @var string Index file name (usually index.php)
+     * @var string Index file name (usually `index.php`)
      */
     private static string $index;
     
     /**
      * 
-     * @var string HTTP DOCROOT path (usually /)
+     * @var string HTTP `DOCROOT` path (usually `/`)
      */
     private static string $path;
     
@@ -52,7 +52,7 @@ class Url {
     private static string $protocol;
 
     /**
-     * Load values from config.json ("url" section)
+     * Load values from `CFGDIR/application.json` (`url` section)
      * 
      * @return void
      */
@@ -70,13 +70,14 @@ class Url {
      * Method for creating URLs for sites and local resources.
      * To access local resource, set $site to false
      * 
-     * @param string $path Path to resource in docroot
+     * @param string $path Site or resource path
+     * @param bool $site For accessing resources outside app, set false
      * @return string Full URL
      */
     public static function Site(string $path = "", bool $site = true): string {
         $url = self::$protocol . "://";
         $url .= self::$host;
-        // omit port number if is protocol's default
+        // omit port number if it's protocol's default
         if (!((self::$protocol == "http" && self::$port == 80) ||
                 (self::$protocol == "https" && self::$port == 443))) {
             $url .= ":" . self::$port;
@@ -96,8 +97,8 @@ class Url {
     /**
      * Redirect to specified page or resource (when $site is false)
      * 
-     * @param string $path
-     * @param bool $site
+     * @param string $path Site or resource path
+     * @param bool $site For accessing resources outside app, set false
      * @return void
      */
     public static function Redirect(string $path = "", bool $site = true): void {

@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  *
- * File: Where.php
- * Description: Query: Functions for where statement
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Query\Where.php
+ * Description: Query - where statement methods
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 

@@ -3,17 +3,18 @@
 /*
  * CWF-PHP Framework
  * 
- * File: init.php
+ * File: Framework\init.php
  * Description: Core script. Define basic functions and setup handlers
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 // not expected to be run beyond bootstrap
-if (!defined("APPDIR"))
+if (!defined("APPDIR")) {
     die();
+}
 
 /**
- * Return contents of file in "ROOTDIR/Static" directory.
+ * Return contents of file in `ROOTDIR/Static` directory
  * 
  * @param string $filename
  * @return string
@@ -30,7 +31,7 @@ function static_getfile(string $filename): string {
 
 /**
  * Simple template parser. Used only for framework-internal work, like showing
- * exceptions and errors. Templates are stored in "ROOTDIR/Static" directory.
+ * exceptions and errors. Templates are stored in `ROOTDIR/Static` directory
  * 
  * @param string $template
  * @param array $vars
@@ -48,8 +49,8 @@ function static_template(string $template, array $vars = []): string {
 
 /**
  * Convert image file contents to string encoded in base64, which can be
- * included later directly in the document, as "ROOTDIR/Static" directory is
- * inaccesible for Web Server.
+ * included later directly in the document, as `ROOTDIR/Static` directory is
+ * inaccessible for the web server
  * 
  * @param string $image
  * @param string $type
@@ -100,7 +101,7 @@ function app_exception_handler(Throwable $ex): void {
 }
 
 /**
- * The core of the CWF-PHP: autoloader function
+ * Auto-loader for CWF-PHP
  * 
  * @param string $class
  * @return void

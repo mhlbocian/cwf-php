@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  *
- * File: Operator.php
- * Description: Query: Operators
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Query\Operator.php
+ * Description: Query - operators
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 

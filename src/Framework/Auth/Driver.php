@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Driver.php
- * Description: Authentication framework - Drivers
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Auth\Auth.php
+ * Description: Auth API - drivers
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 

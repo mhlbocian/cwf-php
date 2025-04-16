@@ -3,9 +3,9 @@
 /*
  * CWF-PHP Framework
  *
- * File: SQL.php
- * Description: Query: Functions for generating queries
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Query\SQL.php
+ * Description: Query - SQL query generators
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 

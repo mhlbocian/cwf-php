@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * CWF-PHP Framework
+ * 
+ * File: Framework\Auth\Auth.php
+ * Description: Auth API - group methods
+ * Author: Michal Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
+ */
+
 namespace Framework\Auth;
 
 trait Group {

@@ -36,6 +36,8 @@
 |    text    |    text    |     text    |
 +============+============+=============+
 
+PRIMARY KEY: username
+
 <b>TABLE: groups</b>
 
 +============+=============+
@@ -43,6 +45,8 @@
 +============+=============+
 |    text    |    text     |
 +============+=============+
+
+PRIMARY KEY: groupname
 
 <b>TABLE: memberships</b>
 

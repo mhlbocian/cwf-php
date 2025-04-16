@@ -3,19 +3,15 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Router.php
+ * File: Framework\Router.php
  * Description: Router class
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
 namespace Framework;
 
-use Exception;
-
-class Invalid_Route extends Exception {
-    // InvalidRoute class for invalid route exception
-}
+use Framework\Exceptions\Router_Exception;
 
 class Router {
 
@@ -39,19 +35,19 @@ class Router {
 
     /**
      * 
-     * @var string Default action (from CFGDIR/application.json)
+     * @var string Default action (from `CFGDIR/application.json`)
      */
     private string $default_action;
 
     /**
      * 
-     * @var string Default controller (from CFGDIR/application.json)
+     * @var string Default controller (from `CFGDIR/application.json`)
      */
     private string $default_controller;
 
     /**
      * 
-     * @var string Controllers name space (from CFGDIR/application.json)
+     * @var string Controllers name space (from `CFGDIR/application.json`)
      */
     private string $namespace;
 
@@ -82,6 +78,40 @@ class Router {
     }
 
     /**
+     * Check requirements and execute route
+     * 
+     * @return void
+     * @throws Invalid_Route
+     */
+    public function Execute(): void {
+        $this->Check_Requirements();
+
+        $ctrl_object = new $this->class_fqn();
+        $ctrl_object->{$this->action}();
+    }
+
+    /**
+     * Return parameters array
+     * URL: `{Controller}/{Action}[/Arg1[/[Arg2]...]]`
+     * 
+     * @return array [Arg1, Arg2, ...]
+     */
+    public static function Get_Args(): array {
+
+        return self::$args;
+    }
+
+    /**
+     * Return current route `{controller}/{action}' string
+     * 
+     * @return string
+     */
+    public static function Get_Route(): string {
+
+        return self::$route;
+    }
+
+    /**
      * Check all requirements before initializing controller
      * 
      * @return void
@@ -89,17 +119,17 @@ class Router {
     private function Check_Requirements(): void {
         if (!class_exists($this->class_fqn)) {
 
-            throw new Invalid_Route("ROUTER: class '{$this->class_fqn}' does not exist");
+            throw new Router_Exception("ROUTER: class '{$this->class_fqn}' does not exist");
         }
 
         if (!method_exists($this->class_fqn, $this->action)) {
 
-            throw new Invalid_Route("ROUTER: method '{$this->action}' does not exist");
+            throw new Router_Exception("ROUTER: method '{$this->action}' does not exist");
         }
 
         if (str_starts_with($this->action, "__")) {
 
-            throw new Invalid_Route("ROUTER: action forbidden for magic methods");
+            throw new Router_Exception("ROUTER: action forbidden for magic methods");
         }
     }
 
@@ -142,39 +172,5 @@ class Router {
 
         $this->class_fqn = $this->namespace . "\\" . $this->controller;
         self::$route = "{$this->controller}/{$this->action}";
-    }
-
-    /**
-     * Check requirements and execute route
-     * 
-     * @return void
-     * @throws Invalid_Route
-     */
-    public function Execute(): void {
-        $this->Check_Requirements();
-
-        $ctrl_object = new $this->class_fqn();
-        $ctrl_object->{$this->action}();
-    }
-
-    /**
-     * Return parameters array
-     * URL: {Controller}/{Action}[/Arg1[/[Arg2]...]]
-     * 
-     * @return array
-     */
-    public static function Get_Args(): array {
-
-        return self::$args;
-    }
-
-    /**
-     * Return current route '{controller}/{action}' string
-     * 
-     * @return string
-     */
-    public static function Get_Route(): string {
-
-        return self::$route;
     }
 }

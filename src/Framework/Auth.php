@@ -3,15 +3,14 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Auth.php
- * Description: Authentication framework
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * File: Framework\Auth.php
+ * Description: Auth API - main class
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
 namespace Framework;
 
-use Exception;
 use Framework\Config;
 
 class Auth {
@@ -28,7 +27,7 @@ class Auth {
 
     /**
      * 
-     * @var array CFGDIR/authentication.json data
+     * @var array `CFGDIR/authentication.json` data
      */
     private static array $auth_cfg;
 
@@ -39,24 +38,24 @@ class Auth {
     private static bool $is_init = false;
 
     /**
-     * Loads configuration stored in CFGDIR/authentication.json, if file is not
-     * present, then does nothing
+     * Loads configuration stored in `CFGDIR/authentication.json`, if file is
+     * not present, then does nothing
      * 
      * @return void
      * @throws Exception
      */
     public static function Init(): void {
         if (self::$is_init) {
-            throw new Exception("AUTH: Can be initialised only once");
+            throw new \Exception("AUTH: Can be initialised only once");
         }
-        // if no CFGDIR/auth.json file, do nothing
+        // if no `CFGDIR/auth.json` file, do nothing
         if (!Config::Exists("authentication")) {
 
             return;
         }
 
         self::$auth_cfg = Config::Fetch("authentication");
-        $driver = strtolower(self::$auth_cfg["driver"]);
+        $driver = \strtolower(self::$auth_cfg["driver"]);
 
         switch ($driver) {
             case "database":
@@ -64,9 +63,9 @@ class Auth {
                 break;
             case "ldap":
                 //self::$driver = Auth_Driver::LDAP;
-                throw new Exception("AUTH: LDAP driver is not implemented");
+                throw new \Exception("AUTH: LDAP driver is not implemented");
             default:
-                throw new Exception("AUTH: Unknown driver");
+                throw new \Exception("AUTH: Unknown driver");
         }
 
         self::$is_init = true;
@@ -146,13 +145,13 @@ class Auth {
      */
     private static function CallDriver(string $function, ...$params): mixed {
         if (!self::$is_init) {
-            throw new Exception("AUTH: Not initialised");
+            throw new \Exception("AUTH: Not initialised");
         }
         // set method name with driver's prefix
         $method = self::$driver->value . "_" . $function;
 
-        if (!method_exists(self::class, $method)) {
-            throw new Exception("AUTH: Undefined function '{$function}'");
+        if (!\method_exists(self::class, $method)) {
+            throw new \Exception("AUTH: Undefined function '{$function}'");
         }
 
         return self::{$method}(...$params);

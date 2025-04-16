@@ -3,15 +3,13 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Config.php
+ * File: Framework\Config.php
  * Description: Config files management
- * Author: Michał Bocian <bocian.michal@outlook.com>
+ * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
 namespace Framework;
-
-use Exception;
 
 class Config {
 
@@ -22,40 +20,37 @@ class Config {
     private static array $config_data = [];
 
     /**
-     * Check if custom config file exists
+     * Check if configuration file exists
      * 
      * @param string $cfg
      * @return bool
      */
     public static function Exists(string $cfg): bool {
-        return file_exists(CFGDIR . DS . "{$cfg}.json");
+        return \file_exists(\CFGDIR . \DS . "{$cfg}.json");
     }
 
     /**
-     * Load configuration file contents.
+     * Load configuration file contents
      * 
-     * If main config file (config.json) load it to $main_config, else for
-     * other config file load it to $rest_config
-     * 
-     * @param string|null $cfg Configuration file to load.
+     * @param string $cfg Configuration file name
      * @throws Exception
      */
     private static function Load(string $cfg) {
-        $path = CFGDIR . DS . "{$cfg}.json";
+        $path = \CFGDIR . \DS . "{$cfg}.json";
 
         if (!self::Exists($cfg)) {
-            throw new Exception("CONFIG: file '{$path}' does not exist");
+            throw new \Exception("CONFIG: file '{$path}' does not exist");
         }
 
-        $cnt = file_get_contents($path);
-        self::$config_data[$cfg] = json_decode($cnt, true);
+        $cnt = \file_get_contents($path);
+        self::$config_data[$cfg] = \json_decode($cnt, true);
     }
 
     /**
-     * Helper function for Fetch/Get. Check, if config file is already loaded.
-     * If not, load it.
+     * Helper function for Fetch/Get. Check, if configuration file is already
+     * loaded. If not, load it
      * 
-     * @param string|null $cfg
+     * @param string $cfg Configuration file name
      * @return void
      */
     private static function Check_Load(string $cfg): void {
@@ -65,10 +60,10 @@ class Config {
     }
 
     /**
-     * Fetch all data from config file
+     * Fetch all data from configuration file
      * 
-     * @param string|null $cfg
-     * @return array
+     * @param string $cfg Configuration file name
+     * @return array Decoded JSON array of whole configuration file
      */
     public static function Fetch(string $cfg): array {
         self::Check_Load($cfg);
@@ -79,24 +74,24 @@ class Config {
     /**
      * Get a value from configuration file
      * 
-     * @param string $key Key from configuration
-     * @param string|null $cfg Configuration file
-     * @return mixed
+     * @param string $cfg Configuration file name
+     * @param string $key Key from configuration file
+     * @return mixed Contents
      */
     public static function Get(string $cfg, string $key): mixed {
         self::Check_Load($cfg);
 
         if (!key_exists($key, self::$config_data[$cfg])) {
-            throw new Exception("CONFIG: Key '{$key}' not found in '{$cfg}'");
+            throw new \Exception("CONFIG: Key '{$key}' not found in '{$cfg}'");
         }
 
         return self::$config_data[$cfg][$key];
     }
 
     /**
-     * Set a new data for local config file
+     * Set a new data for local configuration file
      * 
-     * @param string $cfg Config file name
+     * @param string $cfg Configuration file name
      * @param string $key
      * @param mixed $value
      * @return void
@@ -114,9 +109,9 @@ class Config {
     }
 
     /**
-     * Update local config file with current data
+     * Update local configuration file with current data
      * 
-     * @param string $cfg
+     * @param string $cfg Configuration file name
      * @return void
      */
     public static function Update(string $cfg): void {
@@ -124,13 +119,13 @@ class Config {
             return; // nothing to do
         }
 
-        $path = CFGDIR . DS . "{$cfg}.json";
+        $path = \CFGDIR . \DS . "{$cfg}.json";
 
-        if (!($fh = fopen($path, "w"))) {
-            throw new Exception("CONFIG: cannot open file '{$path}'");
+        if (!($fh = \fopen($path, "w"))) {
+            throw new \Exception("CONFIG: cannot open file '{$path}'");
         }
 
-        fwrite($fh, json_encode(self::$config_data[$cfg]));
-        fclose($fh);
+        \fwrite($fh, \json_encode(self::$config_data[$cfg]));
+        \fclose($fh);
     }
 }
