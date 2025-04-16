@@ -47,9 +47,18 @@ class Core {
      * 
      * @return void
      */
-    public static function Check_Env(): void {
+    public static function Init(): void {
         self::Check_PHP_Env();
         self::Check_Dir_Perms();
+
+        // initialise core classes
+        Auth::Init();
+        Url::Init();
+
+        // initialize application info constants
+        define("APPNAME", Config::Get("application", "application")["name"]);
+        define("APPDES", Config::Get("application", "application")["description"]);
+        define("APPVER", Config::Get("application", "application")["version"]);
     }
 
     /**

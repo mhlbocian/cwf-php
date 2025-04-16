@@ -16,19 +16,6 @@ define("CFGDIR", ROOTDIR . DS . "Config");
 define("DATADIR", ROOTDIR . DS . "Data");
 // initialize basic functions and handlers
 require_once ROOTDIR . DS . "Framework" . DS . "init.php";
-
-use Framework\Auth;
-use Framework\Config;
-use Framework\Core;
-use Framework\Url;
-
-// configure core classes
-Core::Check_Env();
-Auth::Init();
-Url::Init();
-// initialize application info constants
-define("APPNAME", Config::Get("application", "application")["name"]);
-define("APPDES", Config::Get("application", "application")["description"]);
-define("APPVER", Config::Get("application", "application")["version"]);
-// start session
+// initialize framework and setup environment
+Framework\Core::Init();
 session_start();

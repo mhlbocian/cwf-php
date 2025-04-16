@@ -4,13 +4,14 @@ namespace Application\Controllers;
 
 use Framework\{
     Auth,
-    Url,
-    Router,
+    Config,
     Database,
     Query,
+    Query\Statement,
+    Router,
+    Url,
     View
 };
-use Framework\Query\Statement;
 
 class Authenticate {
 
@@ -18,15 +19,20 @@ class Authenticate {
     private View $view;
 
     public function __construct() {
-        $this->conn = new Database();
+        $this->conn = new Database(Config::Get("authentication", "connection"));
         $this->view = new View("Authenticate");
         $sites = [
             "CreateSchema" => "Create schema",
             "AddUser" => "Add user",
             "AddGroup" => "Add group",
-            "Auth" => "Authenticate user",
-            "Exists" => "Check existance of user or group"
+            "Login" => "Log in",
         ];
+
+        if (Auth::IsLogged()) {
+            $user = Auth::Session()["username"];
+            $sites["Login"] = "Log out [{$user}]";
+        }
+
         $this->view->Bind("sites", $sites);
     }
 
@@ -34,7 +40,7 @@ class Authenticate {
         $cnt = "<b>Users:</b>";
         $cnt .= "<ul>";
 
-        foreach (Auth::GetUsers() as $username => $fullname) {
+        foreach (Auth::UserFetch() as $username => $fullname) {
             $cnt .= "<li>{$username} ({$fullname})</li>";
         }
 
@@ -42,7 +48,7 @@ class Authenticate {
         $cnt .= "<b>Groups:</b>";
         $cnt .= "<ul>";
 
-        foreach (Auth::GetGroups() as $groupname => $description) {
+        foreach (Auth::GroupFetch() as $groupname => $description) {
             $cnt .= "<li>{$groupname} ({$description})</li>";
         }
 
@@ -61,17 +67,15 @@ class Authenticate {
             return;
         }
 
-        $cnt = "Adding user: <b>{$username}</b> with password: <b>{$password}</b>";
+        $cnt = "Adding user: <b>{$username}</b> with password: <b>{$password}</b> [";
+        $cnt .= match (Auth::UserAdd($username, "AbuRebu", $password)) {
+            Auth\Status::FAILED => "failed",
+            Auth\Status::INVALID_INPUT => "invalid input data",
+            Auth\Status::SUCCESS => "success",
+            Auth\Status::EXISTS => "user already exists"
+        };
+        $cnt .= "]";
 
-        $query = (new Query(Statement::INSERT))
-                ->Table("users")
-                ->Columns("username", "fullname", "password")
-                ->Values($username)
-                ->Values("Default Name")
-                ->Values(password_hash($password, PASSWORD_DEFAULT));
-        $cnt .= "<br>{$query}";
-        $this->conn->Query($query);
-        $cnt .= "<br>ok!";
         $this->view->Bind("content", $cnt);
     }
 
@@ -86,69 +90,13 @@ class Authenticate {
             return;
         }
 
-        $cnt = "Adding group with name: <b>{$groupname}</b> and description: <b>{$description}</b>";
-        $query = (new Query(Statement::INSERT))
-                ->Table("groups")
-                ->Columns("groupname", "description")
-                ->Values($groupname, $description);
-        $cnt .= "<br>{$query}";
-        $this->conn->Query($query);
-        $cnt .= "<br>ok!";
-        $this->view->Bind("content", $cnt);
-    }
-
-    public function Auth(): void {
-        $username = Router::Get_Args()[0] ?? null;
-        $password = Router::Get_Args()[1] ?? null;
-
-        if ($username == null || $password == null) {
-            $cnt = "<b>You must specify username and password</b>";
-            $this->view->Bind("content", $cnt);
-
-            return;
-        }
-
-        $cnt = "User: <b>{$username}</b>. Auth: <b>";
-        $cnt .= match (Auth::AuthUser($username, $password)) {
-                    true => "passed!",
-                    false => "failed!"
-                } . "</b>";
-        $this->view->Bind("content", $cnt);
-    }
-
-    public function Exists(): void {
-        $type = Router::Get_Args()[0] ?? null;
-        $name = Router::Get_Args()[1] ?? null;
-
-        if ($type == null || $name == null) {
-            $cnt = "<b>Specify action (user/group) and parameter (name)</b>";
-            $this->view->Bind("content", $cnt);
-
-            return;
-        }
-
-        $type = strtolower($type);
-
-        switch ($type) {
-            case "user":
-                $cnt = "User: <b>{$name}</b> ";
-                $cnt .= match (Auth::UserExists($name)) {
-                    true => "exists!",
-                    false => "does not exist!"
-                };
-                break;
-            case "group":
-                $cnt = "Group: <b>{$name}</b> ";
-                $cnt .= match (Auth::GroupExists($name)) {
-                    true => "exists!",
-                    false => "does not exist!"
-                };
-                break;
-            default:
-                $cnt = "<b>Unknown action</b>";
-                break;
-        }
-        
+        $cnt = "Adding group: <b>{$groupname}</b> <i>({$description})</i> [";
+        $cnt .= match (Auth::GroupAdd($groupname, $description)) {
+            Auth\Status::EXISTS => "group exists",
+            Auth\Status::FAILED => "failed",
+            Auth\Status::SUCCESS => "success"
+        };
+        $cnt .= "]";
         $this->view->Bind("content", $cnt);
     }
 
@@ -183,6 +131,31 @@ class Authenticate {
                 ->ForeginKey("groupname", "groups(groupname)");
         $cnt .= $query . "<br>QUERY OK.</code>";
         $this->conn->Query($query);
+        $this->view->Bind("content", $cnt);
+    }
+
+    public function Login(): void {
+        if (Auth::IsLogged()) {
+            Auth::Logout();
+            Url::Redirect("Authenticate");
+        }
+
+        $username = Router::Get_Args()[0] ?? null;
+        $password = Router::Get_Args()[1] ?? null;
+
+        if ($username == null || $password == null) {
+            $cnt = "<b>You must specify username and password</b>";
+            $this->view->Bind("content", $cnt);
+
+            return;
+        }
+
+        $cnt = "User: <b>{$username}</b>. Auth: <b>";
+        $cnt .= match (Auth::Login($username, $password)) {
+                    Auth\Status::INVALID_INPUT => "invalid input",
+                    Auth\Status::FAILED => "failed",
+                    Auth\Status::SUCCESS => "success"
+                } . "</b>";
         $this->view->Bind("content", $cnt);
     }
 

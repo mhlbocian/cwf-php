@@ -24,43 +24,43 @@ class Router {
      * @var string Current action
      */
     private string $action;
-    
+
     /**
      * 
      * @var string Current controller
      */
     private string $controller;
-    
+
     /**
      * 
      * @var string Class FQN string (includes name space)
      */
     private string $class_fqn;
-    
+
     /**
      * 
      * @var string Default action (from CFGDIR/application.json)
      */
     private string $default_action;
-    
+
     /**
      * 
      * @var string Default controller (from CFGDIR/application.json)
      */
     private string $default_controller;
-    
+
     /**
      * 
      * @var string Controllers name space (from CFGDIR/application.json)
      */
     private string $namespace;
-    
+
     /**
      * 
      * @var array Action arguments
      */
     private static array $args = [];
-    
+
     /**
      * 
      * @var string Current route (available outside Router)
@@ -88,11 +88,18 @@ class Router {
      */
     private function Check_Requirements(): void {
         if (!class_exists($this->class_fqn)) {
+
             throw new Invalid_Route("ROUTER: class '{$this->class_fqn}' does not exist");
         }
 
         if (!method_exists($this->class_fqn, $this->action)) {
+
             throw new Invalid_Route("ROUTER: method '{$this->action}' does not exist");
+        }
+
+        if (str_starts_with($this->action, "__")) {
+
+            throw new Invalid_Route("ROUTER: action forbidden for magic methods");
         }
     }
 

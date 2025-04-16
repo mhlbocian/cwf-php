@@ -2,7 +2,7 @@
     "application": {
         "name": "CWF-PHP",
         "description": "CWF-PHP Framework",
-        "version": "0.5"
+        "version": "0.51"
     },
     "router": {
         "namespace": "Application\\Controllers",

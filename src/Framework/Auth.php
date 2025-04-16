@@ -16,21 +16,22 @@ use Framework\Config;
 
 class Auth {
 
-    // import drivers
-    use Auth\Driver_Db;
+    use Auth\Driver_Database; // import drivers
+    use Auth\Group,
+        Auth\User; // import group and user methods
 
     /**
      * 
      * @var Auth\Driver Authentication driver (like Db, Ldap)
      */
     private static Auth\Driver $driver;
-    
+
     /**
      * 
      * @var array CFGDIR/authentication.json data
      */
     private static array $auth_cfg;
-    
+
     /**
      * 
      * @var bool When Auth is properly initialized, the value is true
@@ -69,74 +70,70 @@ class Auth {
         }
 
         self::$is_init = true;
-        self::Call_Driver("Setup");
+        self::CallDriver("Setup");
     }
 
     /**
-     * Check, if given credentials are correct
+     * Check, if user is logged in
      * 
-     * @param string $login
-     * @param string $password
      * @return bool
      */
-    public static function AuthUser(string $username, string $password): bool {
-
-        return self::Call_Driver("AuthUser", $username, $password);
+    public static function IsLogged(): bool {
+        return isset(
+                $_SESSION["_AUTH"]["fullname"],
+                $_SESSION["_AUTH"]["login_time"],
+                $_SESSION["_AUTH"]["username"]
+        );
     }
 
     /**
-     * Return an array of groups
-     * 
-     * @return array ["groupname1"=>"description1", ...]
-     */
-    public static function GetGroups(): array {
-
-        return self::Call_Driver("GetGroups");
-    }
-
-    /**
-     * Return an array of users
-     * 
-     * @param string|null $groupname
-     * @return array ["username1"=>"fullname1", ...]
-     */
-    public static function GetUsers(?string $groupname = null): array {
-
-        return self::Call_Driver("GetUsers", $groupname);
-    }
-
-    /**
-     * Check, if group exists for given name
-     * 
-     * @param string $groupname
-     * @return bool
-     */
-    public static function GroupExists(string $groupname): bool {
-
-        return self::Call_Driver("GroupExists", $groupname);
-    }
-
-    /**
-     * Check, if user exists for given login
-     * 
-     * @param string $login
-     * @return bool
-     */
-    public static function UserExists(string $username): bool {
-
-        return self::Call_Driver("UserExists", $username);
-    }
-
-    /**
-     * Check, if user belong to specified group
+     * Authenticate user and setup session
      * 
      * @param string $username
-     * @param string $groupname
-     * @return bool
+     * @param string $password
+     * @return Auth\Status
      */
-    public static function UserInGroup(string $username, string $groupname): bool {
+    public static function Login(
+            string $username,
+            string $password): Auth\Status {
 
-        return self::Call_Driver("UserInGroup", $username, $groupname);
+        if (!self::UserAuth($username, $password)) {
+
+            return Auth\Status::FAILED;
+        }
+
+        $user_info = self::UserInfo($username);
+        $_SESSION["_AUTH"]["fullname"] = $user_info["fullname"];
+        $_SESSION["_AUTH"]["login_time"] = time();
+        $_SESSION["_AUTH"]["username"] = $user_info["username"];
+
+        return Auth\Status::SUCCESS;
+    }
+
+    /**
+     * Logout user
+     * 
+     * @return void
+     */
+    public static function Logout(): void {
+
+        unset($_SESSION["_AUTH"]);
+    }
+
+    /**
+     * Return the array of auth session parameters. When user is not logged in,
+     * return an empty array
+     * 
+     * @return array
+     */
+    public static function Session(): array {
+        if (!self::IsLogged()) {
+
+            return [];
+        } else {
+
+            return $_SESSION["_AUTH"];
+        }
     }
 
     /**
@@ -147,7 +144,7 @@ class Auth {
      * @return mixed
      * @throws Exception
      */
-    private static function Call_Driver(string $function, ...$params): mixed {
+    private static function CallDriver(string $function, ...$params): mixed {
         if (!self::$is_init) {
             throw new Exception("AUTH: Not initialised");
         }

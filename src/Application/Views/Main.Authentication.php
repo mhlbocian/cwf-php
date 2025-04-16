@@ -1,16 +1,17 @@
 <h3>Authentication</h3>
 <p>
-    To activate authentication module create <code>auth.json</code> file in the
-    <code>Config</code> directory. By default, bootstrap invokes the
-    <code>Framework\Auth::Load_Config()</code> method. When <code>auth.json</code>
-    file is not present, further execution of module's code is omitted.
+    To activate authentication module create <code>authentication.json</code>
+    file in the <code>Config</code> directory. By default, bootstrap invokes the
+    <code>Framework\Auth::Load_Config()</code> method.
+    When <code>authentication.json</code> file is not present, further execution
+    of module's code is omitted.
 </p>
 <p><b>Drivers</b></p>
 <ul>
     <li>Database <i>(partially implemented)</i></li>
     <li>LDAP <i>(planned for implementation)</i></li>
 </ul>
-<h4>Structure of <code>auth.json</code></h4>
+<h4>Structure of <code>authentication.json</code></h4>
 <pre>
 {
     "driver": "database",
@@ -24,7 +25,7 @@
 <p>
     <code>Framework\Auth</code> requires currently 3 tables with columns specification 
     shown below. You must provide exact names for each column. Additional columns are
-    allowed. Table names must be specified in the <code>auth.json</code> file.
+    allowed. Table names must be specified in the <code>authentication.json</code> file.
 </p>
 <pre>
 <b>TABLE: users</b>
