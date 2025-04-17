@@ -37,7 +37,7 @@ class Core {
      * 
      * @var string Minimal required PHP version
      */
-    private static string $php_min_ver = "8.3";
+    private static string $php_min_ver = "8.4";
 
     /**
      * Used in bootstrap, to check all required stuff in application

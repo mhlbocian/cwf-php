@@ -9,61 +9,66 @@
  * License: 3-Clause BSD
  */
 
-namespace Framework\Auth;
+namespace Framework\Auth\Drivers;
 
-use Framework\{
-    Database,
-    Query
-};
+use Framework\Auth\Status;
+use Framework\Query;
 use Framework\Query\{
     Operator,
     Statement
 };
 
-trait Driver_Database {
+final class Database implements \Framework\Interfaces\Auth_Driver {
 
     /**
      * 
      * @var Database Connection handler
      */
-    private static Database $db_conn;
+    private \Framework\Database $conn;
 
     /**
      * 
      * @var string Connection name
      */
-    private static string $db_conn_name;
+    private string $conn_name;
 
     /**
      * 
      * @var string Table name for groups data
      */
-    private static string $db_groups;
+    private string $grp_table;
 
     /**
      * 
      * @var string Table name for memberships data
      */
-    private static string $db_memberships;
+    private string $mbr_table;
 
     /**
      * 
      * @var string Table name for users data
      */
-    private static string $db_users;
+    private string $usr_table;
 
     /**
      * Setup database connection and driver-specific properties
      * 
-     * @param string $connection
+     * @param array $auth_config
      * @return void
      */
-    private static function Db_Setup(): void {
-        self::$db_conn_name = self::$auth_cfg["connection"];
-        self::$db_groups = self::$auth_cfg["groups_table"];
-        self::$db_memberships = self::$auth_cfg["memberships_table"];
-        self::$db_users = self::$auth_cfg["users_table"];
-        self::$db_conn = new Database(self::$db_conn_name);
+    #[\Override]
+    public function __construct(array $auth_config) {
+        if (!isset($auth_config["connection"])) {
+
+            throw new \Exception("AUTH-Database: no connection name");
+        }
+        // connection name is mandatory
+        $this->conn_name = $auth_config["connection"];
+        // if the rest of keys are not in config file, load default values
+        $this->grp_table = $auth_config["groups_table"] ?? "groups";
+        $this->mbr_table = $auth_config["memberships_table"] ?? "memberships";
+        $this->usr_table = $auth_config["users_table"] ?? "users";
+        $this->conn = new \Framework\Database($this->conn_name);
     }
 
     /**
@@ -73,17 +78,18 @@ trait Driver_Database {
      * @param string $description
      * @return Status
      */
-    private static function Db_GroupAdd(
+    #[\Override]
+    public function GroupAdd(
             string $groupname,
             string $description): Status {
 
         try {
-            $query = (new Query(Statement::INSERT))
-                    ->Table(self::$db_groups)
+            $query = new Query(Statement::INSERT)
+                    ->Table($this->grp_table)
                     ->Columns("groupname", "description")
                     ->Values($groupname)
                     ->Values($description);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -99,17 +105,18 @@ trait Driver_Database {
      * @param string $description
      * @return Status
      */
-    private static function Db_GroupChDesc(
+    #[\Override]
+    public function GroupChDesc(
             string $groupname,
             string $description): Status {
 
         try {
-            $query = (new Query(Statement::UPDATE))
-                    ->Table(self::$db_groups)
+            $query = new Query(Statement::UPDATE)
+                    ->Table($this->grp_table)
                     ->Columns("groupname", "description")
                     ->Values($groupname, $description)
                     ->Where("groupname", Operator::Eq, $groupname);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -124,18 +131,19 @@ trait Driver_Database {
      * @param string $groupname
      * @return Status
      */
-    private static function Db_GroupDel(string $groupname): Status {
+    #[\Override]
+    public function GroupDel(string $groupname): Status {
         try {
             // remove membership relations
-            $query = (new Query(Statement::DELETE))
-                    ->Table(self::$db_memberships)
+            $query = new Query(Statement::DELETE)
+                    ->Table($this->mbr_table)
                     ->Where("groupname", Operator::Eq, $groupname);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
             // remove the group
             $query = (new Query(Statement::DELETE))
-                    ->Table(self::$db_groups)
+                    ->Table($this->grp_table)
                     ->Where("groupname", Operator::Eq, $groupname);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -150,11 +158,12 @@ trait Driver_Database {
      * @param string $groupname
      * @return bool
      */
-    private static function Db_GroupExists(string $groupname): bool {
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_groups)
+    #[\Override]
+    public function GroupExists(string $groupname): bool {
+        $query = new Query(Statement::SELECT)
+                ->Table($this->grp_table)
                 ->Where("groupname", Operator::Eq, $groupname);
-        $result = self::$db_conn->Query($query)->fetchAll();
+        $result = $this->conn->Query($query)->fetchAll();
 
         return (count($result) == 1);
     }
@@ -164,12 +173,13 @@ trait Driver_Database {
      * 
      * @return array
      */
-    private static function Db_GroupFetch(): array {
+    #[\Override]
+    public function GroupFetch(): array {
         $output = [];
 
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_groups);
-        $result = self::$db_conn->Query($query);
+        $query = new Query(Statement::SELECT)
+                ->Table($this->grp_table);
+        $result = $this->conn->Query($query);
 
         foreach ($result as $row) {
             $output[$row["groupname"]] = $row["description"];
@@ -186,20 +196,21 @@ trait Driver_Database {
      * @param string $password
      * @return Status
      */
-    private static function Db_UserAdd(
+    #[\Override]
+    public function UserAdd(
             string $username,
             string $fullname,
             string $password): Status {
 
-        $query = (new Query(Statement::INSERT))
-                ->Table(self::$db_users)
+        $query = new Query(Statement::INSERT)
+                ->Table($this->usr_table)
                 ->Columns("username", "fullname", "password")
                 ->Values($username)
                 ->Values($fullname)
                 ->Values(password_hash($password, PASSWORD_DEFAULT));
 
         try {
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -215,14 +226,15 @@ trait Driver_Database {
      * @param string $password
      * @return bool
      */
-    private static function Db_UserAuth(
+    #[\Override]
+    public function UserAuth(
             string $username,
             string $password): bool {
 
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_users)
+        $query = new Query(Statement::SELECT)
+                ->Table($this->usr_table)
                 ->Where("username", Operator::Eq, $username);
-        $result = self::$db_conn->Query($query)->fetchAll();
+        $result = $this->conn->Query($query)->fetchAll();
 
         if (count($result) != 1) {
 
@@ -239,17 +251,18 @@ trait Driver_Database {
      * @param string $fullname
      * @return Status
      */
-    private static function Db_UserChName(
+    #[\Override]
+    public function UserChName(
             string $username,
             string $fullname): Status {
 
         try {
-            $query = (new Query(Statement::UPDATE))
-                    ->Table(self::$db_users)
+            $query = new Query(Statement::UPDATE)
+                    ->Table($this->usr_table)
                     ->Columns("fullname")
                     ->Values($fullname)
                     ->Where("username", Operator::Eq, $username);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -265,17 +278,18 @@ trait Driver_Database {
      * @param string $password
      * @return Status
      */
-    private static function Db_UserChPass(
+    #[\Override]
+    public function UserChPass(
             string $username,
             string $password): Status {
 
         try {
-            $query = (new Query(Statement::UPDATE))
-                    ->Table(self::$db_users)
+            $query = new Query(Statement::UPDATE)
+                    ->Table($this->usr_table)
                     ->Columns("password")
                     ->Values(password_hash($password, PASSWORD_DEFAULT))
                     ->Where("username", Operator::Eq, $username);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -290,11 +304,12 @@ trait Driver_Database {
      * @param string $username
      * @return bool
      */
-    private static function Db_UserExists(string $username): bool {
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_users)
+    #[\Override]
+    public function UserExists(string $username): bool {
+        $query = new Query(Statement::SELECT)
+                ->Table($this->usr_table)
                 ->Where("username", Operator::Eq, $username);
-        $result = self::$db_conn->Query($query)->fetchAll();
+        $result = $this->conn->Query($query)->fetchAll();
 
         return (count($result) == 1);
     }
@@ -305,18 +320,19 @@ trait Driver_Database {
      * @param string|null $group
      * @return array
      */
-    private static function Db_UserFetch(?string $group): array {
+    #[\Override]
+    public function UserFetch(?string $group): array {
         $output = [];
 
         if ($group == null) {
-            $query = (new Query(Statement::SELECT))
-                    ->Table(self::$db_users);
+            $query = new Query(Statement::SELECT)
+                    ->Table($this->usr_table);
         } else {
             // TODO: QUERY JOIN OPERATIONS, now return empty array
             return $output;
         }
 
-        $result = self::$db_conn->Query($query);
+        $result = $this->conn->Query($query);
 
         foreach ($result as $row) {
             $output[$row["username"]] = $row["fullname"];
@@ -331,15 +347,18 @@ trait Driver_Database {
      * @param string $username
      * @return array
      */
-    private static function Db_UserInfo(string $username): array {
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_users)
+    #[\Override]
+    public function UserInfo(string $username): array {
+        $query = new Query(Statement::SELECT)
+                ->Table($this->usr_table)
                 ->Columns("username", "fullname")
                 ->Where("username", Operator::Eq, $username);
-        $result = self::$db_conn->Query($query)->fetchAll();
+        $result = $this->conn->Query($query)->fetchAll();
 
         if (count($result) == 1) {
-            // TODO: implement key with all groups of user
+            /**
+             * @TODO implement array key for all groups of user
+             */
             return [
                 "fullname" => $result[0]["fullname"],
                 "username" => $result[0]["username"]
@@ -357,29 +376,38 @@ trait Driver_Database {
      * @param string $groupname
      * @return bool
      */
-    private static function Db_UserInGroup(
+    #[\Override]
+    public function UserInGroup(
             string $username,
             string $groupname): bool {
-        
-        $query = (new Query(Statement::SELECT))
-                ->Table(self::$db_memberships)
+
+        $query = new Query(Statement::SELECT)
+                ->Table($this->mbr_table)
                 ->Where("username", Operator::Eq, $username)
                 ->And("groupname", Operator::Eq, $groupname);
-        $result = self::$db_conn->Query($query)->fetchAll();
+        $result = $this->conn->Query($query)->fetchAll();
 
         return (count($result) == 1);
     }
 
-    private static function Db_UserJoin(
+    /**
+     * Db driver implementation for: UserJoin
+     * 
+     * @param string $username
+     * @param string $groupname
+     * @return bool
+     */
+    #[\Override]
+    public function UserJoin(
             string $username,
             string $groupname): Status {
-        
+
         try {
-            $query = (new Query(Statement::INSERT))
-                    ->Table(self::$db_memberships)
+            $query = new Query(Statement::INSERT)
+                    ->Table($this->mbr_table)
                     ->Columns("username", "groupname")
                     ->Values($username, $groupname);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -388,16 +416,24 @@ trait Driver_Database {
         return Status::SUCCESS;
     }
 
-    private static function Db_UserLeave(
+    /**
+     * Db driver implementation for: UserLeave
+     * 
+     * @param string $username
+     * @param string $groupname
+     * @return bool
+     */
+    #[\Override]
+    public function UserLeave(
             string $username,
             string $groupname): Status {
 
         try {
-            $query = (new Query(Statement::DELETE))
-                    ->Table(self::$db_memberships)
+            $query = new Query(Statement::DELETE)
+                    ->Table($this->mbr_table)
                     ->Where("username", Operator::Eq, $username)
                     ->And("groupname", Operator::Eq, $groupname);
-            self::$db_conn->Query($query);
+            $this->conn->Query($query);
         } catch (\Throwable) {
 
             return Status::FAILED;

@@ -150,11 +150,15 @@ class Authenticate {
             return;
         }
 
+        $auth = Auth::Login($username, $password);
+
+        if ($auth == Auth\Status::SUCCESS) {
+            Url::Redirect("Authenticate");
+        }
+
         $cnt = "User: <b>{$username}</b>. Auth: <b>";
-        $cnt .= match (Auth::Login($username, $password)) {
-                    Auth\Status::INVALID_INPUT => "invalid input",
+        $cnt .= match ($auth) {
                     Auth\Status::FAILED => "failed",
-                    Auth\Status::SUCCESS => "success"
                 } . "</b>";
         $this->view->Bind("content", $cnt);
     }

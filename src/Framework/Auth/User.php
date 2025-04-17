@@ -30,8 +30,9 @@ trait User {
 
             return Status::EXISTS;
         }
-
-        /** @TODO Check full name format requirements */
+        /**
+         * @TODO check full name format requirements
+         */
         return self::CallDriver("UserAdd", $username, $fullname, $password);
     }
 

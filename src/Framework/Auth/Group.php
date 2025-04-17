@@ -28,9 +28,9 @@ trait Group {
 
             return Status::EXISTS;
         }
-
-        // TODO: Check input correctness via regex (Auth\Status::INVALID_INPUT)
-
+        /**
+         * @TODO check input correctness via regex (Auth\Status::INVALID_INPUT)
+         */
         return self::CallDriver("GroupAdd", $groupname, $description);
     }
 

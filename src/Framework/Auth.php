@@ -12,18 +12,20 @@
 namespace Framework;
 
 use Framework\Config;
+use Framework\Interfaces\Auth_Driver;
 
 class Auth {
 
-    use Auth\Driver_Database; // import drivers
     use Auth\Group,
         Auth\User; // import group and user methods
+
+    private const string DRIVERS_NAMESPACE = __NAMESPACE__ . "\\Auth\\Drivers\\";
 
     /**
      * 
      * @var Auth\Driver Authentication driver (like Db, Ldap)
      */
-    private static Auth\Driver $driver;
+    private static Auth_Driver $driver;
 
     /**
      * 
@@ -55,21 +57,11 @@ class Auth {
         }
 
         self::$auth_cfg = Config::Fetch("authentication");
-        $driver = \strtolower(self::$auth_cfg["driver"]);
 
-        switch ($driver) {
-            case "database":
-                self::$driver = Auth\Driver::Database;
-                break;
-            case "ldap":
-                //self::$driver = Auth_Driver::LDAP;
-                throw new \Exception("AUTH: LDAP driver is not implemented");
-            default:
-                throw new \Exception("AUTH: Unknown driver");
-        }
+        // format driver name as first letter uppercase, the rest lowercase
+        self::InitDriver(\ucfirst(\strtolower(self::$auth_cfg["driver"])));
 
         self::$is_init = true;
-        self::CallDriver("Setup");
     }
 
     /**
@@ -105,7 +97,9 @@ class Auth {
         $_SESSION["_AUTH"]["fullname"] = $user_info["fullname"];
         $_SESSION["_AUTH"]["login_time"] = time();
         $_SESSION["_AUTH"]["username"] = $user_info["username"];
-
+        /**
+         * @TODO now its insecure against session hijacking
+         */
         return Auth\Status::SUCCESS;
     }
 
@@ -136,7 +130,7 @@ class Auth {
     }
 
     /**
-     * Call the method of specified driver
+     * Call the function of the driver
      * 
      * @param string $function
      * @param type $params
@@ -147,13 +141,45 @@ class Auth {
         if (!self::$is_init) {
             throw new \Exception("AUTH: Not initialised");
         }
-        // set method name with driver's prefix
-        $method = self::$driver->value . "_" . $function;
 
-        if (!\method_exists(self::class, $method)) {
+        if (!\method_exists(self::$driver, $function)) {
             throw new \Exception("AUTH: Undefined function '{$function}'");
         }
 
-        return self::{$method}(...$params);
+        try {
+            $ret = self::$driver->{$function}(...$params);
+        } catch (\Throwable) {
+
+            throw new \Exception("AUTH: Error occured in '{$function}'");
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Check if class for given driver exists, and is an implementation of the
+     * `Framework\Interfaces\Auth_Driver` interface
+     * 
+     * @param string $driver Driver name
+     * @return void
+     * @throws \Exception
+     */
+    private static function InitDriver(string $driver): void {
+        $class_fqn = self::DRIVERS_NAMESPACE . $driver;
+
+        if (!class_exists($class_fqn)) {
+
+            throw new \Exception("AUTH: Unknown driver '{$driver}'");
+        }
+
+        try {
+            self::$driver = new $class_fqn(self::$auth_cfg);
+        } catch (\TypeError) {
+            // usually when driver class not implements `Auth_Driver`
+            throw new \Exception("AUTH: '{$class_fqn}' is not a vaild  driver");
+        } catch (\Throwable) {
+            // when internal error occurs inside driver
+            throw new \Exception("AUTH: Driver '{$driver}' init error");
+        }
     }
 }
