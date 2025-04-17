@@ -8,6 +8,8 @@
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
+
+declare(strict_types=1);
 // define directories constants
 define("DS", DIRECTORY_SEPARATOR);
 define("ROOTDIR", __DIR__);

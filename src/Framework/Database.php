@@ -20,49 +20,54 @@ class Database {
      * @var PDO Connection handler
      */
     private \PDO $pdo;
-    
+
+    /**
+     * Directory for SQLite files
+     */
+    private const DBDIR = \DATADIR . \DS;
+
     /**
      * 
      * @var string Database name
      */
-    private string $database;
-    
+    private string $dbname;
+
     /**
      * 
      * @var string PDO dsn
      */
     private string $dsn;
-    
+
     /**
      * 
      * @var string Database host
      */
     private string $host;
-    
+
     /**
      * 
      * @var string|null Database password
      */
     private ?string $password;
-    
+
     /**
      * 
      * @var string Database port
      */
     private string $port;
-    
+
     /**
      * 
      * @var string|null Database username
      */
     private ?string $username;
-    
+
     /**
      * 
      * @var string Connection data for specified name in `CFGDIR/database.json`
      */
     public readonly string $conn_name;
-    
+
     /**
      * 
      * @var string Database driver
@@ -79,40 +84,16 @@ class Database {
         $db_cfg = Config::Get("database", $conn_name);
         $this->conn_name = $conn_name;
         // both driver and database cannot be empty
-        $this->driver = strtolower($db_cfg["driver"]);
-        $this->database = $db_cfg["database"];
+        $this->driver = \strtolower($db_cfg["driver"]);
+        $this->dbname = $db_cfg["database"];
         // other fields depends on database driver
         $this->host = $db_cfg["host"] ?? "";
         $this->port = $db_cfg["port"] ?? "";
         $this->username = $db_cfg["username"] ?? null;
         $this->password = $db_cfg["password"] ?? null;
         // create dsn and perform connection
-        $this->Create_Dsn();
+        $this->DSN_Set();
         $this->pdo = new \PDO($this->dsn, $this->username, $this->password);
-    }
-
-    /**
-     * Create PDO `dsn` for specific connection type
-     * 
-     * @return void
-     * @throws Exception
-     */
-    private function Create_Dsn(): void {
-        switch ($this->driver) {
-            case "firebird":
-                throw new \Exception("DB: Firebird is not supported");
-            case "mysql":
-                $this->dsn = "mysql:host={$this->host};"
-                        . "dbname={$this->database}";
-                break;
-            case "pgsql":
-                throw new \Exception("DB: PostgreSQL is not supported");
-            case "sqlite":
-                $this->dsn = "sqlite:" . DATADIR . DS . $this->database;
-                break;
-            default:
-                throw new \Exception("DB: unknown driver '{$this->driver}'");
-        }
     }
 
     /**
@@ -131,5 +112,23 @@ class Database {
         $prep->execute();
 
         return $prep;
+    }
+
+    /**
+     * Create PDO `dsn` for specific connection type
+     * 
+     * @return void
+     * @throws Exception
+     */
+    private function DSN_Set(): void {
+        try {
+            $this->dsn = match ($this->driver) {
+                "mysql" => "mysql:host={$this->host};dbname={$this->dbname}",
+                "pgsql" => "pgsql:host={$this->host};dbname={$this->dbname}",
+                "sqlite" => "sqlite:" . self::DBDIR . "{$this->dbname}"
+            };
+        } catch (\UnhandledMatchError) {
+            throw new \Exception("DB: Unknown driver `{$this->driver}`");
+        }
     }
 }

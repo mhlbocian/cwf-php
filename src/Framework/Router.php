@@ -29,7 +29,7 @@ class Router {
 
     /**
      * 
-     * @var string Class FQN string (includes name space)
+     * @var string Class FQN string (includes namespaces)
      */
     private string $class_fqn;
 
@@ -69,10 +69,10 @@ class Router {
      * @param string|null $route
      */
     public function __construct(?string $route) {
-        $router_cfg = Config::Fetch("application")["router"];
-        $this->namespace = $router_cfg["namespace"];
-        $this->default_controller = $router_cfg["default_controller"];
-        $this->default_action = $router_cfg["default_action"];
+        $config = Config::Fetch("application")["router"];
+        $this->namespace = $config["namespace"];
+        $this->default_controller = $config["default_controller"];
+        $this->default_action = $config["default_action"];
 
         $this->Parse_Route($route);
     }
@@ -84,7 +84,7 @@ class Router {
      * @throws Invalid_Route
      */
     public function Execute(): void {
-        $this->Check_Requirements();
+        $this->Check_Route();
 
         $ctrl_object = new $this->class_fqn();
         $ctrl_object->{$this->action}();
@@ -116,7 +116,7 @@ class Router {
      * 
      * @return void
      */
-    private function Check_Requirements(): void {
+    private function Check_Route(): void {
         if (!class_exists($this->class_fqn)) {
 
             throw new Router_Exception("ROUTER: class '{$this->class_fqn}' does not exist");
@@ -148,7 +148,7 @@ class Router {
 
             /*
              * If the route begins with `/` the first element of array is an
-             * empty string. Remove it.
+             * empty string. Remove it
              */
             if ($path_array[0] == "") {
                 $path_array = array_slice($path_array, 1);
