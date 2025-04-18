@@ -11,7 +11,7 @@
 
 namespace Framework;
 
-class Core {
+final class Core implements Interfaces\Core {
 
     /**
      * 
@@ -45,6 +45,7 @@ class Core {
      * 
      * @return void
      */
+    #[\Override]
     public static function Init(): void {
         self::Check_PHP_Env();
         self::Check_Dir_Perms();

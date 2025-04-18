@@ -11,10 +11,10 @@
 
 namespace Framework;
 
+use Framework\Auth\Status;
 use Framework\Config;
-use Framework\Interfaces\Auth_Driver;
 
-class Auth {
+final class Auth implements Interfaces\Auth {
 
     use Auth\Group,
         Auth\User; // import group and user methods
@@ -25,7 +25,7 @@ class Auth {
      * 
      * @var Auth\Driver Authentication driver (like Db, Ldap)
      */
-    private static Auth_Driver $driver;
+    private static Interfaces\Auth_Driver $driver;
 
     /**
      * 
@@ -40,12 +40,41 @@ class Auth {
     private static bool $is_init = false;
 
     /**
+     * Call the function of the driver
+     * 
+     * @param string $function
+     * @param type $params
+     * @return mixed
+     * @throws Exception
+     */
+    #[\Override]
+    public static function CallDriver(string $function, ...$params): mixed {
+        if (!self::$is_init) {
+            throw new \Exception("AUTH: Not initialised");
+        }
+
+        if (!\method_exists(self::$driver, $function)) {
+            throw new \Exception("AUTH: Undefined function '{$function}'");
+        }
+
+        try {
+            $ret = self::$driver->{$function}(...$params);
+        } catch (\Throwable) {
+
+            throw new \Exception("AUTH: Error occured in '{$function}'");
+        }
+
+        return $ret;
+    }
+
+    /**
      * Loads configuration stored in `CFGDIR/authentication.json`, if file is
      * not present, then does nothing
      * 
      * @return void
      * @throws Exception
      */
+    #[\Override]
     public static function Init(): void {
         if (self::$is_init) {
             throw new \Exception("AUTH: Can be initialised only once");
@@ -69,6 +98,7 @@ class Auth {
      * 
      * @return bool
      */
+    #[\Override]
     public static function IsLogged(): bool {
         /**
          * @TODO now its insecure against session hijacking
@@ -87,13 +117,14 @@ class Auth {
      * @param string $password
      * @return Auth\Status
      */
+    #[\Override]
     public static function Login(
             string $username,
-            string $password): Auth\Status {
+            string $password): Status {
 
         if (!self::UserAuth($username, $password)) {
 
-            return Auth\Status::FAILED;
+            return Status::FAILED;
         }
 
         $user_info = self::UserInfo($username);
@@ -103,7 +134,7 @@ class Auth {
         /**
          * @TODO now its insecure against session hijacking
          */
-        return Auth\Status::SUCCESS;
+        return Status::SUCCESS;
     }
 
     /**
@@ -111,6 +142,7 @@ class Auth {
      * 
      * @return void
      */
+    #[\Override]
     public static function Logout(): void {
 
         unset($_SESSION["_AUTH"]);
@@ -122,6 +154,7 @@ class Auth {
      * 
      * @return array
      */
+    #[\Override]
     public static function Session(): array {
         if (!self::IsLogged()) {
 
@@ -130,33 +163,6 @@ class Auth {
 
             return $_SESSION["_AUTH"];
         }
-    }
-
-    /**
-     * Call the function of the driver
-     * 
-     * @param string $function
-     * @param type $params
-     * @return mixed
-     * @throws Exception
-     */
-    private static function CallDriver(string $function, ...$params): mixed {
-        if (!self::$is_init) {
-            throw new \Exception("AUTH: Not initialised");
-        }
-
-        if (!\method_exists(self::$driver, $function)) {
-            throw new \Exception("AUTH: Undefined function '{$function}'");
-        }
-
-        try {
-            $ret = self::$driver->{$function}(...$params);
-        } catch (\Throwable) {
-
-            throw new \Exception("AUTH: Error occured in '{$function}'");
-        }
-
-        return $ret;
     }
 
     /**

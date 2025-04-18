@@ -29,6 +29,7 @@ trait Constraints {
      * @return Query
      * @throws Exception
      */
+    #[\Override]
     public function ForeginKey(string $column, string $reference): Query {
         if (!\key_exists($column, $this->cols_type)) {
             throw new \Exception("QUERY: unknown FOREIGN KEY column");
@@ -46,6 +47,7 @@ trait Constraints {
      * @return Query
      * @throws Exception
      */
+    #[\Override]
     public function PrimaryKey(string $column): Query {
         if (!\key_exists($column, $this->cols_type)) {
             throw new \Exception("QUERY: invalid PRIMARY KEY column");
@@ -62,6 +64,7 @@ trait Constraints {
      * @param string $columns
      * @return Query
      */
+    #[\Override]
     public function Unique(string ...$columns): Query {
         $this->constraints["unique"][] = $columns;
 

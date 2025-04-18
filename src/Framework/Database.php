@@ -13,7 +13,7 @@ namespace Framework;
 
 use Framework\Config;
 
-class Database {
+final class Database implements Interfaces\Database {
 
     /**
      * 
@@ -66,7 +66,7 @@ class Database {
      * 
      * @var string Connection data for specified name in `CFGDIR/database.json`
      */
-    public readonly string $conn_name;
+    private string $conn_name;
 
     /**
      * 
@@ -80,6 +80,7 @@ class Database {
      * 
      * @param string $conn_name
      */
+    #[\Override]
     public function __construct(string $conn_name = "default") {
         $db_cfg = Config::Get("database", $conn_name);
         $this->conn_name = $conn_name;
@@ -102,6 +103,7 @@ class Database {
      * @param Query $query
      * @return PDOStatement
      */
+    #[\Override]
     public function Query(Query $query): \PDOStatement {
         $prep = $this->pdo->prepare($query);
 

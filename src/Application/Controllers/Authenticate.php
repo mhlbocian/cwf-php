@@ -25,6 +25,7 @@ class Authenticate {
             "CreateSchema" => "Create schema",
             "AddUser" => "Add user",
             "AddGroup" => "Add group",
+            "BindUser" => "Join user to group",
             "Login" => "Log in",
         ];
 
@@ -106,6 +107,32 @@ class Authenticate {
         $this->view->Bind("content", $cnt);
     }
 
+    public function BindUser(): void {
+        $username = Router::Get_Args()[0] ?? null;
+        $groupname = Router::Get_Args()[1] ?? null;
+
+        if ($username == null || $groupname == null) {
+            $cnt = "<b>Username and groupname required</b>";
+            $this->view->Bind("content", $cnt);
+
+            return;
+        }
+
+        $res = Auth::UserJoin($username, $groupname);
+
+        if ($res == Auth\Status::SUCCESS) {
+            Url::Redirect("/Authenticate");
+        }
+
+        $cnt = match ($res) {
+            Auth\Status::INVALID_INPUT => "Invalid input",
+            Auth\Status::EXISTS => "User already in group",
+            Auth\Status::FAILED => "Action failed",
+        };
+
+        $this->view->Bind("content", $cnt);
+    }
+
     public function CreateSchema(): void {
         // QUERY 1: users table
         $cnt = "<code>";
@@ -144,7 +171,7 @@ class Authenticate {
     public function Login(): void {
         if (Auth::IsLogged()) {
             Auth::Logout();
-            Url::Redirect("Authenticate");
+            Url::Redirect("/Authenticate");
         }
 
         $username = Router::Get_Args()[0] ?? null;

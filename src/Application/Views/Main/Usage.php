@@ -144,7 +144,7 @@ without connection name, it loads configuration with "default" name.
 </pre>
 <p>
     More information about database configuration:
-    <a href="<?= Framework\Url::Site("Main/Database") ?>">here</a>
+    <a href="<?= Framework\Url::Site("/Main/API/Db_Config") ?>">here</a>
 </p>
 <p><b>Write simple webpage</b></p>
 <p>

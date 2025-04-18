@@ -13,7 +13,7 @@ namespace Framework;
 
 use Framework\Query\Statement;
 
-class Query {
+final class Query implements Interfaces\Query {
 
     use Query\Constraints,
         Query\Join,
@@ -98,6 +98,7 @@ class Query {
      *
      * @param Operation $operation
      */
+    #[\Override]
     public function __construct(Statement $operation) {
         $this->operation = $operation;
     }
@@ -107,6 +108,7 @@ class Query {
      *
      * @return array
      */
+    #[\Override]
     public function Params(): array {
         $params = $this->params;
 
@@ -129,6 +131,7 @@ class Query {
      * @param string $type
      * @return Query
      */
+    #[\Override]
     public function ColType(string $name, string $type): Query {
         $this->cols_type[$name] = $type;
 
@@ -141,6 +144,7 @@ class Query {
      * @param string $columns
      * @return Query
      */
+    #[\Override]
     public function Columns(string ...$columns): Query {
         $this->columns = $columns;
 
@@ -152,6 +156,7 @@ class Query {
      *
      * @return Query
      */
+    #[\Override]
     public function Distinct(): Query {
         $this->distinct = true;
 
@@ -163,6 +168,7 @@ class Query {
      * 
      * @return Query
      */
+    #[\Override]
     public function IfNotExists(): Query {
         $this->if_not_exists = true;
 
@@ -175,6 +181,7 @@ class Query {
      * @param int $limit
      * @return Query
      */
+    #[\Override]
     public function Limit(int $limit): Query {
         $this->limit = $limit;
 
@@ -187,12 +194,21 @@ class Query {
      * @param int $offset
      * @return Query
      */
+    #[\Override]
     public function Offset(int $offset): Query {
         $this->offset = $offset;
 
         return $this;
     }
 
+    /**
+     * Set ORDER BY
+     * 
+     * @param string $column
+     * @param bool $asc True (ASC), false (DESC)
+     * @return Query
+     */
+    #[\Override]
     public function OrderBy(string $column, bool $asc = true): Query {
         $this->orders[] = [$column, ($asc) ? "ASC" : "DESC"];
 
@@ -205,6 +221,7 @@ class Query {
      * @param string $table
      * @return Query
      */
+    #[\Override]
     public function Table(string $table): Query {
         $this->table = $table;
 
@@ -219,6 +236,7 @@ class Query {
      * @param mixed $values
      * @return Query
      */
+    #[\Override]
     public function Values(mixed ...$values): Query {
         foreach ($values as $value) {
             $this->params[] = $value;
@@ -232,6 +250,7 @@ class Query {
      * 
      * @return string SQL Query
      */
+    #[\Override]
     public function __toString(): string {
         switch ($this->operation) {
             case Statement::CREATE:

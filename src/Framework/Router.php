@@ -13,7 +13,7 @@ namespace Framework;
 
 use Framework\Exceptions\Router_Exception;
 
-class Router {
+final class Router implements Interfaces\Router {
 
     /**
      * 
@@ -68,6 +68,7 @@ class Router {
      * 
      * @param string|null $route
      */
+    #[\Override]
     public function __construct(?string $route) {
         $config = Config::Fetch("application")["router"];
         $this->namespace = $config["namespace"];
@@ -83,6 +84,7 @@ class Router {
      * @return void
      * @throws Invalid_Route
      */
+    #[\Override]
     public function Execute(): void {
         $this->Check_Route();
 
@@ -96,6 +98,7 @@ class Router {
      * 
      * @return array [Arg1, Arg2, ...]
      */
+    #[\Override]
     public static function Get_Args(): array {
 
         return self::$args;
@@ -106,6 +109,7 @@ class Router {
      * 
      * @return string
      */
+    #[\Override]
     public static function Get_Route(): string {
 
         return self::$route;
@@ -171,6 +175,6 @@ class Router {
         }
 
         $this->class_fqn = $this->namespace . "\\" . $this->controller;
-        self::$route = "{$this->controller}/{$this->action}";
+        self::$route = "/{$this->controller}/{$this->action}";
     }
 }

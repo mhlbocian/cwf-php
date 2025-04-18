@@ -12,6 +12,12 @@ header, nav, footer{
     padding: 10px 0;
 }
 
+hr{
+    border: none;
+    height: 2px;
+    background: #333333;
+}
+
 nav > ul {
     margin: 0;
     padding: 0;

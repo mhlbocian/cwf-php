@@ -1,9 +1,9 @@
-<p><b>Database drivers support</b></p>
+<p><b>Database drivers</b></p>
 <ul>
     <li>SQLite</li>
     <li>MySQL</li>
 </ul>
-<p><b>Database configuration file format</b></p>
+<p><b>Configuration file format</b></p>
 <p>Configuration file is stored in <code>Config/database.json</code>.</p>
 <pre>
 {

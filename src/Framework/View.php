@@ -11,7 +11,7 @@
 
 namespace Framework;
 
-class View {
+final class View implements Interfaces\View {
 
     private const string VIEWDIR = \APPDIR . \DS . "Views";
 
@@ -33,7 +33,8 @@ class View {
      * @param string $view
      * @throws Exception
      */
-    function __construct(string $view) {
+    #[\Override]
+            function __construct(string $view) {
         if (!\file_exists(self::VIEWDIR . DS . "{$view}.php")) {
 
             throw new \Exception("VIEW: '{$view}' does not exist");
@@ -49,6 +50,7 @@ class View {
      * @param mixed $val
      * @return void
      */
+    #[\Override]
     public function Bind(string $var, mixed $val): void {
         $this->data[$var] = $val;
     }
@@ -74,6 +76,12 @@ class View {
         return \ob_get_clean();
     }
 
+    /**
+     * Return rendered view as string
+     * 
+     * @return string
+     */
+    #[\Override]
     public function __toString(): string {
         return $this->Render();
     }

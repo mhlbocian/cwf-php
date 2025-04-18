@@ -304,7 +304,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-    
+
     /**
      * Db driver implementation for: UserDel
      * 
@@ -384,27 +384,35 @@ final class Database implements Auth_Driver {
      * Db driver implementation for: UserInfo
      * 
      * @param string $username
-     * @return array
+     * @return ?array
      */
     #[\Override]
-    public function UserInfo(string $username): array {
-        $query = new Query(Statement::SELECT)
+    public function UserInfo(string $username): ?array {
+        $query_usr = new Query(Statement::SELECT)
                 ->Table($this->usr_table)
                 ->Columns("username", "fullname")
                 ->Where("username", Operator::Eq, $username);
-        $result = $this->conn->Query($query)->fetchAll();
+        $result = $this->conn->Query($query_usr)->fetchAll();
 
         if (count($result) == 1) {
-            /**
-             * @TODO implement array key for all groups of user
-             */
-            return [
+            $output = [
                 "fullname" => $result[0]["fullname"],
-                "username" => $result[0]["username"]
+                "username" => $result[0]["username"],
+                "groups" => []
             ];
+            $query_grp = new Query(Statement::SELECT)
+                    ->Table($this->mbr_table)
+                    ->Columns("groupname")
+                    ->Where("username", Operator::Eq, $username);
+
+            foreach ($this->conn->Query($query_grp)->fetchAll() as $row) {
+                $output["groups"][] = $row["groupname"];
+            }
+
+            return $output;
         } else {
 
-            return [];
+            return null;
         }
     }
 

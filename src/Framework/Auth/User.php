@@ -21,6 +21,7 @@ trait User {
      * @param string $password
      * @return Status
      */
+    #[\Override]
     public static function UserAdd(
             string $username,
             string $fullname,
@@ -43,6 +44,7 @@ trait User {
      * @param string $password
      * @return bool
      */
+    #[\Override]
     public static function UserAuth(string $username, string $password): bool {
 
         return self::CallDriver("UserAuth", $username, $password);
@@ -55,6 +57,7 @@ trait User {
      * @param string $fullname
      * @return Status
      */
+    #[\Override]
     public static function UserChName(
             string $username,
             string $fullname): Status {
@@ -75,6 +78,7 @@ trait User {
      * @param string $new_password
      * @return Status
      */
+    #[\Override]
     public static function UserChPass(
             string $username,
             string $old_password,
@@ -94,6 +98,7 @@ trait User {
      * @param string $username
      * @return Status
      */
+    #[\Override]
     public static function UserDel(string $username): Status {
         if (!self::UserExists($username)) {
             return Status::INVALID_INPUT;
@@ -108,6 +113,7 @@ trait User {
      * @param string $login
      * @return bool
      */
+    #[\Override]
     public static function UserExists(string $username): bool {
 
         return self::CallDriver("UserExists", $username);
@@ -119,6 +125,7 @@ trait User {
      * @param string|null $groupname
      * @return array ["username1"=>"fullname1", ...]
      */
+    #[\Override]
     public static function UserFetch(?string $groupname = null): array {
 
         return self::CallDriver("UserFetch", $groupname);
@@ -129,9 +136,10 @@ trait User {
      * an empty array.
      * 
      * @param string $username
-     * @return array
+     * @return ?array null, when user does not exist
      */
-    public static function UserInfo(string $username): array {
+    #[\Override]
+    public static function UserInfo(string $username): ?array {
 
         return self::CallDriver("UserInfo", $username);
     }
@@ -143,6 +151,7 @@ trait User {
      * @param string $groupname
      * @return bool
      */
+    #[\Override]
     public static function UserInGroup(
             string $username,
             string $groupname): bool {
@@ -157,6 +166,7 @@ trait User {
      * @param string $groupname
      * @return Status
      */
+    #[\Override]
     public static function UserJoin(
             string $username,
             string $groupname): Status {
@@ -181,6 +191,7 @@ trait User {
      * @param string $groupname
      * @return Status
      */
+    #[\Override]
     public static function UserLeave(
             string $username,
             string $groupname): Status {

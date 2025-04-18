@@ -24,6 +24,7 @@ trait Where {
      * @return Query
      * @throws Exception
      */
+    #[\Override]
     public function Where(string $column, Operator $op, mixed $value): Query {
         if (!empty($this->where)) {
             throw new \Exception("QUERY: 'Where' method can be invoked only once");
@@ -46,6 +47,7 @@ trait Where {
      * @param mixed $value
      * @return Query
      */
+    #[\Override]
     public function And(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
             throw new \Exception("QUERY: 'And' method must be invoked after 'Where'");
@@ -69,6 +71,7 @@ trait Where {
      * @param mixed $value
      * @return Query
      */
+    #[\Override]
     public function Or(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
             throw new \Exception("QUERY: 'Or' method must be invoked after 'Where'");

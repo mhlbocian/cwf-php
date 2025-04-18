@@ -13,38 +13,38 @@ namespace Framework;
 
 use Framework\Config;
 
-class Url {
+final class Url implements Interfaces\Url {
 
     /**
      * 
      * @var bool When true, generate URL without `index.php` for sites
      */
     private static bool $omit_index;
-    
+
     /**
      * 
      * @var int Server port
      */
     private static int $port;
-    
+
     /**
      * 
      * @var string Server host
      */
     private static string $host;
-    
+
     /**
      * 
      * @var string Index file name (usually `index.php`)
      */
     private static string $index;
-    
+
     /**
      * 
      * @var string HTTP `DOCROOT` path (usually `/`)
      */
     private static string $path;
-    
+
     /**
      * 
      * @var string HTTP or HTTPS
@@ -56,6 +56,7 @@ class Url {
      * 
      * @return void
      */
+    #[\Override]
     public static function Init(): void {
         $url_cfg = Config::Fetch("application")["url"];
         self::$protocol = $url_cfg["protocol"];
@@ -74,6 +75,7 @@ class Url {
      * @param bool $site For accessing resources outside app, set false
      * @return string Full URL
      */
+    #[\Override]
     public static function Site(string $path = "", bool $site = true): string {
         $url = self::$protocol . "://";
         $url .= self::$host;
@@ -86,7 +88,7 @@ class Url {
         $url .= self::$path;
 
         if ($site && !self::$omit_index) {
-            $url .= self::$index . "/";
+            $url .= self::$index;
         }
 
         $url .= $path;
@@ -101,6 +103,7 @@ class Url {
      * @param bool $site For accessing resources outside app, set false
      * @return void
      */
+    #[\Override]
     public static function Redirect(string $path = "", bool $site = true): void {
         \header("Location: " . self::Site($path, $site));
         exit();

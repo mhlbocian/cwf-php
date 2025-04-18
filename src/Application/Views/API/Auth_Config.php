@@ -1,4 +1,3 @@
-<h3>Authentication</h3>
 <p>
     To activate authentication module create <code>authentication.json</code>
     file in the <code>Config</code> directory. By default, bootstrap invokes the

@@ -41,8 +41,6 @@ interface Auth_Driver {
     public function UserAuth(
             string $username,
             #[\SensitiveParameter] string $password): bool;
-    
-    public function UserDel(string $username): Status;
 
     public function UserChName(
             string $username,
@@ -51,6 +49,8 @@ interface Auth_Driver {
     public function UserChPass(
             string $username,
             #[\SensitiveParameter] string $password): Status;
+    
+    public function UserDel(string $username): Status;
 
     public function UserExists(
             string $username): bool;
@@ -59,7 +59,7 @@ interface Auth_Driver {
             ?string $group): array;
 
     public function UserInfo(
-            string $username): array;
+            string $username): ?array;
 
     public function UserInGroup(
             string $username,

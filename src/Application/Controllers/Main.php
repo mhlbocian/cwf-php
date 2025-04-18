@@ -12,43 +12,37 @@ class Main {
 
     public function __construct() {
         $this->main = new View("Main");
-        $this->main->Bind("menu", Sitemap::Menu(Router::Get_Route()));
+        $this->main->Bind("menu", Sitemap::MainMenu(Router::Get_Route()));
         $this->main->Bind("title", Sitemap::Title(Router::Get_Route()));
     }
 
     public function Index(): void {
-        $view = new View("Main.Index");
+        $view = new View("Main/Index");
         $this->main->Bind("content", $view);
     }
 
-    public function Authentication(): void {
-        $view = new View("Main.Authentication");
-        $this->main->Bind("content", $view);
-    }
-
-    public function Database(): void {
-        $view = new View("Main.Database");
+    public function API(): void {
         $page = Router::Get_Args()[0] ?? null;
+        $view = new View("Main/API");
 
-        switch (in_array($page, range(1, 3))) {
-            case true:
-                $view->Bind("subpage", new View("Database.{$page}"));
-                break;
-            default:
-                $view->Bind("subpage", "<p><b>Select subpage</b></p>");
-                break;
+        $view->Bind("menu", Sitemap::ApiMenu($page));
+
+        if ($page == null || !Sitemap::ApiSiteExists($page)) {
+            $view->Bind("content", null);
+        } else {
+            $view->Bind("content", new View("API/{$page}"));
         }
 
         $this->main->Bind("content", $view);
     }
 
     public function License(): void {
-        $view = new View("Main.License");
+        $view = new View("Main/License");
         $this->main->Bind("content", $view);
     }
 
     public function Usage(): void {
-        $view = new View("Main.Usage");
+        $view = new View("Main/Usage");
         $this->main->Bind("content", $view);
     }
 

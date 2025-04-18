@@ -20,6 +20,7 @@ trait Group {
      * @param string $description
      * @return Status
      */
+    #[\Override]
     public static function GroupAdd(
             string $groupname,
             string $description): Status {
@@ -41,6 +42,7 @@ trait Group {
      * @param string $description
      * @return Status
      */
+    #[\Override]
     public static function GroupChDesc(
             string $groupname,
             string $description): Status {
@@ -59,6 +61,7 @@ trait Group {
      * @param string $groupname
      * @return Status
      */
+    #[\Override]
     public static function GroupDel(string $groupname): Status {
         if (!self::GroupExists($groupname)) {
 
@@ -74,6 +77,7 @@ trait Group {
      * @param string $groupname
      * @return bool
      */
+    #[\Override]
     public static function GroupExists(string $groupname): bool {
 
         return self::CallDriver("GroupExists", $groupname);
@@ -84,6 +88,7 @@ trait Group {
      * 
      * @return array ["groupname1"=>"description1", ...]
      */
+    #[\Override]
     public static function GroupFetch(): array {
 
         return self::CallDriver("GroupFetch");
