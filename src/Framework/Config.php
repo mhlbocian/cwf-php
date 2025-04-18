@@ -81,7 +81,7 @@ class Config {
     public static function Get(string $cfg, string $key): mixed {
         self::Check_Load($cfg);
 
-        if (!key_exists($key, self::$config_data[$cfg])) {
+        if (!\key_exists($key, self::$config_data[$cfg])) {
             throw new \Exception("CONFIG: Key '{$key}' not found in '{$cfg}'");
         }
 

@@ -16,6 +16,8 @@ use Framework\Query\Statement;
 class Query {
 
     use Query\Constraints,
+        Query\Join,
+        Query\Misc,
         Query\SQL,
         Query\Where;
 
@@ -24,67 +26,67 @@ class Query {
      * @var array SQL columns
      */
     private array $columns = [];
-    
+
     /**
      * 
      * @var array SQL columns and types (used in CREATE TABLE)
      */
     private array $cols_type = [];
-    
+
     /**
      * 
      * @var array Orders array
      */
     private array $orders = [];
-    
+
     /**
      * 
      * @var array PDO query parameters
      */
     private array $params = [];
-    
+
     /**
      * 
      * @var array Array of WHERE conditions
      */
     private array $where = [];
-    
+
     /**
      * 
      * @var bool True, when SELECT DISTINCT
      */
     private bool $distinct = false;
-    
+
     /**
      * 
      * @var bool True, when CREATE TABLE IF NOT EXISTS
      */
     private bool $if_not_exists = false;
-    
+
     /**
      * 
      * @var int|null Limit value (for LIMIT)
      */
     private ?int $limit = null;
-    
+
     /**
      * 
      * @var int|null Offset value (for OFFSET)
      */
     private ?int $offset = null;
-    
+
     /**
      * 
      * @var Statement SQL Operation (like INSERT, SELECT)
      */
     private Statement $operation;
-    
+
     /**
      * 
      * @var string Query table
      */
     private string $table;
-    
+
     /**
      * 
      * @var string SQL query string
@@ -107,7 +109,7 @@ class Query {
      */
     public function Params(): array {
         $params = $this->params;
-        
+
         /*
          * walk through $where array, and join their values as parameters with
          * prefix 'w' (like :w0, :w1)
@@ -233,19 +235,19 @@ class Query {
     public function __toString(): string {
         switch ($this->operation) {
             case Statement::CREATE:
-                $this->Query_Create();
+                $this->SQL_Create();
                 break;
             case Statement::DELETE:
-                $this->Query_Delete();
+                $this->SQL_Delete();
                 break;
             case Statement::INSERT:
-                $this->Query_Insert();
+                $this->SQL_Insert();
                 break;
             case Statement::UPDATE:
-                $this->Query_Update();
+                $this->SQL_Update();
                 break;
             case Statement::SELECT:
-                $this->Query_Select();
+                $this->SQL_Select();
                 break;
         }
 

@@ -4,7 +4,7 @@ CWF-PHP Framework
 # Installation instructions
 
 ## Requirements
-* PHP version 8.3+ (with enabled modules: filter, json, PDO, session)
+* PHP version 8.4+ (with enabled modules: filter, json, PDO, session)
 * Web server (tested on PHP development server)
 
 ## Run

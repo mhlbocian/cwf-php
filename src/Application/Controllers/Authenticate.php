@@ -49,7 +49,13 @@ class Authenticate {
         $cnt .= "<ul>";
 
         foreach (Auth::GroupFetch() as $groupname => $description) {
-            $cnt .= "<li>{$groupname} ({$description})</li>";
+            $cnt .= "<li>{$groupname} ({$description})";
+
+            foreach (Auth::UserFetch($groupname) as $username => $fullname) {
+                $cnt .= " [{$username} ({$fullname})]";
+            }
+
+            $cnt .= "</li>";
         }
 
         $cnt .= "</ul>";
@@ -106,9 +112,9 @@ class Authenticate {
         $query = (new Query(Statement::CREATE))
                 ->Table("users")
                 ->IfNotExists()
-                ->ColType("username", "TEXT NOT NULL")
-                ->ColType("fullname", "TEXT NOT NULL")
-                ->ColType("password", "TEXT NOT NULL")
+                ->ColType("username", "varchar(255) not null")
+                ->ColType("fullname", "varchar(255) not null")
+                ->ColType("password", "varchar(255) not null")
                 ->PrimaryKey("username");
         $cnt .= $query . "<br>QUERY OK.<br>";
         $this->conn->Query($query);
@@ -116,8 +122,8 @@ class Authenticate {
         $query = (new Query(Statement::CREATE))
                 ->Table("groups")
                 ->IfNotExists()
-                ->ColType("groupname", "TEXT NOT NULL")
-                ->ColType("description", "TEXT NOT NULL")
+                ->ColType("groupname", "varchar(255) not null")
+                ->ColType("description", "varchar(255) not null")
                 ->PrimaryKey("groupname");
         $cnt .= $query . "<br>QUERY OK.<br>";
         $this->conn->Query($query);
@@ -125,10 +131,11 @@ class Authenticate {
         $query = (new Query(Statement::CREATE))
                 ->Table("memberships")
                 ->IfNotExists()
-                ->ColType("username", "TEXT NOT NULL")
-                ->ColType("groupname", "TEXT NOT NULL")
+                ->ColType("username", "varchar(255) not null")
+                ->ColType("groupname", "varchar(255) not null")
                 ->ForeginKey("username", "users(username)")
-                ->ForeginKey("groupname", "groups(groupname)");
+                ->ForeginKey("groupname", "groups(groupname)")
+                ->Unique("username", "groupname");
         $cnt .= $query . "<br>QUERY OK.</code>";
         $this->conn->Query($query);
         $this->view->Bind("content", $cnt);

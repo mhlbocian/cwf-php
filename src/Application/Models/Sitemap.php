@@ -10,12 +10,10 @@ class Sitemap {
         "Main" => [
             "Index" => "Main page",
             "License" => "License",
-            "Examples" => "Code Examples",
-            "Authentication" => "Authentication"
+            "Usage" => "Framework usage",
+            "Database" => "Database support",
+            "Authentication" => "Authentication",
         ],
-        "Database" => [
-            "Index" => "Database support"
-        ]
     ];
 
     public static function Menu(string $curr_page): array {

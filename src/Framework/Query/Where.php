@@ -26,7 +26,7 @@ trait Where {
      */
     public function Where(string $column, Operator $op, mixed $value): Query {
         if (!empty($this->where)) {
-            throw new Exception("QUERY: 'Where' method can be invoked only once");
+            throw new \Exception("QUERY: 'Where' method can be invoked only once");
         }
 
         $this->where[] = [
@@ -48,7 +48,7 @@ trait Where {
      */
     public function And(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
-            throw new Exception("QUERY: 'And' method must be invoked after 'Where'");
+            throw new \Exception("QUERY: 'And' method must be invoked after 'Where'");
         }
 
         $this->where[] = [
@@ -71,7 +71,7 @@ trait Where {
      */
     public function Or(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
-            throw new Exception("QUERY: 'Or' method must be invoked after 'Where'");
+            throw new \Exception("QUERY: 'Or' method must be invoked after 'Where'");
         }
 
         $this->where[] = [
@@ -101,11 +101,11 @@ trait Where {
                 $output .= $statement["before"] . " ";
             }
 
-            $output .= "`{$statement["column"]}` ";
+            $output .= $this->Format($statement["column"]) . " ";
             $output .= ($statement["operator"])->value;
             $output .= " :w{$id} ";
         }
 
-        return substr($output, 0, -1);
+        return \substr($output, 0, -1);
     }
 }

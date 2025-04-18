@@ -102,7 +102,7 @@ class Url {
      * @return void
      */
     public static function Redirect(string $path = "", bool $site = true): void {
-        header("Location: " . self::Site($path, $site));
+        \header("Location: " . self::Site($path, $site));
         exit();
     }
 }

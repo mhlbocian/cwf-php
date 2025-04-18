@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Framework\Auth\Auth.php
+ * File: Framework\Drivers\Database.php
  * Description: Auth API - Database driver
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
@@ -12,19 +12,21 @@
 namespace Framework\Auth\Drivers;
 
 use Framework\Auth\Status;
+use Framework\Database as Db;
+use Framework\Interfaces\Auth_Driver;
 use Framework\Query;
 use Framework\Query\{
     Operator,
     Statement
 };
 
-final class Database implements \Framework\Interfaces\Auth_Driver {
+final class Database implements Auth_Driver {
 
     /**
      * 
-     * @var Database Connection handler
+     * @var Framework\Database Connection handler
      */
-    private \Framework\Database $conn;
+    private Db $conn;
 
     /**
      * 
@@ -68,7 +70,7 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
         $this->grp_table = $auth_config["groups_table"] ?? "groups";
         $this->mbr_table = $auth_config["memberships_table"] ?? "memberships";
         $this->usr_table = $auth_config["users_table"] ?? "users";
-        $this->conn = new \Framework\Database($this->conn_name);
+        $this->conn = new Db($this->conn_name);
     }
 
     /**
@@ -83,12 +85,13 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
             string $groupname,
             string $description): Status {
 
+        $query = new Query(Statement::INSERT)
+                ->Table($this->grp_table)
+                ->Columns("groupname", "description")
+                ->Values($groupname)
+                ->Values($description);
+
         try {
-            $query = new Query(Statement::INSERT)
-                    ->Table($this->grp_table)
-                    ->Columns("groupname", "description")
-                    ->Values($groupname)
-                    ->Values($description);
             $this->conn->Query($query);
         } catch (\Throwable) {
 
@@ -110,12 +113,13 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
             string $groupname,
             string $description): Status {
 
+        $query = new Query(Statement::UPDATE)
+                ->Table($this->grp_table)
+                ->Columns("groupname", "description")
+                ->Values($groupname, $description)
+                ->Where("groupname", Operator::Eq, $groupname);
+
         try {
-            $query = new Query(Statement::UPDATE)
-                    ->Table($this->grp_table)
-                    ->Columns("groupname", "description")
-                    ->Values($groupname, $description)
-                    ->Where("groupname", Operator::Eq, $groupname);
             $this->conn->Query($query);
         } catch (\Throwable) {
 
@@ -133,17 +137,18 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
      */
     #[\Override]
     public function GroupDel(string $groupname): Status {
+        $query_mbr = new Query(Statement::DELETE)
+                ->Table($this->mbr_table)
+                ->Where("groupname", Operator::Eq, $groupname);
+        $query_grp = (new Query(Statement::DELETE))
+                ->Table($this->grp_table)
+                ->Where("groupname", Operator::Eq, $groupname);
+
         try {
             // remove membership relations
-            $query = new Query(Statement::DELETE)
-                    ->Table($this->mbr_table)
-                    ->Where("groupname", Operator::Eq, $groupname);
-            $this->conn->Query($query);
+            $this->conn->Query($query_mbr);
             // remove the group
-            $query = (new Query(Statement::DELETE))
-                    ->Table($this->grp_table)
-                    ->Where("groupname", Operator::Eq, $groupname);
-            $this->conn->Query($query);
+            $this->conn->Query($query_grp);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -256,12 +261,13 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
             string $username,
             string $fullname): Status {
 
+        $query = new Query(Statement::UPDATE)
+                ->Table($this->usr_table)
+                ->Columns("fullname")
+                ->Values($fullname)
+                ->Where("username", Operator::Eq, $username);
+
         try {
-            $query = new Query(Statement::UPDATE)
-                    ->Table($this->usr_table)
-                    ->Columns("fullname")
-                    ->Values($fullname)
-                    ->Where("username", Operator::Eq, $username);
             $this->conn->Query($query);
         } catch (\Throwable) {
 
@@ -283,13 +289,42 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
             string $username,
             string $password): Status {
 
+        $query = new Query(Statement::UPDATE)
+                ->Table($this->usr_table)
+                ->Columns("password")
+                ->Values(password_hash($password, PASSWORD_DEFAULT))
+                ->Where("username", Operator::Eq, $username);
+
         try {
-            $query = new Query(Statement::UPDATE)
-                    ->Table($this->usr_table)
-                    ->Columns("password")
-                    ->Values(password_hash($password, PASSWORD_DEFAULT))
-                    ->Where("username", Operator::Eq, $username);
             $this->conn->Query($query);
+        } catch (\Throwable) {
+
+            return Status::FAILED;
+        }
+
+        return Status::SUCCESS;
+    }
+    
+    /**
+     * Db driver implementation for: UserDel
+     * 
+     * @param string $username
+     * @return Status
+     */
+    #[\Override]
+    public function UserDel(string $username): Status {
+        $query_mbr = new Query(Statement::DELETE)
+                ->Table($this->mbr_table)
+                ->Where("username", Operator::Eq, $username);
+        $query_usr = new Query(Statement::DELETE)
+                ->Table($this->usr_table)
+                ->Where("username", Operator::Eq, $username);
+
+        try {
+            // remove user from memberships table
+            $this->conn->Query($query_mbr);
+            // remove user from users table
+            $this->conn->Query($query_usr);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -323,13 +358,17 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
     #[\Override]
     public function UserFetch(?string $group): array {
         $output = [];
+        $usr_fncol = "{$this->usr_table}.fullname";
+        $usr_usrcol = "{$this->usr_table}.username";
+        $query = new Query(Statement::SELECT)
+                ->Table($this->usr_table)
+                ->Columns($usr_usrcol, $usr_fncol);
 
-        if ($group == null) {
-            $query = new Query(Statement::SELECT)
-                    ->Table($this->usr_table);
-        } else {
-            // TODO: QUERY JOIN OPERATIONS, now return empty array
-            return $output;
+        if ($group != null) {
+            $mbr_grpcol = "{$this->mbr_table}.groupname";
+            $mbr_usrcol = "{$this->mbr_table}.username";
+            $query->Join($this->mbr_table, $mbr_usrcol, $usr_usrcol)
+                    ->Where($mbr_grpcol, Operator::Eq, $group);
         }
 
         $result = $this->conn->Query($query);
@@ -428,11 +467,12 @@ final class Database implements \Framework\Interfaces\Auth_Driver {
             string $username,
             string $groupname): Status {
 
+        $query = new Query(Statement::DELETE)
+                ->Table($this->mbr_table)
+                ->Where("username", Operator::Eq, $username)
+                ->And("groupname", Operator::Eq, $groupname);
+
         try {
-            $query = new Query(Statement::DELETE)
-                    ->Table($this->mbr_table)
-                    ->Where("username", Operator::Eq, $username)
-                    ->And("groupname", Operator::Eq, $groupname);
             $this->conn->Query($query);
         } catch (\Throwable) {
 

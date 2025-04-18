@@ -19,7 +19,7 @@ class Auth {
     use Auth\Group,
         Auth\User; // import group and user methods
 
-    private const string DRIVERS_NAMESPACE = __NAMESPACE__ . "\\Auth\\Drivers\\";
+    private const string DRIVERS_NAMESPACE = __NAMESPACE__ . "\\Auth\\Drivers";
 
     /**
      * 
@@ -70,6 +70,9 @@ class Auth {
      * @return bool
      */
     public static function IsLogged(): bool {
+        /**
+         * @TODO now its insecure against session hijacking
+         */
         return isset(
                 $_SESSION["_AUTH"]["fullname"],
                 $_SESSION["_AUTH"]["login_time"],
@@ -165,7 +168,7 @@ class Auth {
      * @throws \Exception
      */
     private static function InitDriver(string $driver): void {
-        $class_fqn = self::DRIVERS_NAMESPACE . $driver;
+        $class_fqn = self::DRIVERS_NAMESPACE . "\\" . $driver;
 
         if (!class_exists($class_fqn)) {
 
@@ -178,7 +181,7 @@ class Auth {
             // usually when driver class not implements `Auth_Driver`
             throw new \Exception("AUTH: '{$class_fqn}' is not a vaild  driver");
         } catch (\Throwable) {
-            // when internal error occurs inside driver
+            // when initiation error occurs inside driver
             throw new \Exception("AUTH: Driver '{$driver}' init error");
         }
     }

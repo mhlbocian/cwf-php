@@ -3,7 +3,7 @@
         "driver": "sqlite",
         "database": "default.db"
     },
-    "connection_1": {
+    "example_conn": {
         "driver": "mysql",
         "database": "db_name",
         "host": "localhost",

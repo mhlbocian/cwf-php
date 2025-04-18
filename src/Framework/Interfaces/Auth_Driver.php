@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Framework\Auth\Auth.php
+ * File: Framework\Interfaces\Auth_Driver.php
  * Description: Auth API - driver interface
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
@@ -41,6 +41,8 @@ interface Auth_Driver {
     public function UserAuth(
             string $username,
             #[\SensitiveParameter] string $password): bool;
+    
+    public function UserDel(string $username): Status;
 
     public function UserChName(
             string $username,

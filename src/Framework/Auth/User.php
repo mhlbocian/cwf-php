@@ -89,6 +89,20 @@ trait User {
     }
 
     /**
+     * Delete user
+     * 
+     * @param string $username
+     * @return Status
+     */
+    public static function UserDel(string $username): Status {
+        if (!self::UserExists($username)) {
+            return Status::INVALID_INPUT;
+        }
+
+        return self::CallDriver("UserDel", $username);
+    }
+
+    /**
      * Check, if user exists for given login
      * 
      * @param string $login

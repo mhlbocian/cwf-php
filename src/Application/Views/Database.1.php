@@ -1,7 +1,7 @@
 <p><b>Database drivers support</b></p>
 <ul>
     <li>SQLite</li>
-    <li>MySQL (MariaDB)</li>
+    <li>MySQL</li>
 </ul>
 <p><b>Database configuration file format</b></p>
 <p>Configuration file is stored in <code>Config/database.json</code>.</p>

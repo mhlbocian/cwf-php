@@ -117,17 +117,17 @@ class Router {
      * @return void
      */
     private function Check_Route(): void {
-        if (!class_exists($this->class_fqn)) {
+        if (!\class_exists($this->class_fqn)) {
 
             throw new Router_Exception("ROUTER: class '{$this->class_fqn}' does not exist");
         }
 
-        if (!method_exists($this->class_fqn, $this->action)) {
+        if (!\method_exists($this->class_fqn, $this->action)) {
 
             throw new Router_Exception("ROUTER: method '{$this->action}' does not exist");
         }
 
-        if (str_starts_with($this->action, "__")) {
+        if (\str_starts_with($this->action, "__")) {
 
             throw new Router_Exception("ROUTER: action forbidden for magic methods");
         }
@@ -144,14 +144,14 @@ class Router {
             $this->controller = $this->default_controller;
             $this->action = $this->default_action;
         } else {
-            $path_array = explode("/", $route);
+            $path_array = \explode("/", $route);
 
             /*
              * If the route begins with `/` the first element of array is an
              * empty string. Remove it
              */
             if ($path_array[0] == "") {
-                $path_array = array_slice($path_array, 1);
+                $path_array = \array_slice($path_array, 1);
             }
 
             $this->controller = $path_array[0];
@@ -165,8 +165,8 @@ class Router {
                 $this->action = $path_array[1];
             }
 
-            if (count($path_array) > 2 && $path_array[2] != "") {
-                self::$args = array_slice($path_array, 2);
+            if (\count($path_array) > 2 && $path_array[2] != "") {
+                self::$args = \array_slice($path_array, 2);
             }
         }
 
