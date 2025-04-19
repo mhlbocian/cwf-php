@@ -68,15 +68,68 @@ final class Url implements Interfaces\Url {
     }
 
     /**
-     * Method for creating URLs for sites and local resources.
-     * To access local resource, set $site to false
+     * Create URL for resource. If path string beigns with `/` return absolute
+     * path (without `path` value in the `url` section in application.json file
+     * 
+     * @param string $path
+     * @return string
+     */
+    public static function Resource(string $path): string {
+
+        return self::Url($path[0] != "/") . $path;
+    }
+
+    /**
+     * Create URL for site
+     * If the path string begins with `/`, return absoulute address. Otherwise,
+     * relative address is returned (with current controller name)
      * 
      * @param string $path Site or resource path
-     * @param bool $site For accessing resources outside app, set false
      * @return string Full URL
      */
     #[\Override]
-    public static function Site(string $path = "", bool $site = true): string {
+    public static function Site(string $path = ""): string {
+        $url = self::Url();
+
+        if ($path == "") {
+
+            return $url;
+        }
+        // check including `index` in the url
+        if (!self::$omit_index) {
+            $url .= self::$index . "/";
+        }
+        // check if path is absolute or relative
+        if ($path[0] == "/") {
+            $path = \substr($path, 1);
+            $url .= $path;
+        } else {
+            $url .= \explode("/", Router::Get_Route())[1] . "/{$path}";
+        }
+
+        return $url;
+    }
+
+    /**
+     * Redirect to specified site
+     * 
+     * @param string $path Site
+     * @return void
+     */
+    #[\Override]
+    public static function Redirect(string $path = ""): void {
+        \header("Location: " . self::Site($path));
+        exit();
+    }
+
+    /**
+     * Return URL string in the form: [protocol]://[hostname]:[port]/[path]
+     * For HTTP:80, HTTPS:443 omit port number
+     * 
+     * @param bool $with_path Add url:path to string
+     * @return string
+     */
+    private static function Url(bool $with_path = true): string {
         $url = self::$protocol . "://";
         $url .= self::$host;
         // omit port number if it's protocol's default
@@ -85,27 +138,6 @@ final class Url implements Interfaces\Url {
             $url .= ":" . self::$port;
         }
 
-        $url .= self::$path;
-
-        if ($site && !self::$omit_index) {
-            $url .= self::$index;
-        }
-
-        $url .= $path;
-
-        return $url;
-    }
-
-    /**
-     * Redirect to specified page or resource (when $site is false)
-     * 
-     * @param string $path Site or resource path
-     * @param bool $site For accessing resources outside app, set false
-     * @return void
-     */
-    #[\Override]
-    public static function Redirect(string $path = "", bool $site = true): void {
-        \header("Location: " . self::Site($path, $site));
-        exit();
+        return $url . (($with_path) ? self::$path : "");
     }
 }

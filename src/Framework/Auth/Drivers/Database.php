@@ -352,11 +352,11 @@ final class Database implements Auth_Driver {
     /**
      * Db driver implementation for: UserFetch
      * 
-     * @param string|null $group
+     * @param string|null $groupname
      * @return array
      */
     #[\Override]
-    public function UserFetch(?string $group): array {
+    public function UserFetch(?string $groupname): array {
         $output = [];
         $usr_fncol = "{$this->usr_table}.fullname";
         $usr_usrcol = "{$this->usr_table}.username";
@@ -364,11 +364,11 @@ final class Database implements Auth_Driver {
                 ->Table($this->usr_table)
                 ->Columns($usr_usrcol, $usr_fncol);
 
-        if ($group != null) {
+        if ($groupname != null) {
             $mbr_grpcol = "{$this->mbr_table}.groupname";
             $mbr_usrcol = "{$this->mbr_table}.username";
             $query->Join($this->mbr_table, $mbr_usrcol, $usr_usrcol)
-                    ->Where($mbr_grpcol, Operator::Eq, $group);
+                    ->Where($mbr_grpcol, Operator::Eq, $groupname);
         }
 
         $result = $this->conn->Query($query);

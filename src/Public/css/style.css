@@ -36,6 +36,11 @@ h2, h3, p, pre {
     padding-bottom: 1em;
 }
 
+p{
+    text-align: justify;
+    text-justify: inter-word;
+}
+
 a {
     color: darkblue;
 }

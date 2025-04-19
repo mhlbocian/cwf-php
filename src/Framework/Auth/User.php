@@ -127,6 +127,9 @@ trait User {
      */
     #[\Override]
     public static function UserFetch(?string $groupname = null): array {
+        if (!\is_null($groupname) && !self::GroupExists($groupname)) {
+            return [];
+        }
 
         return self::CallDriver("UserFetch", $groupname);
     }

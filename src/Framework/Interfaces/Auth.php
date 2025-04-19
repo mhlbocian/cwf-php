@@ -1,12 +1,23 @@
 <?php
 
+/*
+ * CWF-PHP Framework
+ * 
+ * File: Framework\Interfaces\Auth.php
+ * Description: Auth API - interface
+ * Author: Michal Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
+ */
+
 namespace Framework\Interfaces;
 
 use Framework\Auth\Status;
 
 interface Auth {
 
-    public static function CallDriver(string $function, ...$params): mixed;
+    public static function CallDriver(
+            string $function,
+            mixed ...$params): mixed;
 
     public static function GroupAdd(
             string $groupname,
@@ -39,7 +50,9 @@ interface Auth {
             string $fullname,
             string $password): Status;
 
-    public static function UserAuth(string $username, string $password): bool;
+    public static function UserAuth(
+            string $username,
+            string $password): bool;
 
     public static function UserChName(
             string $username,

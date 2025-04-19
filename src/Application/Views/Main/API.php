@@ -13,7 +13,7 @@
                         <?php if ($link[0] == "/"): ?>
                             <?php $link = Framework\Url::Site($link) ?>
                         <?php else: ?>
-                            <?php $link = Framework\Url::Site("/Main/API/{$link}") ?>
+                            <?php $link = Framework\Url::Site("API/{$link}") ?>
                         <?php endif; ?>
                         <li><a href="<?= $link ?>"><?= $subpage ?></a></li>
                     <?php endif; ?>

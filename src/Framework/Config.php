@@ -11,7 +11,7 @@
 
 namespace Framework;
 
-final class Config implements Interfaces\Config {
+final class Config implements Interfaces\Data_Json {
 
     /**
      * 
@@ -62,7 +62,7 @@ final class Config implements Interfaces\Config {
     }
 
     /**
-     * Set a new data for local configuration file
+     * Set a new data for a configuration file
      * 
      * @param string $cfg Configuration file name
      * @param string $key
@@ -83,7 +83,27 @@ final class Config implements Interfaces\Config {
     }
 
     /**
-     * Update local configuration file with current data
+     * Unset data in a configuration file
+     * 
+     * @param string $cfg Configuration file name
+     * @param string $key Key to unset
+     * @return void
+     */
+    #[\Override]
+    public static function Unset(string $cfg, string $key): void {
+        /*
+         * If the file exists and is not loaded - load it, to avoid wipeout
+         * all other data
+         */
+        if (self::Exists($cfg) && !isset(self::$config_data[$cfg])) {
+            self::Load($cfg);
+        }
+
+        unset(self::$config_data[$cfg][$key]);
+    }
+
+    /**
+     * Update configuration file with current data
      * 
      * @param string $cfg Configuration file name
      * @return void

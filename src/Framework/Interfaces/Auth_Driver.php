@@ -56,7 +56,7 @@ interface Auth_Driver {
             string $username): bool;
 
     public function UserFetch(
-            ?string $group): array;
+            ?string $groupname): array;
 
     public function UserInfo(
             string $username): ?array;

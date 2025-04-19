@@ -114,23 +114,29 @@ highlight_string($example);
         "omit_index": false
     }
 }
+</pre>
+<p>
+    <b>"path"</b> means where the index.php file is accessible for the web server
+    via URL. If your Public directory is further in the URL path, like:<br/>
+    <code>http://hostname/app_dir/index.php</code><br/>
+    change it to <code>/app_dir/</code> in this case.
+</p>
 
-<b>"path"</b> means where the index.php file is accessible for the web server via URL.
-If your Public directory is further in the URL path, like:
-    http://hostname/app_dir/index.php,
-change it to "/app_dir/ in this case".
+<p>
+    <b>"index"</b> if you want to change default index.php file name, remember to
+    change this config file key.
+</p>
 
-<b>"index"</b> if you want to change default index.php file name, remember to change
-this config file key.
+<p>
+    <b>"omit_index"</b> in the URL section means, that to create URL for the
+    specific controller/action, include "index.php" in the address. If you have
+    rewrite engine you can set this to true. Then, instead of:<br/>
+    <code>http://hostname/index.php/Controller/Action/Arg1/Arg2...</code><br/>
+    you have:<br/>
+    <code>http://hostname/Controller/Action/Arg1/Arg2...</code>
+</p>
 
-<b>"omit_index"</b> in the URL section means, that to create URL for the specific
-controller/action, include "index.php" in the address. If you have rewrite
-engine you can set this to true. Then, instead of:
-    http://hostname/index.php/Controller/Action/Arg1/Arg2...
-you have:
-    http://hostname/Controller/Action/Arg1/Arg2...
-
-
+<pre>
 <b>database.json</b>
 {
     "default" : {
@@ -138,11 +144,10 @@ you have:
         "database": "mydb.sqlite"
     }
 }
-
-You can have multiple connections, but when Framework\Database object is created
-without connection name, it loads configuration with "default" name.
 </pre>
 <p>
+    You can have multiple connections, but when Framework\Database object is
+    created without connection name, it loads configuration with "default" name.
     More information about database configuration:
     <a href="<?= Framework\Url::Site("/Main/API/Db_Config") ?>">here</a>
 </p>

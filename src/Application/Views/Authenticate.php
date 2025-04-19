@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8"/>
-        <link rel="stylesheet" href="<?= Framework\Url::Site("css/style.css", false) ?>"/>
+        <link rel="stylesheet" href="<?= Framework\Url::Resource("css/style.css") ?>"/>
         <title>AUTH API - tests site</title>
     </head>
     <body>
@@ -14,7 +14,7 @@
             <nav>
                 <ul>
                     <?php foreach ($sites as $link => $name): ?>
-                        <li><a href="<?= Framework\Url::Site("/Authenticate/{$link}") ?>"><?= $name ?></a></li>
+                        <li><a href="<?= Framework\Url::Site("{$link}") ?>"><?= $name ?></a></li>
                     <?php endforeach; ?>
                 </ul>
             </nav>

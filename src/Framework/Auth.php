@@ -48,7 +48,10 @@ final class Auth implements Interfaces\Auth {
      * @throws Exception
      */
     #[\Override]
-    public static function CallDriver(string $function, ...$params): mixed {
+    public static function CallDriver(
+            string $function,
+            mixed ...$params): mixed {
+
         if (!self::$is_init) {
             throw new \Exception("AUTH: Not initialised");
         }

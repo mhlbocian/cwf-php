@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="<?= Framework\Url::Site("css/style.css", false) ?>" />
+        <link rel="stylesheet" href="<?= Framework\Url::Resource("/css/style.css", false) ?>" />
         <title>CWF-PHP: <?= $title ?? "Untitled page" ?></title>
     </head>
     <body>

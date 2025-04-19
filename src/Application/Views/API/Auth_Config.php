@@ -8,6 +8,7 @@
 <p><b>Drivers</b></p>
 <ul>
     <li>Database <i>(tested on SQLite and MySQL)</i></li>
+    <li>JSON <i>(data stored in the .json format in the Data directory)</i></li>
     <li>LDAP <i>(not yet implemented)</i></li>
 </ul>
 <h4>Structure of <code>authentication.json</code> (for database driver)</h4>
@@ -20,46 +21,11 @@
     "memberships_table": "memberships"
 }
 </pre>
-<h4>Database driver - table specification</h4>
-<p>
-    <code>Framework\Auth</code> requires only 3 tables with columns specification 
-    shown below. You <strong>must</strong> provide exact names for each column.
-    Additional columns are allowed. Table names should be specified in the
-    <code>authentication.json</code> file. When table names are not specified,
-    default values are loaded, such as <code>users</code>, <code>groups</code>
-    and <code>memberships</code>
-</p>
+<h4>Structure of <code>authentication.json</code> (for json driver)</h4>
 <pre>
-<b>TABLE: users</b>
-
-+==============+==============+==============+
-|   username   |   fullname   |   password   |
-+==============+==============+==============+
-| varchar(255) | varchar(255) | varchar(255) |
-+==============+==============+==============+
-
-PRIMARY KEY: username
-
-<b>TABLE: groups</b>
-
-+==============+==============+
-|  groupname   |  description |
-+==============+==============+
-| varchar(255) | varchar(255) |
-+==============+==============+
-
-PRIMARY KEY: groupname
-
-<b>TABLE: memberships</b>
-
-+==============+==============+
-|   username   |   groupname  |
-+==============+==============+
-| varchar(255) | varchar(255) |
-+==============+==============+
-
-FOREIGN KEYS: username -> users.username, groupname -> groups.groupname
+{
+    "driver": "json",
+    "users_file": "users",
+    "groups_file": "groups",
+}
 </pre>
-<p style="text-align: right;">
-    <a href="<?= Framework\Url::Site("Authenticate") ?>">Authentication tests site</a>
-</p>

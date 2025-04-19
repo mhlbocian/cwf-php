@@ -187,7 +187,7 @@ class Authenticate {
         $auth = Auth::Login($username, $password);
 
         if ($auth == Auth\Status::SUCCESS) {
-            Url::Redirect("Authenticate");
+            Url::Redirect("/Authenticate");
         }
 
         $cnt = "User: <b>{$username}</b>. Auth: <b>";

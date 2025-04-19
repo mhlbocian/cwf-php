@@ -5,6 +5,7 @@ namespace Application\Controllers;
 use Framework\Router;
 use Framework\View;
 use Application\Models\Sitemap;
+use Framework\Data\Json;
 
 class Main {
 

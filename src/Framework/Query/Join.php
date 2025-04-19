@@ -31,7 +31,8 @@ trait Join {
      * @throws \Exception
      */
     #[\Override]
-    public function Join(string $table,
+    public function Join(
+            string $table,
             string $column1,
             string $column2): Query {
 
@@ -57,7 +58,8 @@ trait Join {
      * @return Query
      */
     #[\Override]
-    public function InnerJoin(string $table,
+    public function InnerJoin(
+            string $table,
             string $column1,
             string $column2): Query {
 
@@ -76,7 +78,8 @@ trait Join {
      * @return Query
      */
     #[\Override]
-    public function LeftJoin(string $table,
+    public function LeftJoin(
+            string $table,
             string $column1,
             string $column2): Query {
 
@@ -95,7 +98,8 @@ trait Join {
      * @return Query
      */
     #[\Override]
-    public function RightJoin(string $table,
+    public function RightJoin(
+            string $table,
             string $column1,
             string $column2): Query {
 

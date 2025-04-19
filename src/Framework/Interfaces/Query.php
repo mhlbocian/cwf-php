@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * CWF-PHP Framework
+ * 
+ * File: Framework\Interfaces\Query.php
+ * Description: Query builder interface
+ * Author: Michal Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
+ */
+
 namespace Framework\Interfaces;
 
 use Framework\Query\Operator;
