@@ -11,20 +11,31 @@ class Sitemap {
             "Index" => "Main page",
             "License" => "License",
             "Usage" => "Framework usage",
-            "API" => "Framework API"
+            "API" => "API"
         ],
     ];
     private static array $api_menu = [
+        "Authentication" => [
+            "API overview" => "Auth_API",
+            "Configuration" => "Auth_Config",
+            "Database driver" => "Auth_Database",
+            "JSON driver" => "Auth_Json",
+            "Custom driver" => "Auth_CustomDrivers"
+        ],
+        "Config files" => [
+            "API overview" => "Config_API",
+            "Create file" => "Config_CreateFile",
+            "Fetching data" => "Config_FetchData",
+            "Updating data" => "Config_UpdateData"
+        ],
         "Database" => [
+            "API overview" => "Database_API",
             "Configuration" => "Db_Config",
             "Connections" => "Db_Conn",
             "Queries" => "Db_Queries"
         ],
-        "Authentication" => [
-            "Configuration" => "Auth_Config",
-            "Database driver" => "Auth_Database",
-            "JSON driver" => "Auth_Json",
-            "Tests site" => "/Authenticate"
+        "JSON files" => [
+            "Overview" => "Json_Overview"
         ]
     ];
 

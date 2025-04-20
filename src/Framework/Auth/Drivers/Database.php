@@ -62,7 +62,7 @@ final class Database implements Auth_Driver {
     public function __construct(array $auth_config) {
         if (!isset($auth_config["connection"])) {
 
-            throw new \Exception("AUTH-Database: no connection name");
+            throw new \Exception("no connection specified");
         }
         // connection name is mandatory
         $this->conn_name = $auth_config["connection"];
@@ -70,7 +70,13 @@ final class Database implements Auth_Driver {
         $this->grp_table = $auth_config["groups_table"] ?? "groups";
         $this->mbr_table = $auth_config["memberships_table"] ?? "memberships";
         $this->usr_table = $auth_config["users_table"] ?? "users";
-        $this->conn = new Db($this->conn_name);
+
+        try {
+            $this->conn = new Db($this->conn_name);
+        } catch (\Throwable) {
+
+            throw new \Exception("connection error");
+        }
     }
 
     /**

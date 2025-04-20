@@ -1,7 +1,5 @@
 {
-    "driver": "database",
-    "connection": "default",
-    "users_table": "users",
-    "groups_table": "groups",
-    "memberships_table": "memberships"
+    "driver": "json",
+    "users_file": "users",
+    "groups_file": "groups"
 }
