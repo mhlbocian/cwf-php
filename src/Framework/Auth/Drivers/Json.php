@@ -262,12 +262,12 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
     public function UserExists(string $username): bool {
         try {
             JsonFile::Get($this->users, $username);
+
+            return true;
         } catch (\Throwable) {
 
             return false;
         }
-
-        return true;
     }
 
     /**
@@ -280,12 +280,23 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
     public function UserFetch(?string $groupname): array {
         $result = [];
 
+        try {
+            if (!\is_null($groupname)) {
+                $usr_data = JsonFile::Get($this->groups, $groupname);
+            } else {
+                $usr_data = JsonFile::Fetch($this->users);
+            }
+        } catch (\Throwable) {
+
+            return $result;
+        }
+
         if (!\is_null($groupname)) {
-            foreach (JsonFile::Get($this->groups, $groupname)["members"] as $member) {
+            foreach ($usr_data["members"] as $member) {
                 $result[$member] = $this->UserInfo($member)["fullname"];
             }
         } else {
-            foreach (JsonFile::Fetch($this->users) as $username => $details) {
+            foreach ($usr_data as $username => $details) {
                 $result[$username] = $details["fullname"];
             }
         }
@@ -305,6 +316,7 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
         try {
             $record = JsonFile::Get($this->users, $username);
         } catch (\Throwable) {
+
             return false;
         }
 
