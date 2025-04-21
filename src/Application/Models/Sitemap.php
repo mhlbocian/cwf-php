@@ -11,14 +11,14 @@ class Sitemap {
             "Index" => "Main page",
             "License" => "License",
             "Usage" => "Usage",
-            "API" => "API",
+            "Manual" => "Manual",
             "UsersGroups" => "Users and groups",
             "Login" => "Sign in"
         ],
     ];
     private static array $api_menu = [
         "Authentication" => [
-            "Auth API" => "Auth_API",
+            "API overview" => "Auth_API",
             "Configuration" => "Auth_Config",
             "Database driver" => "Auth_Database",
             "JSON driver" => "Auth_Json",
@@ -41,13 +41,11 @@ class Sitemap {
         ]
     ];
 
-    public static function ApiMenu(?string $curr_page): array {
+    public static function ManualMenu(?string $curr_page): array {
         $output = [];
 
         foreach (self::$api_menu as $section => $subpages) {
-
             foreach ($subpages as $subpage => $link) {
-
                 if ($curr_page == $link) {
                     $output[$section][$subpage] = null;
                 } else {
@@ -59,12 +57,9 @@ class Sitemap {
         return $output;
     }
 
-    public static function ApiSiteExists(string $site): bool {
-
+    public static function ManualExists(string $site): bool {
         foreach (self::$api_menu as $section => $subpages) {
-
             foreach ($subpages as $subpage => $link) {
-
                 if ($link == $site) {
 
                     return true;
@@ -79,7 +74,6 @@ class Sitemap {
         $output = [];
 
         foreach (self::$main_menu as $controller => $actions) {
-
             foreach ($actions as $action => $description) {
                 $site = "/{$controller}/{$action}";
 

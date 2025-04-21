@@ -39,7 +39,7 @@ trait User {
             return Status::INVALID_INPUT;
         }
         // as fullname may contain HTML specific characters, filter it
-        $fullname = htmlspecialchars($fullname);
+        $fullname = \htmlspecialchars($fullname);
 
         return self::CallDriver("UserAdd", $username, $fullname, $password);
     }
@@ -75,7 +75,7 @@ trait User {
             return Status::INVALID_INPUT;
         }
         // as fullname may contain HTML specific characters, filter it
-        $fullname = htmlspecialchars($fullname);
+        $fullname = \htmlspecialchars($fullname);
 
         return self::CallDriver("UserChName", $username, $fullname);
     }

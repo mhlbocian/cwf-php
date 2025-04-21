@@ -36,7 +36,7 @@ trait Group {
             return Status::INVALID_INPUT;
         }
         // as description may contain HTML specific characters, filter it
-        $description = htmlspecialchars($description);
+        $description = \htmlspecialchars($description);
 
         return self::CallDriver("GroupAdd", $groupname, $description);
     }
@@ -59,7 +59,7 @@ trait Group {
             return Status::INVALID_INPUT;
         }
         // as description may contain HTML specific characters, filter it
-        $description = htmlspecialchars($description);
+        $description = \htmlspecialchars($description);
 
         return self::CallDriver("GroupChDesc", $groupname, $description);
     }

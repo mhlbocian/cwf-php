@@ -1,5 +1,5 @@
 <div style="width: 25%; float: left;">
-    <h3>Framework API</h3>
+    <h3>Framework manual</h3>
     <ul style="list-style: none; padding-left: 0;">
         <?php foreach ($menu as $section => $subpages): ?>
             <li><b><?= $section ?></b></li>
@@ -13,7 +13,7 @@
                         <?php if ($link[0] == "/"): ?>
                             <?php $link = Framework\Url::Site($link) ?>
                         <?php else: ?>
-                            <?php $link = Framework\Url::Site("API/{$link}") ?>
+                            <?php $link = Framework\Url::Site("Manual/{$link}") ?>
                         <?php endif; ?>
                         <li><a href="<?= $link ?>"><?= $subpage ?></a></li>
                     <?php endif; ?>

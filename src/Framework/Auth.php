@@ -100,9 +100,9 @@ final class Auth implements Interfaces\Auth {
         return $ret;
     }
 
-    public static function CheckFmt(string $string, string $fmt): bool {
+    private static function CheckFmt(string $string, string $fmt): bool {
 
-        return (preg_match("/^{$fmt}$/", $string) === 1);
+        return (\preg_match("/^{$fmt}$/", $string) === 1);
     }
 
     /**
