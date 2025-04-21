@@ -2,10 +2,11 @@
 
 namespace Application\Controllers;
 
+use Framework\Auth;
 use Framework\Router;
+use Framework\Url;
 use Framework\View;
 use Application\Models\Sitemap;
-use Framework\Data\Json;
 
 class Main {
 
@@ -13,8 +14,19 @@ class Main {
 
     public function __construct() {
         $this->main = new View("Main");
-        $this->main->Bind("menu", Sitemap::MainMenu(Router::Get_Route()));
+        $menu = Sitemap::MainMenu(Router::Get_Route());
         $this->main->Bind("title", Sitemap::Title(Router::Get_Route()));
+
+        if (Auth::IsLogged()) {
+            // replace `Sign In` in menu array with `Logout {$user}`
+            $fullname = Auth::Session()["fullname"];
+            $key = array_search("Sign in", array_column($menu, "description"));
+            $menu[$key]["description"] = "Logout ({$fullname})";
+        } else {
+            $this->main->Bind("login", null);
+        }
+
+        $this->main->Bind("menu", $menu);
     }
 
     public function Index(): void {
@@ -31,7 +43,11 @@ class Main {
         if ($page == null || !Sitemap::ApiSiteExists($page)) {
             $view->Bind("content", null);
         } else {
-            $view->Bind("content", new View("API/{$page}"));
+            try {
+                $view->Bind("content", new View("API/{$page}"));
+            } catch (\Throwable) {
+                $view->Bind("content", "<p>Work in progress</p>");
+            }
         }
 
         $this->main->Bind("content", $view);
@@ -42,8 +58,27 @@ class Main {
         $this->main->Bind("content", $view);
     }
 
+    public function Login(): void {
+        if (Auth::IsLogged()) {
+            Auth::Logout();
+            Url::Redirect();
+        }
+
+        $view = new View("Main/Login");
+        $view->Bind("status", Router::Get_Args()[0] ?? null);
+        $this->main->Bind("content", $view);
+    }
+
     public function Usage(): void {
         $view = new View("Main/Usage");
+        $this->main->Bind("content", $view);
+    }
+
+    public function UsersGroups(): void {
+        $view = new View("Main/UsersGroups");
+        $view->Bind("users", Auth::UserFetch());
+        $view->Bind("groups", Auth::GroupFetch());
+        $view->Bind("status", Router::Get_Args()[0] ?? null);
         $this->main->Bind("content", $view);
     }
 

@@ -21,7 +21,7 @@
     "memberships_table": "memberships"
 }
 </pre>
-<h4>Structure of <code>authentication.json</code> (for json driver)</h4>
+<h4>Structure of <code>authentication.json</code> (for JSON driver)</h4>
 <pre>
 {
     "driver": "json",
@@ -29,3 +29,23 @@
     "groups_file": "groups",
 }
 </pre>
+<h4>Data validation</h4>
+<p>
+    Each field like user name, full name, password, group name and its description
+    is passed through <code>Framework\Auth::CheckFmt</code> function. If you
+    want to change the pattern for each field you can add this section, to the
+    <code>Config/authentication.json</code>. Default patterns are shown below:
+</p>
+<pre>
+"format": {
+    "username": "[\\w][\\w.]{4,}",
+    "fullname": ".{5,}",
+    "password": ".{8,}",
+    "groupname": "[\\w][\\w.]{4,}",
+    "description": ".{5,}"
+}
+</pre>
+<p>
+    If you omit this section, default values are loaded. You don't have to
+    specify all fields.
+</p>

@@ -32,7 +32,7 @@ section {
     margin: 1em 0;
 }
 
-h2, h3, p, pre {
+form, h2, h3, p, pre {
     padding-bottom: 1em;
 }
 

@@ -10,13 +10,15 @@ class Sitemap {
         "Main" => [
             "Index" => "Main page",
             "License" => "License",
-            "Usage" => "Framework usage",
-            "API" => "API"
+            "Usage" => "Usage",
+            "API" => "API",
+            "UsersGroups" => "Users and groups",
+            "Login" => "Sign in"
         ],
     ];
     private static array $api_menu = [
         "Authentication" => [
-            "API overview" => "Auth_API",
+            "Auth API" => "Auth_API",
             "Configuration" => "Auth_Config",
             "Database driver" => "Auth_Database",
             "JSON driver" => "Auth_Json",

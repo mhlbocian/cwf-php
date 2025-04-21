@@ -151,9 +151,9 @@ final class Database implements Auth_Driver {
                 ->Where("groupname", Operator::Eq, $groupname);
 
         try {
-            // remove membership relations
+// remove membership relations
             $this->conn->Query($query_mbr);
-            // remove the group
+// remove the group
             $this->conn->Query($query_grp);
         } catch (\Throwable) {
 
@@ -174,7 +174,13 @@ final class Database implements Auth_Driver {
         $query = new Query(Statement::SELECT)
                 ->Table($this->grp_table)
                 ->Where("groupname", Operator::Eq, $groupname);
-        $result = $this->conn->Query($query)->fetchAll();
+
+        try {
+            $result = $this->conn->Query($query)->fetchAll();
+        } catch (\Throwable) {
+
+            return false;
+        }
 
         return (count($result) == 1);
     }
@@ -187,10 +193,14 @@ final class Database implements Auth_Driver {
     #[\Override]
     public function GroupFetch(): array {
         $output = [];
-
         $query = new Query(Statement::SELECT)
                 ->Table($this->grp_table);
-        $result = $this->conn->Query($query);
+
+        try {
+            $result = $this->conn->Query($query);
+        } catch (\Throwable) {
+            return $output;
+        }
 
         foreach ($result as $row) {
             $output[$row["groupname"]] = $row["description"];
@@ -245,7 +255,13 @@ final class Database implements Auth_Driver {
         $query = new Query(Statement::SELECT)
                 ->Table($this->usr_table)
                 ->Where("username", Operator::Eq, $username);
-        $result = $this->conn->Query($query)->fetchAll();
+
+        try {
+            $result = $this->conn->Query($query)->fetchAll();
+        } catch (\Throwable) {
+
+            return false;
+        }
 
         if (count($result) != 1) {
 
@@ -327,9 +343,9 @@ final class Database implements Auth_Driver {
                 ->Where("username", Operator::Eq, $username);
 
         try {
-            // remove user from memberships table
+// remove user from memberships table
             $this->conn->Query($query_mbr);
-            // remove user from users table
+// remove user from users table
             $this->conn->Query($query_usr);
         } catch (\Throwable) {
 
@@ -350,7 +366,13 @@ final class Database implements Auth_Driver {
         $query = new Query(Statement::SELECT)
                 ->Table($this->usr_table)
                 ->Where("username", Operator::Eq, $username);
-        $result = $this->conn->Query($query)->fetchAll();
+
+        try {
+            $result = $this->conn->Query($query)->fetchAll();
+        } catch (Throwable) {
+
+            return false;
+        }
 
         return (count($result) == 1);
     }
@@ -377,7 +399,13 @@ final class Database implements Auth_Driver {
                     ->Where($mbr_grpcol, Operator::Eq, $groupname);
         }
 
-        $result = $this->conn->Query($query);
+        try {
+            $result = $this->conn->Query($query);
+        } catch (\Throwable) {
+
+            return $output;
+        }
+
 
         foreach ($result as $row) {
             $output[$row["username"]] = $row["fullname"];
@@ -393,12 +421,23 @@ final class Database implements Auth_Driver {
      * @return ?array
      */
     #[\Override]
-    public function UserInfo(string $username): ?array {
+    public function UserInfo(string $username): array {
         $query_usr = new Query(Statement::SELECT)
                 ->Table($this->usr_table)
                 ->Columns("username", "fullname")
                 ->Where("username", Operator::Eq, $username);
-        $result = $this->conn->Query($query_usr)->fetchAll();
+        $query_grp = new Query(Statement::SELECT)
+                ->Table($this->mbr_table)
+                ->Columns("groupname")
+                ->Where("username", Operator::Eq, $username);
+
+        try {
+            $result = $this->conn->Query($query_usr)->fetchAll();
+            $groups = $this->conn->Query($query_grp)->fetchAll();
+        } catch (\Throwable) {
+
+            return [];
+        }
 
         if (count($result) == 1) {
             $output = [
@@ -406,19 +445,15 @@ final class Database implements Auth_Driver {
                 "username" => $result[0]["username"],
                 "groups" => []
             ];
-            $query_grp = new Query(Statement::SELECT)
-                    ->Table($this->mbr_table)
-                    ->Columns("groupname")
-                    ->Where("username", Operator::Eq, $username);
 
-            foreach ($this->conn->Query($query_grp)->fetchAll() as $row) {
+            foreach ($groups as $row) {
                 $output["groups"][] = $row["groupname"];
             }
 
             return $output;
         } else {
 
-            return null;
+            return [];
         }
     }
 
@@ -438,7 +473,13 @@ final class Database implements Auth_Driver {
                 ->Table($this->mbr_table)
                 ->Where("username", Operator::Eq, $username)
                 ->And("groupname", Operator::Eq, $groupname);
-        $result = $this->conn->Query($query)->fetchAll();
+
+        try {
+            $result = $this->conn->Query($query)->fetchAll();
+        } catch (\Throwable) {
+
+            return false;
+        }
 
         return (count($result) == 1);
     }

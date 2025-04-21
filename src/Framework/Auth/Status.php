@@ -16,5 +16,6 @@ enum Status {
     case EXISTS;
     case FAILED;
     case INVALID_INPUT;
+    case NOTEXISTS;
     case SUCCESS;
 }

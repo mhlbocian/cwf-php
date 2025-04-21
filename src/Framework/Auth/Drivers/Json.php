@@ -94,6 +94,12 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
     #[\Override]
     public function GroupDel(string $groupname): Status {
         try {
+            $members = JsonFile::Get($this->groups, $groupname)["members"];
+
+            foreach ($members as $username) {
+                $this->UserLeave($username, $groupname);
+            }
+
             JsonFile::Unset($this->groups, $groupname);
             JsonFile::Update($this->groups);
         } catch (\Throwable) {
@@ -243,7 +249,13 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
     public function UserDel(string $username): Status {
         try {
             $record = JsonFile::Get($this->users, $username);
-            // remove users from its groups
+
+            foreach ($record["groups"] as $groupname) {
+                $this->UserLeave($username, $groupname);
+            }
+
+            JsonFile::Unset($this->users, $username);
+            JsonFile::Update($this->users);
         } catch (\Throwable) {
 
             return Status::FAILED;
@@ -292,8 +304,8 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
         }
 
         if (!\is_null($groupname)) {
-            foreach ($usr_data["members"] as $member) {
-                $result[$member] = $this->UserInfo($member)["fullname"];
+            foreach ($usr_data["members"] as $username) {
+                $result[$username] = $this->UserInfo($username)["fullname"];
             }
         } else {
             foreach ($usr_data as $username => $details) {
@@ -330,13 +342,14 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
      * @return array|null
      */
     #[\Override]
-    public function UserInfo(string $username): ?array {
+    public function UserInfo(string $username): array {
         try {
             $record = JsonFile::Get($this->users, $username);
 
             return [
+                "fullname" => $record["fullname"],
                 "username" => $username,
-                "fullname" => $record["fullname"]
+                "groups" => $record["groups"]
             ];
         } catch (\Throwable) {
 
@@ -386,8 +399,8 @@ final class Json implements \Framework\Interfaces\Auth_Driver {
             $grp_key = array_search($username, $grp_record["members"]);
             $usr_key = array_search($groupname, $usr_record["groups"]);
 
-            unset($grp_record["members"][$grp_key]);
-            unset($usr_record["groups"][$usr_key]);
+            \array_splice($grp_record["members"], $grp_key, 1);
+            \array_splice($usr_record["groups"], $usr_key, 1);
             JsonFile::Set($this->groups, $groupname, $grp_record);
             JsonFile::Set($this->users, $username, $usr_record);
             JsonFile::Update($this->groups);

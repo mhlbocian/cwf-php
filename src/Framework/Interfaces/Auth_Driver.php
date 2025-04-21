@@ -59,7 +59,7 @@ interface Auth_Driver {
             ?string $groupname): array;
 
     public function UserInfo(
-            string $username): ?array;
+            string $username): array;
 
     public function UserInGroup(
             string $username,

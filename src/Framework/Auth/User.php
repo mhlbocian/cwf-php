@@ -31,9 +31,16 @@ trait User {
 
             return Status::EXISTS;
         }
-        /**
-         * @TODO check full name format requirements
-         */
+
+        if (!self::CheckFmt($username, self::$username_fmt) ||
+                !self::CheckFmt($fullname, self::$fullname_fmt) ||
+                !self::CheckFmt($password, self::$password_fmt)) {
+
+            return Status::INVALID_INPUT;
+        }
+        // as fullname may contain HTML specific characters, filter it
+        $fullname = htmlspecialchars($fullname);
+
         return self::CallDriver("UserAdd", $username, $fullname, $password);
     }
 
@@ -62,10 +69,13 @@ trait User {
             string $username,
             string $fullname): Status {
 
-        if (!self::UserExists($username)) {
-            /** @TODO Check full name format requirements */
+        if (!self::UserExists($username) ||
+                !self::CheckFmt($fullname, self::$fullname_fmt)) {
+
             return Status::INVALID_INPUT;
         }
+        // as fullname may contain HTML specific characters, filter it
+        $fullname = htmlspecialchars($fullname);
 
         return self::CallDriver("UserChName", $username, $fullname);
     }
@@ -84,7 +94,8 @@ trait User {
             string $old_password,
             string $new_password): Status {
 
-        if (!self::UserAuth($username, $old_password)) {
+        if (!self::UserAuth($username, $old_password) ||
+                !self::CheckFmt($new_password, self::$password_fmt)) {
 
             return Status::INVALID_INPUT;
         }
@@ -101,7 +112,7 @@ trait User {
     #[\Override]
     public static function UserDel(string $username): Status {
         if (!self::UserExists($username)) {
-            return Status::INVALID_INPUT;
+            return Status::NOTEXISTS;
         }
 
         return self::CallDriver("UserDel", $username);
@@ -142,7 +153,10 @@ trait User {
      * @return ?array null, when user does not exist
      */
     #[\Override]
-    public static function UserInfo(string $username): ?array {
+    public static function UserInfo(string $username): array {
+        if (!self::UserExists($username)) {
+            return [];
+        }
 
         return self::CallDriver("UserInfo", $username);
     }

@@ -29,9 +29,15 @@ trait Group {
 
             return Status::EXISTS;
         }
-        /**
-         * @TODO check input correctness via regex (Auth\Status::INVALID_INPUT)
-         */
+
+        if (!self::CheckFmt($groupname, self::$groupname_fmt) ||
+                !self::CheckFmt($description, self::$description_fmt)) {
+
+            return Status::INVALID_INPUT;
+        }
+        // as description may contain HTML specific characters, filter it
+        $description = htmlspecialchars($description);
+
         return self::CallDriver("GroupAdd", $groupname, $description);
     }
 
@@ -47,10 +53,13 @@ trait Group {
             string $groupname,
             string $description): Status {
 
-        if (!self::GroupExists($groupname)) {
+        if (!self::GroupExists($groupname) ||
+                !self::CheckFmt($description, self::$description_fmt)) {
 
             return Status::INVALID_INPUT;
         }
+        // as description may contain HTML specific characters, filter it
+        $description = htmlspecialchars($description);
 
         return self::CallDriver("GroupChDesc", $groupname, $description);
     }
@@ -65,7 +74,7 @@ trait Group {
     public static function GroupDel(string $groupname): Status {
         if (!self::GroupExists($groupname)) {
 
-            return Status::INVALID_INPUT;
+            return Status::NOTEXISTS;
         }
 
         return self::CallDriver("GroupDel", $groupname);

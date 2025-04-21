@@ -31,13 +31,43 @@ final class Auth implements Interfaces\Auth {
      * 
      * @var array `CFGDIR/authentication.json` data
      */
-    private static array $auth_cfg;
+    private static array $config;
 
     /**
      * 
      * @var bool When Auth is properly initialized, the value is true
      */
     private static bool $is_init = false;
+
+    /**
+     * 
+     * @var string Required username string format
+     */
+    private static string $username_fmt = "[\w][\w.]{4,}";
+
+    /**
+     * 
+     * @var string Required user's fullname string format
+     */
+    private static string $fullname_fmt = ".{5,}";
+
+    /**
+     * 
+     * @var string Required password string format
+     */
+    private static string $password_fmt = ".{8,}";
+
+    /**
+     * 
+     * @var string Required groupname string format
+     */
+    private static string $groupname_fmt = "[\w][\w.]{4,}";
+
+    /**
+     * 
+     * @var string Required group description string format
+     */
+    private static string $description_fmt = ".{5,}";
 
     /**
      * Call the function of the driver
@@ -70,6 +100,11 @@ final class Auth implements Interfaces\Auth {
         return $ret;
     }
 
+    public static function CheckFmt(string $string, string $fmt): bool {
+
+        return (preg_match("/^{$fmt}$/", $string) === 1);
+    }
+
     /**
      * Loads configuration stored in `CFGDIR/authentication.json`, if file is
      * not present, then does nothing
@@ -88,10 +123,15 @@ final class Auth implements Interfaces\Auth {
             return;
         }
 
-        self::$auth_cfg = Config::Fetch("authentication");
-
+        self::$config = Config::Fetch("authentication");
+        // setup required string formats
+        self::$username_fmt = self::$config["format"]["username"] ?? self::$username_fmt;
+        self::$fullname_fmt = self::$config["format"]["fullname"] ?? self::$fullname_fmt;
+        self::$password_fmt = self::$config["format"]["password"] ?? self::$password_fmt;
+        self::$groupname_fmt = self::$config["format"]["groupname"] ?? self::$groupname_fmt;
+        self::$description_fmt = self::$config["format"]["description"] ?? self::$description_fmt;
         // format driver name as first letter uppercase, the rest lowercase
-        self::InitDriver(\ucfirst(\strtolower(self::$auth_cfg["driver"])));
+        self::InitDriver(\ucfirst(\strtolower(self::$config["driver"])));
 
         self::$is_init = true;
     }
@@ -185,7 +225,7 @@ final class Auth implements Interfaces\Auth {
         }
 
         try {
-            self::$driver = new $class_fqn(self::$auth_cfg);
+            self::$driver = new $class_fqn(self::$config);
         } catch (\TypeError) {
             // usually when driver class not implements `Auth_Driver`
             throw new \Exception("AUTH: '{$class_fqn}' is not a vaild  driver");
