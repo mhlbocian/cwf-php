@@ -18,17 +18,17 @@ class Forms {
         $groupname = $_POST["inpGroupname"] ?? "";
         $description = $_POST["inpDescription"] ?? "";
 
-        $status = Auth::GroupAdd($groupname, $description);
+        $status = Auth::Instance()->GroupAdd($groupname, $description);
 
         switch ($status) {
             case Status::EXISTS:
-                Url::Redirect("/Main/UsersGroups/groupexists");
+                Url::Redirect("/Main/Auth/groupexists");
                 break;
             case Status::SUCCESS:
-                Url::Redirect("/Main/UsersGroups/groupsuccess");
+                Url::Redirect("/Main/Auth/groupsuccess");
                 break;
             default:
-                Url::Redirect("/Main/UsersGroups/groupfailed");
+                Url::Redirect("/Main/Auth/groupfailed");
         }
     }
 
@@ -37,49 +37,49 @@ class Forms {
         $fullname = $_POST["inpFullname"] ?? "";
         $password = $_POST["inpPassword"] ?? "";
 
-        $status = Auth::UserAdd($username, $fullname, $password);
+        $status = Auth::Instance()->UserAdd($username, $fullname, $password);
 
         switch ($status) {
             case Status::EXISTS:
-                Url::Redirect("/Main/UsersGroups/userexists");
+                Url::Redirect("/Main/Auth/userexists");
                 break;
             case Status::SUCCESS:
-                Url::Redirect("/Main/UsersGroups/usersuccess");
+                Url::Redirect("/Main/Auth/usersuccess");
                 break;
             default:
-                Url::Redirect("/Main/UsersGroups/userfailed");
+                Url::Redirect("/Main/Auth/userfailed");
         }
     }
 
     public function DelGroup(): void {
         $groupname = $_POST["inpGroupname"] ?? "";
 
-        $status = Auth::GroupDel($groupname);
+        $status = Auth::Instance()->GroupDel($groupname);
         switch ($status) {
             case Status::NOTEXISTS:
-                Url::Redirect("/Main/UsersGroups/groupnotexists");
+                Url::Redirect("/Main/Auth/groupnotexists");
                 break;
             case Status::SUCCESS:
-                Url::Redirect("/Main/UsersGroups/groupsuccess");
+                Url::Redirect("/Main/Auth/groupsuccess");
                 break;
             default:
-                Url::Redirect("/Main/UsersGroups/groupfailed");
+                Url::Redirect("/Main/Auth/groupfailed");
         }
     }
 
     public function DelUser(): void {
         $username = $_POST["inpUsername"] ?? "";
 
-        $status = Auth::UserDel($username);
+        $status = Auth::Instance()->UserDel($username);
         switch ($status) {
             case Status::NOTEXISTS:
-                Url::Redirect("/Main/UsersGroups/usernotexists");
+                Url::Redirect("/Main/Auth/usernotexists");
                 break;
             case Status::SUCCESS:
-                Url::Redirect("/Main/UsersGroups/usersuccess");
+                Url::Redirect("/Main/Auth/usersuccess");
                 break;
             default:
-                Url::Redirect("/Main/UsersGroups/userfailed");
+                Url::Redirect("/Main/Auth/userfailed");
         }
     }
 
@@ -87,7 +87,7 @@ class Forms {
         $username = $_POST["inpUsername"] ?? "";
         $password = $_POST["inpPassword"] ?? "";
 
-        if (Auth::Login($username, $password) == Status::SUCCESS) {
+        if (Auth::Instance()->Login($username, $password) == Status::SUCCESS) {
             Url::Redirect();
         } else {
             Url::Redirect("/Main/Login/fail");
@@ -101,10 +101,10 @@ class Forms {
 
         switch ($action) {
             case "addUser":
-                $status = Auth::UserJoin($username, $groupname);
+                $status = Auth::Instance()->UserJoin($username, $groupname);
                 break;
             case "delUser":
-                $status = Auth::UserLeave($username, $groupname);
+                $status = Auth::Instance()->UserLeave($username, $groupname);
                 break;
             default:
                 Url::Redirect();
@@ -112,13 +112,13 @@ class Forms {
 
         switch ($status) {
             case Status::EXISTS:
-                Url::Redirect("/Main/UsersGroups/membershipexists");
+                Url::Redirect("/Main/Auth/membershipexists");
                 break;
             case Status::SUCCESS:
-                Url::Redirect("/Main/UsersGroups/membershipsuccess");
+                Url::Redirect("/Main/Auth/membershipsuccess");
                 break;
             default:
-                Url::Redirect("/Main/UsersGroups/membershipfailed");
+                Url::Redirect("/Main/Auth/membershipfailed");
         }
     }
 }

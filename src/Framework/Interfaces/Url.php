@@ -11,11 +11,9 @@
 
 namespace Framework\Interfaces;
 
-use Framework\Query;
-
 interface Url {
 
-    public static function Init(): void;
+    public static function Setup(): void;
     
     public static function Resource(string $path): string;
 

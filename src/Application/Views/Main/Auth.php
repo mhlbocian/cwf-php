@@ -1,9 +1,12 @@
+<?php
+$auth = Framework\Auth::Instance();
+?>
 <h3>Users</h3>
 <ul>
     <?php foreach ($users as $username => $fullname): ?>
         <li>
             <?= $username ?> (<?= $fullname ?>) [
-            <?php foreach (\Framework\Auth::UserInfo($username)["groups"] as $group): ?>
+            <?php foreach ($auth->UserInfo($username)["groups"] as $group): ?>
                 '<?= $group ?>'
             <?php endforeach; ?>]
         </li>
@@ -12,11 +15,11 @@
 <p><b>Add user</b></p>
 <form action="<?= \Framework\Url::Site("/Forms/AddUser") ?>" method="post">
     <label for="inpUsername">Username:</label>
-    <input type="text" name="inpUsername"/>
+    <input type="text" name="inpUsername" required minlength="5" />
     <label for="inpFullname">Full name:</label>
-    <input type="text" name="inpFullname"/>
+    <input type="text" name="inpFullname" required minlength="5" />
     <label for="inpPassword">Password:</label>
-    <input type="password" name="inpPassword"/>
+    <input type="password" name="inpPassword" required minlength="8" />
     <button type="submit">Add user</button>
 </form>
 <p><b>Delete user</b></p>
@@ -53,7 +56,7 @@
     <?php foreach ($groups as $groupname => $description): ?>
         <li>
             <?= $groupname ?> (<?= $description ?>): [
-            <?php foreach (\Framework\Auth::UserFetch($groupname) as $username => $fullname): ?>
+            <?php foreach ($auth->UserFetch($groupname) as $username => $fullname): ?>
                 '<?= $username ?>'
             <?php endforeach; ?>]
         </li>
@@ -62,9 +65,9 @@
 <p><b>Add group</b></p>
 <form action="<?= \Framework\Url::Site("/Forms/AddGroup") ?>" method="post">
     <label for="inpGroupname">Group name:</label>
-    <input type="text" name="inpGroupname" required minlength="5"/>
+    <input type="text" name="inpGroupname" />
     <label for="inpDescription">Description:</label>
-    <input type="text" name="inpDescription" required minlength="5"/>
+    <input type="text" name="inpDescription" required minlength="5" />
     <button type="submit">Add group</button>
 </form>
 <p><b>Delete group</b></p>
@@ -99,11 +102,11 @@
 <h3>Membership</h3>
 <form action="<?= \Framework\Url::Site("/Forms/Membership") ?>" method="post">
     <label for="inpUsername">Username:</label>
-    <input type="text" name="inpUsername" required/>
+    <input type="text" name="inpUsername" required />
     <label for="inpGroupname">Group name:</label>
-    <input type="text" name="inpGroupname" required/>
+    <input type="text" name="inpGroupname" required />
     <label for="inpAction">Add user</label>
-    <input type="radio" name="inpAction" value="addUser" checked/>
+    <input type="radio" name="inpAction" value="addUser" checked />
     <label for="inpAction">Delete user</label>
     <input type="radio" name="inpAction" value="delUser"/>
     <button type="submit">Perform action</button>

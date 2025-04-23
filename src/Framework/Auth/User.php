@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Framework\Auth\Auth.php
+ * File: Framework\Auth\User.php
  * Description: Auth API - user methods
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
@@ -11,213 +11,174 @@
 
 namespace Framework\Auth;
 
-trait User {
+use Framework\Auth\Status;
 
-    /**
-     * Add user
-     * 
-     * @param string $username
-     * @param string $fullname
-     * @param string $password
-     * @return Status
-     */
+trait User {
+    
     #[\Override]
-    public static function UserAdd(
+    public function UserAdd(
             string $username,
             string $fullname,
             string $password): Status {
 
-        if (self::UserExists($username)) {
+        if (!$this->configured) {
+            return Status::FAILED;
+        }
+
+        if ($this->UserExists($username)) {
 
             return Status::EXISTS;
         }
 
-        if (!self::CheckFmt($username, self::$username_fmt) ||
-                !self::CheckFmt($fullname, self::$fullname_fmt) ||
-                !self::CheckFmt($password, self::$password_fmt)) {
+        if (!$this->CheckFmt($username, $this->username_fmt) ||
+                !$this->CheckFmt($fullname, $this->fullname_fmt) ||
+                !$this->CheckFmt($password, $this->password_fmt)) {
 
             return Status::INVALID_INPUT;
         }
         // as fullname may contain HTML specific characters, filter it
-        $fullname = \htmlspecialchars($fullname);
+        $filter_fname = \htmlspecialchars($fullname);
 
-        return self::CallDriver("UserAdd", $username, $fullname, $password);
+        return $this->driver->UserAdd($username, $filter_fname, $password);
     }
-
-    /**
-     * Check, if given credentials are correct
-     * 
-     * @param string $login
-     * @param string $password
-     * @return bool
-     */
+    
     #[\Override]
-    public static function UserAuth(string $username, string $password): bool {
+    public function UserAuth(string $username, string $password): bool {
+        if (!$this->configured || !$this->UserExists($username)) {
+            return false;
+        }
 
-        return self::CallDriver("UserAuth", $username, $password);
+        return $this->driver->UserAuth($username, $password);
     }
-
-    /**
-     * Change full name of user
-     * 
-     * @param string $username
-     * @param string $fullname
-     * @return Status
-     */
+    
     #[\Override]
-    public static function UserChName(
+    public function UserChName(
             string $username,
             string $fullname): Status {
 
-        if (!self::UserExists($username) ||
-                !self::CheckFmt($fullname, self::$fullname_fmt)) {
+        if (!$this->configured) {
+            return Status::FAILED;
+        }
+
+        if (!$this->UserExists($username) ||
+                !$this->CheckFmt($fullname, $this->fullname_fmt)) {
 
             return Status::INVALID_INPUT;
         }
         // as fullname may contain HTML specific characters, filter it
-        $fullname = \htmlspecialchars($fullname);
+        $filter_fname = \htmlspecialchars($fullname);
 
-        return self::CallDriver("UserChName", $username, $fullname);
+        return $this->driver->UserChName($username, $filter_fname);
     }
-
-    /**
-     * Change password of user
-     * 
-     * @param string $username
-     * @param string $old_password
-     * @param string $new_password
-     * @return Status
-     */
+    
     #[\Override]
-    public static function UserChPass(
+    public function UserChPass(
             string $username,
             string $old_password,
             string $new_password): Status {
 
-        if (!self::UserAuth($username, $old_password) ||
-                !self::CheckFmt($new_password, self::$password_fmt)) {
+        if (!$this->configured) {
+            return Status::FAILED;
+        }
+
+        if (!$this->UserAuth($username, $old_password) ||
+                !$this->CheckFmt($new_password, $this->password_fmt)) {
 
             return Status::INVALID_INPUT;
         }
 
-        return self::CallDriver("UserChPass", $username, $new_password);
+        return $this->driver->UserChPass($username, "", $new_password);
     }
-
-    /**
-     * Delete user
-     * 
-     * @param string $username
-     * @return Status
-     */
+    
     #[\Override]
-    public static function UserDel(string $username): Status {
-        if (!self::UserExists($username)) {
+    public function UserDel(string $username): Status {
+        if (!$this->configured) {
+            return Status::FAILED;
+        }
+
+        if (!$this->UserExists($username)) {
             return Status::NOTEXISTS;
         }
 
-        return self::CallDriver("UserDel", $username);
+        return $this->driver->UserDel($username);
     }
-
-    /**
-     * Check, if user exists for given login
-     * 
-     * @param string $login
-     * @return bool
-     */
+    
     #[\Override]
-    public static function UserExists(string $username): bool {
+    public function UserExists(string $username): bool {
+        if (!$this->configured) {
+            return false;
+        }
 
-        return self::CallDriver("UserExists", $username);
+        return $this->driver->UserExists($username);
     }
-
-    /**
-     * Return an array of users
-     * 
-     * @param string|null $groupname
-     * @return array ["username1"=>"fullname1", ...]
-     */
+    
     #[\Override]
-    public static function UserFetch(?string $groupname = null): array {
-        if (!\is_null($groupname) && !self::GroupExists($groupname)) {
+    public function UserFetch(?string $groupname = null): array {
+        if (!$this->configured || !\is_null($groupname) && !$this->GroupExists($groupname)) {
+
             return [];
         }
 
-        return self::CallDriver("UserFetch", $groupname);
+        return $this->driver->UserFetch($groupname);
     }
-
-    /**
-     * Return an array with user information. When user does not exist, return
-     * an empty array.
-     * 
-     * @param string $username
-     * @return ?array null, when user does not exist
-     */
+    
     #[\Override]
-    public static function UserInfo(string $username): array {
-        if (!self::UserExists($username)) {
+    public function UserInfo(string $username): array {
+        if (!$this->configured || !$this->UserExists($username)) {
             return [];
         }
 
-        return self::CallDriver("UserInfo", $username);
+        return $this->driver->UserInfo($username);
     }
-
-    /**
-     * Check, if user belong to specified group
-     * 
-     * @param string $username
-     * @param string $groupname
-     * @return bool
-     */
+    
     #[\Override]
-    public static function UserInGroup(
+    public function UserInGroup(
             string $username,
             string $groupname): bool {
 
-        return self::CallDriver("UserInGroup", $username, $groupname);
-    }
+        if (!$this->configured) {
+            return false;
+        }
 
-    /**
-     * Join user to group
-     * 
-     * @param string $username
-     * @param string $groupname
-     * @return Status
-     */
+        return $this->driver->UserInGroup($username, $groupname);
+    }
+    
     #[\Override]
-    public static function UserJoin(
+    public function UserJoin(
             string $username,
             string $groupname): Status {
 
-        if (!self::UserExists($username) || !self::GroupExists($groupname)) {
+        if (!$this->configured) {
+            return Status::FAILED;
+        }
+
+        if (!$this->UserExists($username) || !$this->GroupExists($groupname)) {
 
             return Status::INVALID_INPUT;
         }
 
-        if (self::UserInGroup($username, $groupname)) {
+        if ($this->UserInGroup($username, $groupname)) {
 
             return Status::EXISTS;
         }
 
-        return self::CallDriver("UserJoin", $username, $groupname);
+        return $this->driver->UserJoin($username, $groupname);
     }
-
-    /**
-     * Remove user from group
-     * 
-     * @param string $username
-     * @param string $groupname
-     * @return Status
-     */
+    
     #[\Override]
-    public static function UserLeave(
+    public function UserLeave(
             string $username,
             string $groupname): Status {
 
-        if (!self::UserInGroup($username, $groupname)) {
+        if (!$this->configured) {
+            return Status::FAILED;
+        }
+
+        if (!$this->UserInGroup($username, $groupname)) {
 
             return Status::INVALID_INPUT;
         }
 
-        return self::CallDriver("UserLeave", $username, $groupname);
+        return $this->driver->UserLeave($username, $groupname);
     }
 }

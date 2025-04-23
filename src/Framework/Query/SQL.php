@@ -12,12 +12,7 @@
 namespace Framework\Query;
 
 trait SQL {
-
-    /**
-     * Make SQL query for CREATE TABLE operation
-     *
-     * @return void
-     */
+    
     private function SQL_Create(): void {
         if (empty($this->cols_type)) {
             throw new \Exception("QUERY: empty column(s) type specification");
@@ -43,24 +38,14 @@ trait SQL {
 
         $this->sql .= ")";
     }
-
-    /**
-     * Make SQL query for DELETE operation
-     *
-     * @return void
-     */
+    
     private function SQL_Delete(): void {
         // SQL: OPERATION HEADER
         $this->sql = "DELETE FROM " . $this->Format($this->table);
         // SQL: WHERE
         $this->sql .= $this->Make_Where();
     }
-
-    /**
-     * Make SQL query for INSERT INTO operation
-     *
-     * @return void
-     */
+    
     private function SQL_Insert(): void {
         $this->ColVal_Check();
         // SQL: OPERATION HEADER
@@ -79,12 +64,7 @@ trait SQL {
 
         $this->sql = \substr($this->sql, 0, -2) . ")";
     }
-
-    /**
-     * Make SQL query for UPDATE operation
-     *
-     * @return void
-     */
+    
     private function SQL_Update(): void {
         $this->ColVal_Check();
         // SQL: OPERATION HEADER
@@ -98,11 +78,7 @@ trait SQL {
         // SQL: WHERE
         $this->sql .= $this->Make_Where();
     }
-
-    /**
-     * Make SQL query for SELECT operation
-     * @return void
-     */
+    
     private function SQL_Select(): void {
         // SQL: OPERATION HEADER
         $this->sql = "SELECT " . (($this->distinct) ? "DISTINCT " : "");

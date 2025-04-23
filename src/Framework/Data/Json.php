@@ -4,156 +4,85 @@
  * CWF-PHP Framework
  * 
  * File: Framework\Data\Json.php
- * Description: Data manipulation - JSON files
+ * Description: Common interface for JSON files
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
 namespace Framework\Data;
 
-final class Json implements \Framework\Interfaces\Data_Json {
+use Framework\Interfaces\Data\Json as IJson;
 
-    private const string JSONDIR = \DATADIR;
+final class Json implements IJson {
 
-    /**
-     * 
-     * @var array JSON data
-     */
-    private static array $data = [];
+    private array $json_data = [];
+    private bool $json_changed = false;
 
-    /**
-     * Check if configuration file exists
-     * 
-     * @param string $file JSON file name
-     * @return bool
-     */
     #[\Override]
-    public static function Exists(string $file): bool {
+    public function __construct(private string $json_file) {
 
-        return \file_exists(self::JSONDIR . \DS . "{$file}.json");
-    }
-
-    /**
-     * Fetch all data from configuration file
-     * 
-     * @param string $file JSON file name
-     * @return array Decoded JSON array of whole configuration file
-     */
-    #[\Override]
-    public static function Fetch(string $file): array {
-        self::Check_Load($file);
-
-        return self::$data[$file];
-    }
-
-    /**
-     * Get a value from JSON file
-     * 
-     * @param string $file JSON file name
-     * @param string $key Key from configuration file
-     * @return mixed Contents
-     */
-    #[\Override]
-    public static function Get(string $file, string $key): mixed {
-        self::Check_Load($file);
-
-        if (!\key_exists($key, self::$data[$file])) {
-            throw new \Exception("DATA-JSON: Key '{$key}' not found in '{$file}'");
+        if (!\file_exists($json_file)) {
+            $this->Create();
         }
 
-        return self::$data[$file][$key];
+        $fcnt = \file_get_contents($json_file);
+        $this->json_data = \json_decode($fcnt, true) ?? [];
     }
 
-    /**
-     * Set a new data for a JSON file
-     * 
-     * @param string $cfg JSON file name
-     * @param string $key Key to set
-     * @param mixed $value
-     * @return void
-     */
-    #[\Override]
-    public static function Set(string $file, string $key, mixed $value): void {
-        /*
-         * If the file exists and is not loaded - load it, to avoid wipeout
-         * all other data
-         */
-        if (self::Exists($file) && !isset(self::$data[$file])) {
-            self::Load($file);
-        }
+    private function Create(): void {
+        if (!\touch($this->json_file)) {
 
-        self::$data[$file][$key] = $value;
+            throw new \Exception("JSON: create error in file `{$this->json_file}`");
+        }
     }
 
-    /**
-     * Unset data in a JSON file
-     * 
-     * @param string $file JSON file name
-     * @param string $key Key to unset
-     * @return void
-     */
     #[\Override]
-    public static function Unset(string $file, string $key): void {
-        /*
-         * If the file exists and is not loaded - load it, to avoid wipeout
-         * all other data
-         */
-        if (self::Exists($file) && !isset(self::$data[$file])) {
-            self::Load($file);
-        }
+    public function Fetch(): array {
 
-        unset(self::$data[$file][$key]);
+        return $this->json_data;
     }
 
-    /**
-     * Update JSON file with current data
-     * 
-     * @param string $file JSON file name
-     * @return void
-     */
     #[\Override]
-    public static function Update(string $file): void {
-        if (!isset(self::$data[$file])) {
-            return; // nothing to do
+    public function Get(string $key): mixed {
+        if (!\key_exists($key, $this->json_data)) {
+
+            throw new \Exception("JSON: key `{$key}` does not exist in "
+                            . "`{$this->json_file}`");
         }
 
-        $path = self::JSONDIR . \DS . "{$file}.json";
+        return $this->json_data[$key];
+    }
 
-        if (!($fh = \fopen($path, "w"))) {
-            throw new \Exception("DATA-DIR: cannot open file '{$file}'");
+    private function Save(): void {
+        if (!($fh = \fopen($this->json_file, "w"))) {
+
+            throw new \Exception("JSON: write error in file "
+                            . "`{$this->json_file}`");
         }
 
-        \fwrite($fh, \json_encode(self::$data[$file]));
+        \fwrite($fh, \json_encode($this->json_data));
         \fclose($fh);
     }
 
-    /**
-     * Load JSON file contents
-     * 
-     * @param string $file Configuration file name
-     * @throws Exception
-     */
-    private static function Load(string $file): void {
-        $path = self::JSONDIR . \DS . "{$file}.json";
-
-        if (!self::Exists($file)) {
-            throw new \Exception("DATA-JSON: file '{$path}' does not exist");
-        }
-
-        $cnt = \file_get_contents($path);
-        self::$data[$file] = \json_decode($cnt, true);
+    #[\Override]
+    public function Set(string $key, mixed $value): void {
+        $this->json_changed = true;
+        $this->json_data[$key] = $value;
     }
 
-    /**
-     * Helper function for Fetch/Get. Check, if JSON file is already loaded.
-     * If not, load it
-     * 
-     * @param string $file Configuration file name
-     * @return void
-     */
-    private static function Check_Load(string $file): void {
-        if (!isset(self::$data[$file])) {
-            self::Load($file);
+    #[\Override]
+    public function Unset(string $key): void {
+        $data_key = \array_search($key, $this->json_data, true);
+
+        if ($key !== false) {
+            $this->json_changed = true;
+            \array_splice($this->json_data, $data_key, 1);
+        }
+    }
+
+    public function __destruct() {
+        if ($this->json_changed) {
+            $this->Save();
         }
     }
 }

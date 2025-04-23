@@ -14,16 +14,7 @@ namespace Framework\Query;
 use Framework\Query;
 
 trait Where {
-
-    /**
-     * WHERE statement
-     *
-     * @param string $column
-     * @param Operator $op
-     * @param mixed $value
-     * @return Query
-     * @throws Exception
-     */
+    
     #[\Override]
     public function Where(string $column, Operator $op, mixed $value): Query {
         if (!empty($this->where)) {
@@ -38,15 +29,7 @@ trait Where {
 
         return $this;
     }
-
-    /**
-     * AND statement, used after WHERE
-     *
-     * @param string $column
-     * @param Operator $op
-     * @param mixed $value
-     * @return Query
-     */
+    
     #[\Override]
     public function And(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
@@ -62,15 +45,7 @@ trait Where {
 
         return $this;
     }
-
-    /**
-     * OR statement, used after WHERE
-     *
-     * @param string $column
-     * @param Operator $op
-     * @param mixed $value
-     * @return Query
-     */
+    
     #[\Override]
     public function Or(string $column, Operator $op, mixed $value): Query {
         if (empty($this->where)) {
@@ -86,12 +61,7 @@ trait Where {
 
         return $this;
     }
-
-    /**
-     * Make WHERE statement
-     * 
-     * @return string
-     */
+    
     private function Make_Where(): string {
         if (empty($this->where)) {
             return "";

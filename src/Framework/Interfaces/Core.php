@@ -13,5 +13,5 @@ namespace Framework\Interfaces;
 
 interface Core {
 
-    public static function Init(): void;
+    public static function Setup(): void;
 }

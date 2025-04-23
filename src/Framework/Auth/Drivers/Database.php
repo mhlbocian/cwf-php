@@ -13,51 +13,21 @@ namespace Framework\Auth\Drivers;
 
 use Framework\Auth\Status;
 use Framework\Database as Db;
-use Framework\Interfaces\Auth_Driver;
+use Framework\Interfaces\Auth\Driver as IDriver;
 use Framework\Query;
 use Framework\Query\{
     Operator,
     Statement
 };
 
-final class Database implements Auth_Driver {
-
-    /**
-     * 
-     * @var Framework\Database Connection handler
-     */
+final class Database implements IDriver {
+    
     private Db $conn;
-
-    /**
-     * 
-     * @var string Connection name
-     */
     private string $conn_name;
-
-    /**
-     * 
-     * @var string Table name for groups data
-     */
     private string $grp_table;
-
-    /**
-     * 
-     * @var string Table name for memberships data
-     */
     private string $mbr_table;
-
-    /**
-     * 
-     * @var string Table name for users data
-     */
     private string $usr_table;
-
-    /**
-     * Setup database connection and driver-specific properties
-     * 
-     * @param array $auth_config
-     * @return void
-     */
+    
     #[\Override]
     public function __construct(array $auth_config) {
         if (!isset($auth_config["connection"])) {
@@ -78,14 +48,7 @@ final class Database implements Auth_Driver {
             throw new \Exception("connection error");
         }
     }
-
-    /**
-     * Db driver implementation for: GroupAdd
-     * 
-     * @param string $groupname
-     * @param string $description
-     * @return Status
-     */
+    
     #[\Override]
     public function GroupAdd(
             string $groupname,
@@ -106,14 +69,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: GroupChDesc
-     * 
-     * @param string $groupname
-     * @param string $description
-     * @return Status
-     */
+    
     #[\Override]
     public function GroupChDesc(
             string $groupname,
@@ -134,13 +90,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: GroupDel
-     * 
-     * @param string $groupname
-     * @return Status
-     */
+    
     #[\Override]
     public function GroupDel(string $groupname): Status {
         $query_mbr = new Query(Statement::DELETE)
@@ -151,9 +101,7 @@ final class Database implements Auth_Driver {
                 ->Where("groupname", Operator::Eq, $groupname);
 
         try {
-// remove membership relations
             $this->conn->Query($query_mbr);
-// remove the group
             $this->conn->Query($query_grp);
         } catch (\Throwable) {
 
@@ -162,13 +110,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: GroupExists
-     * 
-     * @param string $groupname
-     * @return bool
-     */
+    
     #[\Override]
     public function GroupExists(string $groupname): bool {
         $query = new Query(Statement::SELECT)
@@ -184,12 +126,7 @@ final class Database implements Auth_Driver {
 
         return (count($result) == 1);
     }
-
-    /**
-     * Db driver implementation for: GroupFetch
-     * 
-     * @return array
-     */
+    
     #[\Override]
     public function GroupFetch(): array {
         $output = [];
@@ -208,15 +145,7 @@ final class Database implements Auth_Driver {
 
         return $output;
     }
-
-    /**
-     * Db driver implementation for: UserAdd
-     * 
-     * @param string $username
-     * @param string $fullname
-     * @param string $password
-     * @return Status
-     */
+    
     #[\Override]
     public function UserAdd(
             string $username,
@@ -239,14 +168,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: UserAuth
-     * 
-     * @param string $username
-     * @param string $password
-     * @return bool
-     */
+    
     #[\Override]
     public function UserAuth(
             string $username,
@@ -270,14 +192,7 @@ final class Database implements Auth_Driver {
 
         return password_verify($password, $result[0]["password"]);
     }
-
-    /**
-     * Db driver implementation for: UserChName
-     * 
-     * @param string $username
-     * @param string $fullname
-     * @return Status
-     */
+    
     #[\Override]
     public function UserChName(
             string $username,
@@ -298,23 +213,17 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: UserChPass
-     * 
-     * @param string $username
-     * @param string $password
-     * @return Status
-     */
+    
     #[\Override]
     public function UserChPass(
             string $username,
-            string $password): Status {
+            string $old_password,
+            string $new_password): Status {
 
         $query = new Query(Statement::UPDATE)
                 ->Table($this->usr_table)
                 ->Columns("password")
-                ->Values(password_hash($password, PASSWORD_DEFAULT))
+                ->Values(password_hash($new_password, PASSWORD_DEFAULT))
                 ->Where("username", Operator::Eq, $username);
 
         try {
@@ -326,13 +235,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: UserDel
-     * 
-     * @param string $username
-     * @return Status
-     */
+    
     #[\Override]
     public function UserDel(string $username): Status {
         $query_mbr = new Query(Statement::DELETE)
@@ -343,9 +246,7 @@ final class Database implements Auth_Driver {
                 ->Where("username", Operator::Eq, $username);
 
         try {
-// remove user from memberships table
             $this->conn->Query($query_mbr);
-// remove user from users table
             $this->conn->Query($query_usr);
         } catch (\Throwable) {
 
@@ -354,13 +255,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: UserExists
-     * 
-     * @param string $username
-     * @return bool
-     */
+    
     #[\Override]
     public function UserExists(string $username): bool {
         $query = new Query(Statement::SELECT)
@@ -376,13 +271,7 @@ final class Database implements Auth_Driver {
 
         return (count($result) == 1);
     }
-
-    /**
-     * Db driver implementation for: UserFetch
-     * 
-     * @param string|null $groupname
-     * @return array
-     */
+    
     #[\Override]
     public function UserFetch(?string $groupname): array {
         $output = [];
@@ -413,13 +302,7 @@ final class Database implements Auth_Driver {
 
         return $output;
     }
-
-    /**
-     * Db driver implementation for: UserInfo
-     * 
-     * @param string $username
-     * @return ?array
-     */
+    
     #[\Override]
     public function UserInfo(string $username): array {
         $query_usr = new Query(Statement::SELECT)
@@ -456,14 +339,7 @@ final class Database implements Auth_Driver {
             return [];
         }
     }
-
-    /**
-     * Db driver implementation for: UserInGroup
-     * 
-     * @param string $username
-     * @param string $groupname
-     * @return bool
-     */
+    
     #[\Override]
     public function UserInGroup(
             string $username,
@@ -483,14 +359,7 @@ final class Database implements Auth_Driver {
 
         return (count($result) == 1);
     }
-
-    /**
-     * Db driver implementation for: UserJoin
-     * 
-     * @param string $username
-     * @param string $groupname
-     * @return bool
-     */
+    
     #[\Override]
     public function UserJoin(
             string $username,
@@ -509,14 +378,7 @@ final class Database implements Auth_Driver {
 
         return Status::SUCCESS;
     }
-
-    /**
-     * Db driver implementation for: UserLeave
-     * 
-     * @param string $username
-     * @param string $groupname
-     * @return bool
-     */
+    
     #[\Override]
     public function UserLeave(
             string $username,

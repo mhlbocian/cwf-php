@@ -13,83 +13,67 @@ namespace Framework;
 
 final class Core implements Interfaces\Core {
 
-    /**
-     * 
-     * @var array Array of directories with required write permission
-     */
-    private static array $dirs_array = [
+    private array $config;
+    private array $dirs_array = [
         CFGDIR,
         DATADIR,
     ];
-
-    /**
-     * 
-     * @var array Array of required PHP modules
-     */
-    private static array $php_req_mods = [
+    private array $php_req_mods = [
         "filter",
         "json",
         "PDO",
         "session",
     ];
+    private static ?Core $instance = null;
+    private string $php_min_ver = "8.4";
 
-    /**
-     * 
-     * @var string Minimal required PHP version
-     */
-    private static string $php_min_ver = "8.4";
-
-    /**
-     * Used in bootstrap, to check all required stuff in application
-     * environment, like directory permissions, PHP version and modules.
-     * 
-     * @return void
-     */
     #[\Override]
-    public static function Init(): void {
-        self::Check_PHP_Env();
-        self::Check_Dir_Perms();
+    public static function Setup(): void {
+        if (self::$instance == null) {
+            self::$instance = new Core();
+        } else {
 
-        // initialise core classes
-        Auth::Init();
-        Url::Init();
-
-        // initialize application info constants
-        \define("APPNAME", Config::Get("application", "application")["name"]);
-        \define("APPDES", Config::Get("application", "application")["description"]);
-        \define("APPVER", Config::Get("application", "application")["version"]);
+            return;
+        }
     }
 
-    /**
-     * Check directories write permission
-     * 
-     * @return void
-     * @throws Error
-     */
-    private static function Check_Dir_Perms(): void {
-        foreach (self::$dirs_array as $dir) {
+    public function __construct() {
+        $this->Check_Dir_Perms();
+        $this->Check_PHP_Env();
+        $this->Config_Core_Classes();
+
+        $this->config = Config::File("application")->Fetch();
+        $application = $this->config["application"];
+
+        \define("APPNAME", $application["name"]);
+        \define("APPDES", $application["description"]);
+        \define("APPVER", $application["version"]);
+    }
+
+    private function Check_Dir_Perms(): void {
+        foreach ($this->dirs_array as $dir) {
             if (!\is_writable($dir)) {
                 throw new \Error("CORE: directory '{$dir}' is not writable");
             }
         }
     }
 
-    /**
-     * Check required PHP version and modules
-     * 
-     * @return void
-     * @throws Error
-     */
-    private static function Check_PHP_Env(): void {
-        if (!\version_compare(\PHP_VERSION, self::$php_min_ver, ">=")) {
+    private function Check_PHP_Env(): void {
+        if (!\version_compare(\PHP_VERSION, $this->php_min_ver, ">=")) {
             throw new \Error("CORE: PHP version '" . PHP_VERSION . "' is older "
                             . "than required version '" . self::$php_min_ver . "'");
         }
 
-        foreach (self::$php_req_mods as $module) {
+        foreach ($this->php_req_mods as $module) {
             if (!\extension_loaded($module)) {
-                throw new \Error("CORE: required PHP extension '{$module}' is not loaded");
+                throw new \Error("CORE: required PHP extension '{$module}' "
+                                . "is not loaded");
             }
         }
+    }
+
+    private function Config_Core_Classes(): void {
+        Auth::Instance();
+        Url::Setup();
     }
 }

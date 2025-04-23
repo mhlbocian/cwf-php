@@ -20,16 +20,7 @@ trait Join {
     private string $join_column2;
     private string $join_table;
     private string $join_type = "";
-
-    /**
-     * SELECT: JOIN
-     * 
-     * @param string $table
-     * @param string $column1
-     * @param string $column2
-     * @return Query
-     * @throws \Exception
-     */
+    
     #[\Override]
     public function Join(
             string $table,
@@ -48,15 +39,7 @@ trait Join {
 
         return $this;
     }
-
-    /**
-     * SELECT: INNER JOIN
-     * 
-     * @param string $table
-     * @param string $column1
-     * @param string $column2
-     * @return Query
-     */
+    
     #[\Override]
     public function InnerJoin(
             string $table,
@@ -68,15 +51,7 @@ trait Join {
 
         return $this;
     }
-
-    /**
-     * SELECT: LEFT JOIN
-     * 
-     * @param string $table
-     * @param string $column1
-     * @param string $column2
-     * @return Query
-     */
+    
     #[\Override]
     public function LeftJoin(
             string $table,
@@ -88,15 +63,7 @@ trait Join {
 
         return $this;
     }
-
-    /**
-     * SELECT: RIGHT JOIN
-     * 
-     * @param string $table
-     * @param string $column1
-     * @param string $column2
-     * @return Query
-     */
+    
     #[\Override]
     public function RightJoin(
             string $table,

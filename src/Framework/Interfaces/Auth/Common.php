@@ -1,21 +1,10 @@
 <?php
 
-/*
- * CWF-PHP Framework
- * 
- * File: Framework\Interfaces\Auth_Driver.php
- * Description: Auth API - driver interface
- * Author: Michal Bocian <bocian.michal@outlook.com>
- * License: 3-Clause BSD
- */
-
-namespace Framework\Interfaces;
+namespace Framework\Interfaces\Auth;
 
 use Framework\Auth\Status;
 
-interface Auth_Driver {
-
-    public function __construct(array $auth_config);
+interface Common {
 
     public function GroupAdd(
             string $groupname,
@@ -48,8 +37,9 @@ interface Auth_Driver {
 
     public function UserChPass(
             string $username,
-            #[\SensitiveParameter] string $password): Status;
-    
+            #[\SensitiveParameter] string $old_password,
+            #[\SensitiveParameter] string $new_password): Status;
+
     public function UserDel(string $username): Status;
 
     public function UserExists(

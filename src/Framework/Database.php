@@ -12,77 +12,25 @@
 namespace Framework;
 
 use Framework\Config;
+use Framework\Interfaces\Database as IDatabase;
 
-final class Database implements Interfaces\Database {
+final class Database implements IDatabase {
 
-    /**
-     * 
-     * @var PDO Connection handler
-     */
-    private \PDO $pdo;
-
-    /**
-     * Directory for SQLite files
-     */
     private const DBDIR = \DATADIR . \DS;
 
-    /**
-     * 
-     * @var string Database name
-     */
+    private \PDO $pdo;
     private string $dbname;
-
-    /**
-     * 
-     * @var string PDO dsn
-     */
     private string $dsn;
-
-    /**
-     * 
-     * @var string Database host
-     */
     private string $host;
-
-    /**
-     * 
-     * @var string|null Database password
-     */
     private ?string $password;
-
-    /**
-     * 
-     * @var string Database port
-     */
     private string $port;
-
-    /**
-     * 
-     * @var string|null Database username
-     */
     private ?string $username;
-
-    /**
-     * 
-     * @var string Connection data for specified name in `CFGDIR/database.json`
-     */
     private string $conn_name;
-
-    /**
-     * 
-     * @var string Database driver
-     */
     public readonly string $driver;
-
-    /**
-     * Establish database connection. Fetches configuration from
-     * `CFGDIR/database.json`. When $conn_name is null, loads `default` section
-     * 
-     * @param string $conn_name
-     */
+    
     #[\Override]
     public function __construct(string $conn_name = "default") {
-        $db_cfg = Config::Get("database", $conn_name);
+        $db_cfg = Config::File("database")->Get($conn_name);
         $this->conn_name = $conn_name;
         // both driver and database cannot be empty
         $this->driver = \strtolower($db_cfg["driver"]);
@@ -96,13 +44,7 @@ final class Database implements Interfaces\Database {
         $this->DSN_Set();
         $this->pdo = new \PDO($this->dsn, $this->username, $this->password);
     }
-
-    /**
-     * Execute a query
-     * 
-     * @param Query $query
-     * @return PDOStatement
-     */
+    
     #[\Override]
     public function Query(Query $query): \PDOStatement {
         $prep = $this->pdo->prepare($query);
@@ -115,13 +57,7 @@ final class Database implements Interfaces\Database {
 
         return $prep;
     }
-
-    /**
-     * Create PDO `dsn` for specific connection type
-     * 
-     * @return void
-     * @throws Exception
-     */
+    
     private function DSN_Set(): void {
         try {
             $this->dsn = match ($this->driver) {
@@ -130,6 +66,7 @@ final class Database implements Interfaces\Database {
                 "sqlite" => "sqlite:" . self::DBDIR . "{$this->dbname}"
             };
         } catch (\UnhandledMatchError) {
+            
             throw new \Exception("DB: Unknown driver `{$this->driver}`");
         }
     }

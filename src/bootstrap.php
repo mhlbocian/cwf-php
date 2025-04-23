@@ -19,5 +19,5 @@ define("DATADIR", ROOTDIR . DS . "Data");
 // initialize basic functions and handlers
 require_once ROOTDIR . DS . "Framework" . DS . "init.php";
 // initialize framework and setup environment
-\Framework\Core::Init();
+Framework\Core::Setup();
 session_start();

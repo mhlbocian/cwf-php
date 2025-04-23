@@ -14,76 +14,26 @@ namespace Framework;
 use Framework\Exceptions\Router_Exception;
 
 final class Router implements Interfaces\Router {
-
-    /**
-     * 
-     * @var string Current action
-     */
+    
     private string $action;
-
-    /**
-     * 
-     * @var string Current controller
-     */
     private string $controller;
-
-    /**
-     * 
-     * @var string Class FQN string (includes namespaces)
-     */
     private string $class_fqn;
-
-    /**
-     * 
-     * @var string Default action (from `CFGDIR/application.json`)
-     */
     private string $default_action;
-
-    /**
-     * 
-     * @var string Default controller (from `CFGDIR/application.json`)
-     */
     private string $default_controller;
-
-    /**
-     * 
-     * @var string Controllers name space (from `CFGDIR/application.json`)
-     */
     private string $namespace;
-
-    /**
-     * 
-     * @var array Action arguments
-     */
     private static array $args = [];
-
-    /**
-     * 
-     * @var string Current route (available outside Router)
-     */
     private static string $route = "";
-
-    /**
-     * Parse route and prepares it for execution
-     * 
-     * @param string|null $route
-     */
+    
     #[\Override]
     public function __construct(?string $route) {
-        $config = Config::Fetch("application")["router"];
+        $config = Config::File("application")->Get("router");
         $this->namespace = $config["namespace"];
         $this->default_controller = $config["default_controller"];
         $this->default_action = $config["default_action"];
 
         $this->Parse_Route($route);
     }
-
-    /**
-     * Check requirements and execute route
-     * 
-     * @return void
-     * @throws Invalid_Route
-     */
+    
     #[\Override]
     public function Execute(): void {
         $this->Check_Route();
@@ -91,35 +41,19 @@ final class Router implements Interfaces\Router {
         $ctrl_object = new $this->class_fqn();
         $ctrl_object->{$this->action}();
     }
-
-    /**
-     * Return parameters array
-     * URL: `{Controller}/{Action}[/Arg1[/[Arg2]...]]`
-     * 
-     * @return array [Arg1, Arg2, ...]
-     */
+    
     #[\Override]
     public static function Get_Args(): array {
 
         return self::$args;
     }
-
-    /**
-     * Return current route `{controller}/{action}' string
-     * 
-     * @return string
-     */
+    
     #[\Override]
     public static function Get_Route(): string {
 
         return self::$route;
     }
-
-    /**
-     * Check all requirements before initializing controller
-     * 
-     * @return void
-     */
+    
     private function Check_Route(): void {
         if (!\class_exists($this->class_fqn)) {
 
@@ -136,13 +70,7 @@ final class Router implements Interfaces\Router {
             throw new Router_Exception("ROUTER: action forbidden for magic methods");
         }
     }
-
-    /**
-     * Parse route string and set properties
-     * 
-     * @param string|null $route
-     * @return void
-     */
+    
     private function Parse_Route(?string $route): void {
         if ($route == null || $route == "/") {
             $this->controller = $this->default_controller;

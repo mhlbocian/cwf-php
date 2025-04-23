@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Framework\Auth\Auth.php
+ * File: Framework\Auth\Status.php
  * Description: Auth API - status codes
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD

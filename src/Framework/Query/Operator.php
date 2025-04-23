@@ -13,7 +13,6 @@ namespace Framework\Query;
 
 enum Operator: string {
 
-    // define operators and its symbols
     case Eq = "=";
     case Gt = ">";
     case GEq = ">=";

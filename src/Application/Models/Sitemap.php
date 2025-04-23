@@ -12,32 +12,34 @@ class Sitemap {
             "License" => "License",
             "Usage" => "Usage",
             "Manual" => "Manual",
-            "UsersGroups" => "Users and groups",
+            "Auth" => "Authentication",
             "Login" => "Sign in"
         ],
     ];
     private static array $api_menu = [
         "Authentication" => [
-            "API overview" => "Auth_API",
-            "Configuration" => "Auth_Config",
-            "Database driver" => "Auth_Database",
-            "JSON driver" => "Auth_Json",
+            "Configuration" => "Auth_Configuration",
+            "Database driver" => "Auth_DriverDb",
+            "JSON driver" => "Auth_DriverJson",
             "Custom driver" => "Auth_CustomDrivers"
         ],
-        "Config files" => [
-            "API overview" => "Config_API",
-            "Create file" => "Config_CreateFile",
+        "Configuration" => [
+            "Creating files" => "Config_CreateFile",
             "Fetching data" => "Config_FetchData",
             "Updating data" => "Config_UpdateData"
         ],
-        "Database" => [
-            "API overview" => "Database_API",
-            "Configuration" => "Db_Config",
-            "Connections" => "Db_Conn",
-            "Queries" => "Db_Queries"
+        "Data managment" => [
+            "JSON files" => "Data_Json"
         ],
-        "JSON files" => [
-            "Overview" => "Json_Overview"
+        "Database" => [
+            "Configuration" => "Database_Config",
+            "Connections" => "Database_Connections",
+            "Queries" => "Database_Queries"
+        ],
+        "Framework" => [
+            "Routing" => "Framework_Routing",
+            "URL" => "Framework_Url",
+            "Views" => "Framework_Views"
         ]
     ];
 

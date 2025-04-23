@@ -14,21 +14,9 @@ namespace Framework\Query;
 use Framework\Query;
 
 trait Constraints {
-
-    /**
-     * 
-     * @var array Constraints array
-     */
+    
     private array $constraints = [];
-
-    /**
-     * CREATE TABLE: Set Foreign Key
-     * 
-     * @param string $column
-     * @param string $reference
-     * @return Query
-     * @throws Exception
-     */
+    
     #[\Override]
     public function ForeginKey(string $column, string $reference): Query {
         if (!\key_exists($column, $this->cols_type)) {
@@ -39,14 +27,7 @@ trait Constraints {
 
         return $this;
     }
-
-    /**
-     * CREATE TABLE: Set Primary Key
-     * 
-     * @param string $column
-     * @return Query
-     * @throws Exception
-     */
+    
     #[\Override]
     public function PrimaryKey(string $column): Query {
         if (!\key_exists($column, $this->cols_type)) {
@@ -57,25 +38,14 @@ trait Constraints {
 
         return $this;
     }
-
-    /**
-     * CREATE TABLE: Set Unique columns
-     * 
-     * @param string $columns
-     * @return Query
-     */
+    
     #[\Override]
     public function Unique(string ...$columns): Query {
         $this->constraints["unique"][] = $columns;
 
         return $this;
     }
-
-    /**
-     * Helper function to return constraints string
-     * 
-     * @return string
-     */
+    
     private function Make_Constraints(): string {
         $output = "";
         // SQL: PRIMARY KEY
