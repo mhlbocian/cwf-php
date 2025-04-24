@@ -1,0 +1,21 @@
+{
+    "name": "mhlbocian/cwf-php",
+    "description": "CWF-PHP Framework",
+    "type": "library",
+    "require": {
+        "php": ">=8.4"
+    },
+    "license": "BSD-3-Clause",
+    "autoload": {
+        "psr-4": {
+            "Mhlbocian\\CwfPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Michał Bocian",
+            "email": "bocian.michal@outlook.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
