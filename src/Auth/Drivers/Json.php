@@ -9,11 +9,11 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Auth\Drivers;
+namespace CwfPhp\CwfPhp\Auth\Drivers;
 
-use Mhlbocian\CwfPhp\Auth\Status;
-use Mhlbocian\CwfPhp\Data;
-use Mhlbocian\CwfPhp\Interfaces\Auth\Driver as IDriver;
+use CwfPhp\CwfPhp\Auth\Status;
+use CwfPhp\CwfPhp\Data;
+use CwfPhp\CwfPhp\Interfaces\Auth\Driver as IDriver;
 
 final class Json implements IDriver {
 
@@ -273,8 +273,8 @@ final class Json implements IDriver {
         try {
             $usr_record = Data::Json($this->users)->Get($username);
             $grp_record = Data::Json($this->groups)->Get($groupname);
-            $grp_key = array_search($username, $grp_record["members"]);
-            $usr_key = array_search($groupname, $usr_record["groups"]);
+            $grp_key = \array_search($username, $grp_record["members"]);
+            $usr_key = \array_search($groupname, $usr_record["groups"]);
 
             \array_splice($grp_record["members"], $grp_key, 1);
             \array_splice($usr_record["groups"], $usr_key, 1);

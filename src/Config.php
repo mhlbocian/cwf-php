@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
-use Mhlbocian\CwfPhp\Data\Json;
+use CwfPhp\CwfPhp\Data\Json;
 
 final class Config {
 

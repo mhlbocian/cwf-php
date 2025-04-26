@@ -9,7 +9,7 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Exceptions;
+namespace CwfPhp\CwfPhp\Exceptions;
 
 class Router_Exception extends \Exception{
     

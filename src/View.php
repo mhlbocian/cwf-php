@@ -9,7 +9,7 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
 final class View implements Interfaces\View {
 
@@ -29,8 +29,10 @@ final class View implements Interfaces\View {
     }
     
     #[\Override]
-    public function Bind(string $var, mixed $val): void {
+    public function Bind(string $var, mixed $val): View {
         $this->data[$var] = $val;
+        
+        return $this;
     }
     
     private function Render(): string {

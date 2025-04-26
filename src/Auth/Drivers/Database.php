@@ -9,13 +9,13 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Auth\Drivers;
+namespace CwfPhp\CwfPhp\Auth\Drivers;
 
-use Mhlbocian\CwfPhp\Auth\Status;
-use Mhlbocian\CwfPhp\Database as Db;
-use Mhlbocian\CwfPhp\Interfaces\Auth\Driver as IDriver;
-use Mhlbocian\CwfPhp\Query;
-use Mhlbocian\CwfPhp\Query\{
+use CwfPhp\CwfPhp\Auth\Status;
+use CwfPhp\CwfPhp\Database as Db;
+use CwfPhp\CwfPhp\Interfaces\Auth\Driver as IDriver;
+use CwfPhp\CwfPhp\Query;
+use CwfPhp\CwfPhp\Query\{
     Operator,
     Statement
 };

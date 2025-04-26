@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Query;
+namespace CwfPhp\CwfPhp\Query;
 
-use Mhlbocian\CwfPhp\Query;
+use CwfPhp\CwfPhp\Query;
 
 trait Join {
 

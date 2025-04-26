@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Data;
+namespace CwfPhp\CwfPhp\Data;
 
-use Mhlbocian\CwfPhp\Interfaces\Data\Json as IJson;
+use CwfPhp\CwfPhp\Interfaces\Data\Json as IJson;
 
 final class Json implements IJson {
 
@@ -55,7 +55,7 @@ final class Json implements IJson {
 
     private function Save(): void {
         if (!($fh = \fopen($this->json_file, "w"))) {
-
+            
             throw new \Exception("JSON: write error in file "
                             . "`{$this->json_file}`");
         }
@@ -72,9 +72,9 @@ final class Json implements IJson {
 
     #[\Override]
     public function Unset(string $key): void {
-        $data_key = \array_search($key, $this->json_data, true);
+        $data_key = \array_search($key, \array_keys($this->json_data), true);
 
-        if ($key !== false) {
+        if ($data_key !== false) {
             $this->json_changed = true;
             \array_splice($this->json_data, $data_key, 1);
         }

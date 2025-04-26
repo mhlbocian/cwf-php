@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
-use Mhlbocian\CwfPhp\Config;
+use CwfPhp\CwfPhp\Config;
 
 final class Url implements Interfaces\Url {
     

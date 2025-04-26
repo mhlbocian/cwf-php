@@ -9,7 +9,7 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Interfaces\Data;
+namespace CwfPhp\CwfPhp\Interfaces\Data;
 
 interface Json {
 

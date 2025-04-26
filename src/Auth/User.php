@@ -9,12 +9,12 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Auth;
+namespace CwfPhp\CwfPhp\Auth;
 
-use Mhlbocian\CwfPhp\Auth\Status;
+use CwfPhp\CwfPhp\Auth\Status;
 
 trait User {
-    
+
     #[\Override]
     public function UserAdd(
             string $username,
@@ -30,9 +30,9 @@ trait User {
             return Status::EXISTS;
         }
 
-        if (!$this->CheckFmt($username, $this->username_fmt) ||
-                !$this->CheckFmt($fullname, $this->fullname_fmt) ||
-                !$this->CheckFmt($password, $this->password_fmt)) {
+        if (!$this->Format_Check($username, $this->username_fmt) ||
+                !$this->Format_Check($fullname, $this->fullname_fmt) ||
+                !$this->Format_Check($password, $this->password_fmt)) {
 
             return Status::INVALID_INPUT;
         }
@@ -41,7 +41,7 @@ trait User {
 
         return $this->driver->UserAdd($username, $filter_fname, $password);
     }
-    
+
     #[\Override]
     public function UserAuth(string $username, string $password): bool {
         if (!$this->configured || !$this->UserExists($username)) {
@@ -50,7 +50,7 @@ trait User {
 
         return $this->driver->UserAuth($username, $password);
     }
-    
+
     #[\Override]
     public function UserChName(
             string $username,
@@ -61,7 +61,7 @@ trait User {
         }
 
         if (!$this->UserExists($username) ||
-                !$this->CheckFmt($fullname, $this->fullname_fmt)) {
+                !$this->Format_Check($fullname, $this->fullname_fmt)) {
 
             return Status::INVALID_INPUT;
         }
@@ -70,7 +70,7 @@ trait User {
 
         return $this->driver->UserChName($username, $filter_fname);
     }
-    
+
     #[\Override]
     public function UserChPass(
             string $username,
@@ -82,14 +82,14 @@ trait User {
         }
 
         if (!$this->UserAuth($username, $old_password) ||
-                !$this->CheckFmt($new_password, $this->password_fmt)) {
+                !$this->Format_Check($new_password, $this->password_fmt)) {
 
             return Status::INVALID_INPUT;
         }
 
         return $this->driver->UserChPass($username, "", $new_password);
     }
-    
+
     #[\Override]
     public function UserDel(string $username): Status {
         if (!$this->configured) {
@@ -102,7 +102,7 @@ trait User {
 
         return $this->driver->UserDel($username);
     }
-    
+
     #[\Override]
     public function UserExists(string $username): bool {
         if (!$this->configured) {
@@ -111,17 +111,19 @@ trait User {
 
         return $this->driver->UserExists($username);
     }
-    
+
     #[\Override]
     public function UserFetch(?string $groupname = null): array {
-        if (!$this->configured || !\is_null($groupname) && !$this->GroupExists($groupname)) {
+        if (!$this->configured ||
+                !\is_null($groupname) &&
+                !$this->GroupExists($groupname)) {
 
             return [];
         }
 
         return $this->driver->UserFetch($groupname);
     }
-    
+
     #[\Override]
     public function UserInfo(string $username): array {
         if (!$this->configured || !$this->UserExists($username)) {
@@ -130,7 +132,7 @@ trait User {
 
         return $this->driver->UserInfo($username);
     }
-    
+
     #[\Override]
     public function UserInGroup(
             string $username,
@@ -142,7 +144,7 @@ trait User {
 
         return $this->driver->UserInGroup($username, $groupname);
     }
-    
+
     #[\Override]
     public function UserJoin(
             string $username,
@@ -164,7 +166,7 @@ trait User {
 
         return $this->driver->UserJoin($username, $groupname);
     }
-    
+
     #[\Override]
     public function UserLeave(
             string $username,

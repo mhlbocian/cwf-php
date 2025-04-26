@@ -9,10 +9,10 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Interfaces;
+namespace CwfPhp\CwfPhp\Interfaces;
 
-use Mhlbocian\CwfPhp\Query\Operator;
-use Mhlbocian\CwfPhp\Query\Statement;
+use CwfPhp\CwfPhp\Query\Operator;
+use CwfPhp\CwfPhp\Query\Statement;
 
 interface Query {
 

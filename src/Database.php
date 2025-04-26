@@ -9,10 +9,10 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
-use Mhlbocian\CwfPhp\Config;
-use Mhlbocian\CwfPhp\Interfaces\Database as IDatabase;
+use CwfPhp\CwfPhp\Config;
+use CwfPhp\CwfPhp\Interfaces\Database as IDatabase;
 
 final class Database implements IDatabase {
 

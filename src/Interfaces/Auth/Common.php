@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Interfaces\Auth;
+namespace CwfPhp\CwfPhp\Interfaces\Auth;
 
-use Mhlbocian\CwfPhp\Auth\Status;
+use CwfPhp\CwfPhp\Auth\Status;
 
 interface Common {
 

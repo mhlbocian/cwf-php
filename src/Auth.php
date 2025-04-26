@@ -9,12 +9,12 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
-use Mhlbocian\CwfPhp\Auth\Status;
-use Mhlbocian\CwfPhp\Config;
-use Mhlbocian\CwfPhp\Interfaces\Auth\Driver as IDriver;
-use Mhlbocian\CwfPhp\Interfaces\Auth as IAuth;
+use CwfPhp\CwfPhp\Auth\Status;
+use CwfPhp\CwfPhp\Config;
+use CwfPhp\CwfPhp\Interfaces\Auth\Driver as IDriver;
+use CwfPhp\CwfPhp\Interfaces\Auth as IAuth;
 
 final class Auth implements IAuth {
 
@@ -33,16 +33,6 @@ final class Auth implements IAuth {
     private string $groupname_fmt = "[\w][\w.]{4,}";
     private string $description_fmt = ".{5,}";
 
-    #[\Override]
-    public static function Instance(): Auth {
-        if (!isset(self::$instance)) {
-
-            self::$instance = new Auth();
-        }
-
-        return self::$instance;
-    }
-
     public function __construct() {
         if (!Config::Exists("authentication")) {
 
@@ -58,10 +48,41 @@ final class Auth implements IAuth {
         $this->groupname_fmt = $fmts["groupname"] ?? $this->groupname_fmt;
         $this->description_fmt = $fmts["description"] ?? $this->description_fmt;
         // format driver name as first letter uppercase, the rest lowercase
-        $this->SetupDriver(\ucfirst(\strtolower($this->config["driver"])));
+        $this->Driver_Setup(\ucfirst(\strtolower($this->config["driver"])));
     }
 
-    private function CheckFmt(string $string, string $fmt): bool {
+    #[\Override]
+    public static function Instance(): Auth {
+        if (!isset(self::$instance)) {
+            // initiate object instance
+            self::$instance = new Auth();
+        }
+
+        return self::$instance;
+    }
+
+    private function Driver_Setup(string $driver): void {
+        $class_fqn = self::DRIVERS_NAMESPACE . "\\" . $driver;
+
+        if (!\class_exists($class_fqn)) {
+
+            throw new \Exception("AUTH: Unknown driver '{$driver}'");
+        }
+
+        try {
+            $this->driver = new $class_fqn($this->config);
+        } catch (\TypeError) {
+            // usually when driver class not implements `Auth_Driver`
+            throw new \Exception("AUTH: '{$class_fqn}' is not a vaild  driver");
+        } catch (\Throwable) {
+            // when initiation error occurs inside driver
+            throw new \Exception("AUTH: Driver '{$driver}' init error");
+        }
+
+        $this->configured = true;
+    }
+
+    private function Format_Check(string $string, string $fmt): bool {
 
         return (\preg_match("/^{$fmt}$/", $string) === 1);
     }
@@ -80,7 +101,7 @@ final class Auth implements IAuth {
                 $_SESSION["_AUTH"]["username"]
         );
     }
-    
+
     #[\Override]
     public function Login(
             string $username,
@@ -100,13 +121,13 @@ final class Auth implements IAuth {
          */
         return Status::SUCCESS;
     }
-    
+
     #[\Override]
     public function Logout(): void {
 
         unset($_SESSION["_AUTH"]);
     }
-    
+
     #[\Override]
     public function Session(): array {
         if (!$this->configured || !$this->IsLogged()) {
@@ -116,26 +137,5 @@ final class Auth implements IAuth {
 
             return $_SESSION["_AUTH"];
         }
-    }
-    
-    private function SetupDriver(string $driver): void {
-        $class_fqn = self::DRIVERS_NAMESPACE . "\\" . $driver;
-
-        if (!class_exists($class_fqn)) {
-
-            throw new \Exception("AUTH: Unknown driver '{$driver}'");
-        }
-
-        try {
-            $this->driver = new $class_fqn($this->config);
-        } catch (\TypeError) {
-            // usually when driver class not implements `Auth_Driver`
-            throw new \Exception("AUTH: '{$class_fqn}' is not a vaild  driver");
-        } catch (\Throwable) {
-            // when initiation error occurs inside driver
-            throw new \Exception("AUTH: Driver '{$driver}' init error");
-        }
-
-        $this->configured = true;
     }
 }

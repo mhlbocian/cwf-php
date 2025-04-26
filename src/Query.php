@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
-use Mhlbocian\CwfPhp\Query\Statement;
+use CwfPhp\CwfPhp\Query\Statement;
 
 final class Query implements Interfaces\Query {
 

@@ -1,21 +1,25 @@
 {
-    "name": "mhlbocian/cwf-php",
+    "name": "cwf-php/cwf-php",
     "description": "CWF-PHP Framework",
     "type": "library",
-    "require": {
-        "php": ">=8.4"
-    },
+    "homepage": "https://github.com/mhlbocian/cwf-php",
     "license": "BSD-3-Clause",
-    "autoload": {
-        "psr-4": {
-            "Mhlbocian\\CwfPhp\\": "src/"
-        }
-    },
     "authors": [
         {
-            "name": "Michał Bocian",
+            "name": "Michal Bocian",
             "email": "bocian.michal@outlook.com"
         }
     ],
-    "minimum-stability": "dev"
+    "require": {
+        "php": ">=8.4",
+        "ext-filter": "*",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-session": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "CwfPhp\\CwfPhp\\": "src/"
+        }
+    }
 }

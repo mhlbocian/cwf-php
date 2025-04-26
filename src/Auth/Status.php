@@ -9,7 +9,7 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Auth;
+namespace CwfPhp\CwfPhp\Auth;
 
 enum Status {
 

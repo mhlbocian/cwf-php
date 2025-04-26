@@ -9,12 +9,12 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
-use Mhlbocian\CwfPhp\Exceptions\Router_Exception;
+use CwfPhp\CwfPhp\Exceptions\Router_Exception;
 
 final class Router implements Interfaces\Router {
-    
+
     private string $action;
     private string $controller;
     private string $class_fqn;
@@ -23,7 +23,7 @@ final class Router implements Interfaces\Router {
     private string $namespace;
     private static array $args = [];
     private static string $route = "";
-    
+
     #[\Override]
     public function __construct(?string $route) {
         $config = Config::File("application")->Get("router");
@@ -33,7 +33,7 @@ final class Router implements Interfaces\Router {
 
         $this->Parse_Route($route);
     }
-    
+
     #[\Override]
     public function Execute(): void {
         $this->Check_Route();
@@ -41,19 +41,19 @@ final class Router implements Interfaces\Router {
         $ctrl_object = new $this->class_fqn();
         $ctrl_object->{$this->action}();
     }
-    
+
     #[\Override]
     public static function Get_Args(): array {
 
         return self::$args;
     }
-    
+
     #[\Override]
     public static function Get_Route(): string {
 
         return self::$route;
     }
-    
+
     private function Check_Route(): void {
         if (!\class_exists($this->class_fqn)) {
 
@@ -70,8 +70,9 @@ final class Router implements Interfaces\Router {
             throw new Router_Exception("ROUTER: action forbidden for magic methods");
         }
     }
-    
+
     private function Parse_Route(?string $route): void {
+        /** @todo format route string to be more safe */
         if ($route == null || $route == "/") {
             $this->controller = $this->default_controller;
             $this->action = $this->default_action;

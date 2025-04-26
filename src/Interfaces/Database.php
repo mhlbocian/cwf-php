@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Interfaces;
+namespace CwfPhp\CwfPhp\Interfaces;
 
-use Mhlbocian\CwfPhp\Query;
+use CwfPhp\CwfPhp\Query;
 
 interface Database {
 

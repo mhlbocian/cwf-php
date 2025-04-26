@@ -1,8 +1,8 @@
 <?php
 
-namespace Mhlbocian\CwfPhp;
+namespace CwfPhp\CwfPhp;
 
-use Mhlbocian\CwfPhp\Data\Json;
+use CwfPhp\CwfPhp\Data\Json;
 
 class Data {
 

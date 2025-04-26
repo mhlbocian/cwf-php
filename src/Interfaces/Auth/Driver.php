@@ -9,7 +9,7 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Interfaces\Auth;
+namespace CwfPhp\CwfPhp\Interfaces\Auth;
 
 interface Driver extends Common {
 

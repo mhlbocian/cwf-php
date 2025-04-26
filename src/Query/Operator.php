@@ -9,7 +9,7 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Query;
+namespace CwfPhp\CwfPhp\Query;
 
 enum Operator: string {
 

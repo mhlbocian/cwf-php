@@ -9,9 +9,9 @@
  * License: 3-Clause BSD
  */
 
-namespace Mhlbocian\CwfPhp\Auth;
+namespace CwfPhp\CwfPhp\Auth;
 
-use Mhlbocian\CwfPhp\Auth\Status;
+use CwfPhp\CwfPhp\Auth\Status;
 
 trait Group {
     
@@ -29,8 +29,8 @@ trait Group {
             return Status::EXISTS;
         }
 
-        if (!$this->CheckFmt($groupname, $this->groupname_fmt) ||
-                !$this->CheckFmt($description, $this->description_fmt)) {
+        if (!$this->Format_Check($groupname, $this->groupname_fmt) ||
+                !$this->Format_Check($description, $this->description_fmt)) {
 
             return Status::INVALID_INPUT;
         }
@@ -50,7 +50,7 @@ trait Group {
         }
 
         if (!$this->GroupExists($groupname) ||
-                !$this->CheckFmt($description, $this->description_fmt)) {
+                !$this->Format_Check($description, $this->description_fmt)) {
 
             return Status::INVALID_INPUT;
         }
