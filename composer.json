@@ -3,6 +3,13 @@
     "description": "CWF-PHP Framework",
     "type": "library",
     "homepage": "https://github.com/mhlbocian/cwf-php",
+    "keywords": [
+	    "framework",
+	    "mvc",
+	    "database",
+	    "authentication",
+	    "easy-to-learn"
+    ],
     "license": "BSD-3-Clause",
     "authors": [
         {

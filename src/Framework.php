@@ -15,16 +15,19 @@ use CwfPhp\CwfPhp\Interfaces\Framework as IFramework;
 
 final class Framework implements IFramework {
 
-    private array $dirs_array = [
+    private array $required_dirs = [
+        "Config", "Controllers", "Data", "Models", "Public", "Views"
+    ];
+    private array $writeable_dirs = [
         "Config", "Data"
     ];
-    private static bool $initiated = false;
+    private static bool $is_init = false;
 
     #[\Override]
     public function __construct(private string $application_path) {
-        if (self::$initiated) {
+        if (self::$is_init) {
 
-            throw new \Error("CORE: seting up application more than once");
+            throw new \Error("CORE: cannot setup application more than once");
         }
 
         $this->Setup_Constants();
@@ -33,7 +36,7 @@ final class Framework implements IFramework {
         $this->Setup_Classes();
         $this->Setup_Session();
 
-        self::$initiated = true;
+        self::$is_init = true;
     }
 
     #[\Override]
@@ -43,7 +46,14 @@ final class Framework implements IFramework {
     }
 
     private function Check_Directories(): void {
-        foreach ($this->dirs_array as $dir) {
+        foreach ($this->required_dirs as $dir) {
+            if (!\is_dir(\APPDIR . \DS . $dir)) {
+
+                throw new \Error("Core: missing required directory `{$dir}`");
+            }
+        }
+
+        foreach ($this->writeable_dirs as $dir) {
             if (!\is_writable(\APPDIR . \DS . $dir)) {
 
                 throw new \Error("CORE: directory '{$dir}' is not writable");
