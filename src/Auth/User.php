@@ -22,6 +22,7 @@ trait User {
             string $password): Status {
 
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -45,6 +46,7 @@ trait User {
     #[\Override]
     public function UserAuth(string $username, string $password): bool {
         if (!$this->configured || !$this->UserExists($username)) {
+            
             return false;
         }
 
@@ -57,6 +59,7 @@ trait User {
             string $fullname): Status {
 
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -78,6 +81,7 @@ trait User {
             string $new_password): Status {
 
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -93,6 +97,7 @@ trait User {
     #[\Override]
     public function UserDel(string $username): Status {
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -106,6 +111,7 @@ trait User {
     #[\Override]
     public function UserExists(string $username): bool {
         if (!$this->configured) {
+            
             return false;
         }
 
@@ -127,6 +133,7 @@ trait User {
     #[\Override]
     public function UserInfo(string $username): array {
         if (!$this->configured || !$this->UserExists($username)) {
+            
             return [];
         }
 
@@ -139,6 +146,7 @@ trait User {
             string $groupname): bool {
 
         if (!$this->configured) {
+            
             return false;
         }
 
@@ -151,6 +159,7 @@ trait User {
             string $groupname): Status {
 
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -173,6 +182,7 @@ trait User {
             string $groupname): Status {
 
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 

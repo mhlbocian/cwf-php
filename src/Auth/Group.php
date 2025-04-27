@@ -21,6 +21,7 @@ trait Group {
             string $description): Status {
 
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -46,6 +47,7 @@ trait Group {
             string $description): Status {
 
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -63,6 +65,7 @@ trait Group {
     #[\Override]
     public function GroupDel(string $groupname): Status {
         if (!$this->configured) {
+            
             return Status::FAILED;
         }
 
@@ -77,6 +80,7 @@ trait Group {
     #[\Override]
     public function GroupExists(string $groupname): bool {
         if (!$this->configured) {
+            
             return false;
         }
 
@@ -86,6 +90,7 @@ trait Group {
     #[\Override]
     public function GroupFetch(): array {
         if (!$this->configured) {
+            
             return [];
         }
 

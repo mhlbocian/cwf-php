@@ -25,13 +25,16 @@ final class Auth implements IAuth {
 
     private array $config;
     private bool $configured = false;
+    /* driver specific properites */
     private IDriver $driver;
     private static ?Auth $instance = null;
-    private string $username_fmt = "[\w][\w.]{4,}";
-    private string $fullname_fmt = ".{5,}";
-    private string $password_fmt = ".{8,}";
-    private string $groupname_fmt = "[\w][\w.]{4,}";
+    private ?string $driver_namespace = null;
+    /* fields format properties */
     private string $description_fmt = ".{5,}";
+    private string $fullname_fmt = ".{5,}";
+    private string $groupname_fmt = "[\w][\w.]{4,}";
+    private string $password_fmt = ".{8,}";
+    private string $username_fmt = "[\w][\w.]{4,}";
 
     public function __construct() {
         if (!Config::Exists("authentication")) {
@@ -41,12 +44,9 @@ final class Auth implements IAuth {
 
         $this->config = Config::File("authentication")->Fetch();
         // setup required string formats
-        $fmts = $this->config["format"] ?? null;
-        $this->username_fmt = $fmts["username"] ?? $this->username_fmt;
-        $this->fullname_fmt = $fmts["fullname"] ?? $this->fullname_fmt;
-        $this->password_fmt = $fmts["password"] ?? $this->password_fmt;
-        $this->groupname_fmt = $fmts["groupname"] ?? $this->groupname_fmt;
-        $this->description_fmt = $fmts["description"] ?? $this->description_fmt;
+        $this->Format_LoadConfig();
+        // for custom drivers (stored outside CWF-PHP) namespace is required
+        $this->driver_namespace = $this->config["namespace"] ?? null;
         // format driver name as first letter uppercase, the rest lowercase
         $this->Driver_Setup(\ucfirst(\strtolower($this->config["driver"])));
     }
@@ -61,8 +61,15 @@ final class Auth implements IAuth {
         return self::$instance;
     }
 
+    /** Search for internal or external driver and set it up */
     private function Driver_Setup(string $driver): void {
-        $class_fqn = self::DRIVERS_NAMESPACE . "\\" . $driver;
+        if ($this->driver_namespace === null) {
+            // search for internal driver
+            $class_fqn = self::DRIVERS_NAMESPACE . "\\" . $driver;
+        } else {
+            // search for external driver
+            $class_fqn = "{$this->driver_namespace}\\{$driver}";
+        }
 
         if (!\class_exists($class_fqn)) {
 
@@ -82,9 +89,20 @@ final class Auth implements IAuth {
         $this->configured = true;
     }
 
+    /** Check, if the input string format is correct */
     private function Format_Check(string $string, string $fmt): bool {
 
         return (\preg_match("/^{$fmt}$/", $string) === 1);
+    }
+
+    /** Load format requirements from config file, if available */
+    private function Format_LoadConfig(): void {
+        $fmts = $this->config["format"] ?? null;
+        $this->username_fmt = $fmts["username"] ?? $this->username_fmt;
+        $this->fullname_fmt = $fmts["fullname"] ?? $this->fullname_fmt;
+        $this->password_fmt = $fmts["password"] ?? $this->password_fmt;
+        $this->groupname_fmt = $fmts["groupname"] ?? $this->groupname_fmt;
+        $this->description_fmt = $fmts["description"] ?? $this->description_fmt;
     }
 
     #[\Override]
