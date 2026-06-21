@@ -16,8 +16,6 @@ use CwfPhp\CwfPhp\Interfaces\Database as IDatabase;
 
 final class Database implements IDatabase {
 
-    private const DBDIR = \DATADIR . \DS;
-
     private \PDO $pdo;
     private string $dbname;
     private string $dsn;
@@ -27,7 +25,7 @@ final class Database implements IDatabase {
     private ?string $username;
     private string $conn_name;
     public readonly string $driver;
-    
+
     #[\Override]
     public function __construct(string $conn_name = "default") {
         $db_cfg = Config::File("database")->Get($conn_name);
@@ -44,7 +42,7 @@ final class Database implements IDatabase {
         $this->DSN_Set();
         $this->pdo = new \PDO($this->dsn, $this->username, $this->password);
     }
-    
+
     #[\Override]
     public function Query(Query $query): \PDOStatement {
         $prep = $this->pdo->prepare($query);
@@ -57,16 +55,16 @@ final class Database implements IDatabase {
 
         return $prep;
     }
-    
+
     private function DSN_Set(): void {
         try {
             $this->dsn = match ($this->driver) {
                 "mysql" => "mysql:host={$this->host};dbname={$this->dbname}",
                 "pgsql" => "pgsql:host={$this->host};dbname={$this->dbname}",
-                "sqlite" => "sqlite:" . self::DBDIR . "{$this->dbname}"
+                "sqlite" => "sqlite:" . \APP_DATA . \DS . "{$this->dbname}"
             };
         } catch (\UnhandledMatchError) {
-            
+
             throw new \Exception("DB: Unknown driver `{$this->driver}`");
         }
     }
