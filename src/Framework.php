@@ -15,59 +15,111 @@ use CwfPhp\CwfPhp\Interfaces\Framework as IFramework;
 
 final class Framework implements IFramework {
 
-    private array $required_dirs = [
-        "Config", "Controllers", "Data", "Models", "Public", "Views"
+    private static array $app_reqdirs = [
+        "config" => [
+            "name" => "Config",
+            "writeable" => true,
+            "const" => "APP_CFG"
+        ],
+        "controllers" => [
+            "name" => "Controllers",
+            "writeable" => false,
+        ],
+        "data" => [
+            "name" => "Data",
+            "writeable" => true,
+            "const" => "APP_DATA"
+        ],
+        "models" => [
+            "name" => "Models",
+            "writeable" => false
+        ],
+        "public" => [
+            "name" => "Public",
+            "writeable" => false,
+        ],
+        "views" => [
+            "name" => "Views",
+            "writeable" => false,
+            "const" => "APP_VIEWS"
+        ]
     ];
-    private array $writeable_dirs = [
-        "Config", "Data"
-    ];
-    private static bool $is_init = false;
+    private static ?Framework $instance = null;
 
     #[\Override]
-    public function __construct(private string $application_path) {
-        if (self::$is_init) {
+    public function __construct(private string $app_path) {
+        if (!is_null(self::$instance)) {
 
             throw new \Error("CORE: cannot setup application more than once");
         }
 
+        self::$instance = $this;
         $this->Setup_Constants();
         $this->Setup_Handlers();
-        $this->Check_Directories();
+        $this->Setup_Directories();
         $this->Setup_Classes();
         $this->Setup_Session();
-
-        self::$is_init = true;
     }
 
     #[\Override]
-    public static function Setup(string $application_path): void {
+    public static function Application(string $app_path): void {
 
-        new Framework($application_path);
+        new Framework($app_path);
     }
+    
+    #[\Override]
+    public static function Set_Directory(string $type, string $name): void {
+        if (!key_exists($type, self::$app_reqdirs)) {
 
-    private function Check_Directories(): void {
-        foreach ($this->required_dirs as $dir) {
-            if (!\is_dir(\APPDIR . \DS . $dir)) {
-
-                throw new \Error("Core: missing required directory `{$dir}`");
-            }
+            throw new \Error("CORE: {$type} is not a valid type of directory");
         }
 
-        foreach ($this->writeable_dirs as $dir) {
-            if (!\is_writable(\APPDIR . \DS . $dir)) {
-
-                throw new \Error("CORE: directory '{$dir}' is not writable");
-            }
-        }
+        self::$app_reqdirs[$type]["name"] = $name;
     }
 
     private function Setup_Constants(): void {
+        // framework constants
         \define("DS", \DIRECTORY_SEPARATOR);
-        \define("CWFDIR", __DIR__);
+        \define("CWF_ROOT", __DIR__);
         // application constants
-        \define("APPDIR", $this->application_path);
-        \define("CFGDIR", \APPDIR . \DS . "Config");
-        \define("DATADIR", \APPDIR . \DS . "Data");
+        \define("APP_ROOT", $this->app_path);
+        
+        foreach (self::$app_reqdirs as $dir) {
+            if (\key_exists("const", $dir)) {
+                
+                \define($dir["const"], \APP_ROOT . \DS . $dir["name"]);
+            }
+        }
+    }
+
+    private function Setup_Directories(): void {
+        $missing_dirs = [];
+
+        foreach (self::$app_reqdirs as $type => $dir) {
+            $path = \APP_ROOT . \DS . $dir["name"];
+            if (!is_dir($path)) {
+                $missing_dirs[] = $dir["name"];
+                
+                continue;
+            }
+
+            if ($dir["writeable"] && !is_writeable($path)) {
+                $err_msg = "CORE: the '{$type}' directory is not writeable";
+
+                throw new \Error($err_msg);
+            }
+        }
+
+        if (empty($missing_dirs)) {
+
+            return;
+        }
+
+        $err_msg = "CORE: following directories '";
+        $err_msg .= implode(", ", $missing_dirs);
+        $err_msg .= "' doesn't exist in application root directory.";
+
+        throw new \Error($err_msg);
     }
 
     private function Setup_Classes(): void {
@@ -75,59 +127,14 @@ final class Framework implements IFramework {
     }
 
     private function Setup_Handlers(): void {
-        $prefix = self::class;
+        $namespace = "CwfPhp\\CwfPhp\\Handlers";
 
-        \set_error_handler("{$prefix}::Error_Handler");
-        \set_exception_handler("{$prefix}::Exception_Handler");
+        \set_error_handler("{$namespace}::Error_Handler");
+        \set_exception_handler("{$namespace}::Exception_Handler");
     }
 
     private function Setup_Session(): void {
         /** @todo enhance session security */
         \session_start();
-    }
-
-    #[\Override]
-    public static function Error_Handler(int $no,
-            string $str,
-            string $file,
-            int $line): void {
-
-        echo self::Static_Template("error", [
-            "type" => "Error",
-            "no" => $no,
-            "file" => $file,
-            "line" => $line,
-            "message" => $str
-        ]);
-    }
-
-    #[\Override]
-    public static function Exception_Handler(\Throwable $ex): void {
-        echo self::Static_Template("error", [
-            "type" => $ex::class,
-            "no" => $ex->getCode(),
-            "file" => $ex->getFile(),
-            "line" => $ex->getLine(),
-            "message" => $ex->getMessage()
-        ]);
-    }
-
-    private static function Static_Template(string $template,
-            array $vars = []): string {
-
-        $template = CWFDIR . DS . "static" . DS . "{$template}.html";
-
-        if (!file_exists($template)) {
-
-            throw new \Error("CORE: template '{$template}' does not exist");
-        }
-
-        $cnt = \file_get_contents($template);
-
-        foreach ($vars as $var => $val) {
-            $cnt = \str_replace("{\$$var}", $val, $cnt);
-        }
-
-        return $cnt;
     }
 }

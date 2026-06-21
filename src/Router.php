@@ -20,16 +20,28 @@ final class Router implements Interfaces\Router {
     private string $class_fqn;
     private string $default_action;
     private string $default_controller;
-    private string $namespace;
+    private string $app_namespace;
     private static array $args = [];
     private static string $route = "";
 
     #[\Override]
     public function __construct(?string $route) {
-        $config = Config::File("application")->Get("router");
-        $this->namespace = $config["namespace"];
-        $this->default_controller = $config["default_controller"];
-        $this->default_action = $config["default_action"];
+        if (!Config::Exists("router")) {
+
+            throw new \Error("ROUTER: no configuration file 'router.json'");
+        }
+
+        $config = Config::File("router")->Fetch();
+
+        if (!key_exists("namespace", $config)) {
+
+            throw new \Error("ROUTER: you must specify at least 'namespace' "
+                            . "key in the 'router.json' file");
+        }
+
+        $this->app_namespace = $config["namespace"];
+        $this->default_controller = $config["default_controller"] ?? "Main";
+        $this->default_action = $config["default_action"] ?? "Index";
 
         $this->Parse_Route($route);
     }
@@ -103,7 +115,7 @@ final class Router implements Interfaces\Router {
             }
         }
 
-        $this->class_fqn = $this->namespace . "\\" . $this->controller;
+        $this->class_fqn = $this->app_namespace . "\\" . $this->controller;
         self::$route = "/{$this->controller}/{$this->action}";
     }
 }

@@ -14,31 +14,43 @@ namespace CwfPhp\CwfPhp;
 use CwfPhp\CwfPhp\Config;
 
 final class Url implements Interfaces\Url {
-    
+
     private static bool $omit_index;
     private static int $port;
     private static string $host;
     private static string $index;
     private static string $path;
     private static string $protocol;
-    
+
     #[\Override]
     public static function Setup(): void {
-        $url_cfg = Config::File("application")->Get("url");
-        self::$protocol = $url_cfg["protocol"];
-        self::$host = $url_cfg["host"];
-        self::$port = $url_cfg["port"];
-        self::$path = $url_cfg["path"];
-        self::$index = $url_cfg["index"];
-        self::$omit_index = $url_cfg["omit_index"];
+        if (!Config::Exists("url")) {
+
+            throw new \Error("URL: no configuration file 'url.json'");
+        }
+
+        $config = Config::File("url")->Fetch();
+
+        if (!key_exists("host", $config)) {
+
+            throw new \Error("URL: you must specify at least 'host' key in "
+                            . "the 'url.json' configuration file");
+        }
+
+        self::$protocol = $config["protocol"] ?? "https";
+        self::$host = $config["host"];
+        self::$port = $config["port"] ?? "443";
+        self::$path = $config["path"] ?? "/";
+        self::$index = $config["index"] ?? "index.php";
+        self::$omit_index = $config["omit_index"] ?? false;
     }
-    
+
     #[\Override]
     public static function Resource(string $path): string {
 
         return self::Url($path[0] != "/") . $path;
     }
-    
+
     #[\Override]
     public static function Site(string $path = ""): string {
         $url = self::Url();
@@ -61,13 +73,13 @@ final class Url implements Interfaces\Url {
 
         return $url;
     }
-    
+
     #[\Override]
     public static function Redirect(string $path = ""): void {
         \header("Location: " . self::Site($path));
         exit();
     }
-    
+
     private static function Url(bool $with_path = true): string {
         $url = self::$protocol . "://";
         $url .= self::$host;

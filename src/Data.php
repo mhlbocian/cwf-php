@@ -1,10 +1,19 @@
 <?php
 
+/*
+ * CWF-PHP Framework
+ * 
+ * File: Data.php
+ * Description: Data class
+ * Author: Michal Bocian <bocian.michal@outlook.com>
+ * License: 3-Clause BSD
+ */
+
 namespace CwfPhp\CwfPhp;
 
 use CwfPhp\CwfPhp\Data\Json;
 
-class Data {
+final class Data {
 
     private const string DATADIR = \DATADIR;
 

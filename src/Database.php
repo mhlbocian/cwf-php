@@ -3,8 +3,8 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Connection.php
- * Description: Database connections class
+ * File: Database.php
+ * Description: Database API
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */

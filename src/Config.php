@@ -15,15 +15,13 @@ use CwfPhp\CwfPhp\Data\Json;
 
 final class Config {
 
-    private const string CFGDIR = \CFGDIR;
-
     public static function Exists(string $file): bool {
 
-        return \file_exists(self::CFGDIR . \DS . "{$file}.json");
+        return \file_exists(\APP_CFG . \DS . "{$file}.json");
     }
 
     public static function File(string $file): Json {
-        $path = self::CFGDIR . \DS . "{$file}.json";
+        $path = \APP_CFG . \DS . "{$file}.json";
 
         return new Json($path);
     }

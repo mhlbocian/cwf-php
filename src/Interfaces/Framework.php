@@ -15,13 +15,7 @@ interface Framework {
 
     public function __construct(string $application_path);
 
-    public static function Setup(string $application_path): void;
+    public static function Application(string $application_path): void;
 
-    public static function Error_Handler(
-            int $no,
-            string $str,
-            string $file,
-            int $line): void;
-    
-    public static function Exception_Handler(\Throwable $ex): void;
+    public static function Set_Directory(string $type, string $dirname): void;
 }
