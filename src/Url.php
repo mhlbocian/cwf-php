@@ -24,12 +24,12 @@ final class Url implements Interfaces\Url {
 
     #[\Override]
     public static function Setup(): void {
-        if (!Config::Exists("url")) {
+        if (!Config::Json("url")->Exists()) {
 
             throw new \Error("URL: no configuration file 'url.json'");
         }
 
-        $config = Config::File("url")->Fetch();
+        $config = Config::Json("url")->Fetch();
 
         if (!key_exists("host", $config)) {
 

@@ -26,12 +26,12 @@ final class Router implements Interfaces\Router {
 
     #[\Override]
     public function __construct(?string $route) {
-        if (!Config::Exists("router")) {
+        if (!Config::Json("router")->Exists()) {
 
             throw new \Error("ROUTER: no configuration file 'router.json'");
         }
 
-        $config = Config::File("router")->Fetch();
+        $config = Config::Json("router")->Fetch();
 
         if (!key_exists("namespace", $config)) {
 

@@ -3,17 +3,23 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Interfaces\Data\Json.php
- * Description: Data interfaces - JSON
+ * File: Interfaces\Data\Driver.php
+ * Description: Data driver interface
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
 
 namespace CwfPhp\CwfPhp\Interfaces\Data;
 
-interface Json {
+interface Driver {
 
     public function __construct(string $file);
+    
+    public function Clear(): void;
+    
+    public function Create(): void;
+    
+    public function Exists(): bool;
 
     public function Fetch(): array;
 

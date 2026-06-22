@@ -42,7 +42,7 @@ final class Auth implements IAuth {
             return;
         }
 
-        $this->config = Config::File("authentication")->Fetch();
+        $this->config = Config::Json("authentication")->Fetch();
         // setup required string formats
         $this->Format_LoadConfig();
         // for custom drivers (stored outside CWF-PHP) namespace is required

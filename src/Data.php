@@ -12,17 +12,19 @@
 namespace CwfPhp\CwfPhp;
 
 use CwfPhp\CwfPhp\Data\Json;
+use CwfPhp\CwfPhp\Data\Ini;
 
 final class Data {
 
-    public static function Exists(string $file): bool {
+    private const DIR = \APP_DATA . \DS;
 
-        return \file_exists(\APP_DATA . \DS . "{$file}.json");
+    public static function Ini(string $file): Ini {
+
+        return new Ini(self::DIR . "{$file}.ini");
     }
 
     public static function Json(string $file): Json {
-        $path = \APP_DATA . \DS . "{$file}.json";
 
-        return new Json($path);
+        return new Json(self::DIR . "{$file}.json");
     }
 }
