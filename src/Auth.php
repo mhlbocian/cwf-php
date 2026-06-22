@@ -37,7 +37,7 @@ final class Auth implements IAuth {
     private string $username_fmt = "[\w][\w.]{4,}";
 
     public function __construct() {
-        if (!Config::Exists("authentication")) {
+        if (!Config::Json("authentication")->Exists()) {
 
             return;
         }
