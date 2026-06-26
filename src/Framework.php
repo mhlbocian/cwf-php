@@ -84,7 +84,7 @@ final class Framework implements IFramework {
     }
 
     #[\Override]
-    public static function Set_Directory(string $type, string $name): void {
+    public static function Set_Dir(string $type, string $name): void {
         if (!key_exists($type, self::$app_reqdirs)) {
 
             throw new \Error("CORE: {$type} is not a valid type of directory");

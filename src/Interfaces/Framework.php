@@ -19,7 +19,7 @@ interface Framework {
 
     public static function Get_Env(?string $key): array;
 
-    public static function Set_Directory(string $type, string $dirname): void;
+    public static function Set_Dir(string $type, string $dirname): void;
 
     public static function Set_Env(string $key, mixed $value): void;
 }
