@@ -15,6 +15,7 @@ use CwfPhp\CwfPhp\Interfaces\Framework as IFramework;
 
 final class Framework implements IFramework {
 
+    private static array $app_env = [];
     private static array $app_reqdirs = [
         "config" => [
             "name" => "Config",
@@ -47,7 +48,7 @@ final class Framework implements IFramework {
     private static ?Framework $instance = null;
 
     #[\Override]
-    public function __construct(private string $app_path) {
+    public function __construct(private readonly string $app_path) {
         if (!is_null(self::$instance)) {
 
             throw new \Error("CORE: cannot setup application more than once");
@@ -62,11 +63,26 @@ final class Framework implements IFramework {
     }
 
     #[\Override]
-    public static function Application(string $app_path): void {
+    public static function App_Init(string $app_path): void {
 
         new Framework($app_path);
     }
-    
+
+    #[\Override]
+    public static function Get_Env(?string $key = null): array {
+        if (is_null($key)) {
+
+            return self::$app_env;
+        }
+
+        if (!key_exists($key, self::$app_env)) {
+
+            throw new \Error("CORE: environment key '{$key}' doesn't exist");
+        }
+
+        return self::$app_env[$key];
+    }
+
     #[\Override]
     public static function Set_Directory(string $type, string $name): void {
         if (!key_exists($type, self::$app_reqdirs)) {
@@ -77,18 +93,33 @@ final class Framework implements IFramework {
         self::$app_reqdirs[$type]["name"] = $name;
     }
 
+    #[\Override]
+    public static function Set_Env(string $key, mixed $value): void {
+        if (key_exists($key, self::$app_env)) {
+
+            throw new \Error("CORE: environment key '{$key}' already exists");
+        }
+
+        self::$app_env[$key] = $value;
+    }
+
     private function Setup_Constants(): void {
-        // framework constants
         \define("DS", \DIRECTORY_SEPARATOR);
-        \define("CWF_ROOT", __DIR__);
-        // application constants
-        \define("APP_ROOT", $this->app_path);
-        
+
+        $contants = [
+            "CWF_ROOT" => __DIR__,
+            "APP_ROOT" => $this->app_path,
+        ];
+
         foreach (self::$app_reqdirs as $dir) {
             if (\key_exists("const", $dir)) {
-                
-                \define($dir["const"], \APP_ROOT . \DS . $dir["name"]);
+                $contants[$dir['const']] = $this->app_path . \DS . $dir["name"];
             }
+        }
+
+        foreach ($contants as $name => $value) {
+            \define($name, $value);
+            self::Set_Env($name, $value);
         }
     }
 
@@ -99,7 +130,7 @@ final class Framework implements IFramework {
             $path = \APP_ROOT . \DS . $dir["name"];
             if (!is_dir($path)) {
                 $missing_dirs[] = $dir["name"];
-                
+
                 continue;
             }
 
@@ -117,7 +148,7 @@ final class Framework implements IFramework {
 
         $err_msg = "CORE: following directories '";
         $err_msg .= implode(", ", $missing_dirs);
-        $err_msg .= "' doesn't exist in application root directory.";
+        $err_msg .= "' don't exist in application root directory.";
 
         throw new \Error($err_msg);
     }
