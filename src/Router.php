@@ -20,10 +20,10 @@ final class Router implements Interfaces\Router {
     private readonly string $default_controller;
     private readonly string $namespace;
     private readonly bool $pointers_only;
-    private ?array $pointers;
+    private array $pointers = [];
     /* current route values */
-    private readonly string $action;
-    private readonly string $controller;
+    private static string $action;
+    private static string $controller;
     private readonly string $class_fqn;
     /* available outside via Get_Args() */
     private static array $args = [];
@@ -36,7 +36,7 @@ final class Router implements Interfaces\Router {
         }
 
         $config = Config::Json("router")->Fetch();
-        $this->Parse_Router_Config($config);
+        $this->Parse_Config($config);
         $this->Parse_Route($route ?? "/");
     }
 
@@ -44,35 +44,39 @@ final class Router implements Interfaces\Router {
     public function Execute(): void {
         $this->Check_Route();
         $ctrl_object = new $this->class_fqn();
-        $ctrl_object->{$this->action}();
+        $ctrl_object->{self::$action}();
     }
 
     #[\Override]
-    public static function Get_Args(): array {
+    public static function Get_Args(bool $all = false): array {
+        if ($all) {
+
+            return array_merge([self::$controller, self::$action], self::$args);
+        }
 
         return self::$args;
     }
 
     private function Check_Route(): void {
-        $this->class_fqn = "{$this->namespace}\\{$this->controller}";
+        $this->class_fqn = "{$this->namespace}\\" . self::$controller;
 
         if (!\class_exists($this->class_fqn)) {
 
             throw new Router_Exception("ROUTER: class '{$this->class_fqn}' does not exist");
         }
 
-        if (!\method_exists($this->class_fqn, $this->action)) {
+        if (!\method_exists($this->class_fqn, self::$action)) {
 
-            throw new Router_Exception("ROUTER: method '{$this->action}' does not exist");
+            throw new Router_Exception("ROUTER: method '" . self::$action . "' does not exist");
         }
 
-        if (\str_starts_with($this->action, "__")) {
+        if (\str_starts_with(self::$action, "__")) {
 
             throw new Router_Exception("ROUTER: action forbidden for magic methods");
         }
     }
 
-    private function Parse_Router_Config(array $config): void {
+    private function Parse_Config(array $config): void {
         if (!key_exists("namespace", $config)) {
 
             throw new \Error("ROUTER: no 'namespace' key in the 'router.json'");
@@ -85,8 +89,6 @@ final class Router implements Interfaces\Router {
 
         if (\key_exists("pointers", $config)) {
             $this->Parse_Pointers($config["pointers"]);
-        } else {
-            $this->pointers = null;
         }
     }
 
@@ -111,8 +113,8 @@ final class Router implements Interfaces\Router {
 
     private function Parse_Route(string $route): void {
         if ($route == "/") {
-            $this->controller = $this->default_controller;
-            $this->action = $this->default_action;
+            self::$controller = $this->default_controller;
+            self::$action = $this->default_action;
 
             return;
         }
@@ -121,8 +123,8 @@ final class Router implements Interfaces\Router {
         // pointers name are already preprocessed
         if (\key_exists($preParts[0], $this->pointers)) {
             $pointer = $this->pointers[$preParts[0]];
-            $this->controller = $pointer["controller"];
-            $this->action = $pointer["action"] ?? $this->default_action;
+            self::$controller = $pointer["controller"];
+            self::$action = $pointer["action"] ?? $this->default_action;
             self::$args = \array_slice($preParts, 2);
 
             return;
@@ -134,8 +136,8 @@ final class Router implements Interfaces\Router {
         }
 
         $postParts = $this->Route_Postprocess($route);
-        $this->controller = $postParts["controller"];
-        $this->action = $postParts["action"] ?? $this->default_action;
+        self::$controller = $postParts["controller"];
+        self::$action = $postParts["action"] ?? $this->default_action;
         self::$args = $postParts["args"];
     }
 

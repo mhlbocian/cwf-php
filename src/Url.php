@@ -68,7 +68,7 @@ final class Url implements Interfaces\Url {
             $path = \substr($path, 1);
             $url .= $path;
         } else {
-            $url .= \explode("/", Router::Get_Route())[1] . "/{$path}";
+            $url .= Router::Get_Args(true)[0] . "/{$path}";
         }
 
         return $url;
