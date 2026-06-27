@@ -14,15 +14,19 @@ namespace CwfPhp\CwfPhp;
 use CwfPhp\CwfPhp\Exceptions\Router_Exception;
 
 final class Router implements Interfaces\Router {
+    /* config values */
 
-    private string $action;
-    private string $controller;
-    private string $class_fqn;
-    private string $default_action;
-    private string $default_controller;
-    private string $app_namespace;
+    private readonly string $default_action;
+    private readonly string $default_controller;
+    private readonly string $namespace;
+    private readonly bool $pointers_only;
+    private ?array $pointers;
+    /* current route values */
+    private readonly string $action;
+    private readonly string $controller;
+    private readonly string $class_fqn;
+    /* available outside via Get_Args() */
     private static array $args = [];
-    private static string $route = "";
 
     #[\Override]
     public function __construct(?string $route) {
@@ -32,24 +36,13 @@ final class Router implements Interfaces\Router {
         }
 
         $config = Config::Json("router")->Fetch();
-
-        if (!key_exists("namespace", $config)) {
-
-            throw new \Error("ROUTER: you must specify at least 'namespace' "
-                            . "key in the 'router.json' file");
-        }
-
-        $this->app_namespace = $config["namespace"];
-        $this->default_controller = $config["default_controller"] ?? "Main";
-        $this->default_action = $config["default_action"] ?? "Index";
-
-        $this->Parse_Route($route);
+        $this->Parse_Router_Config($config);
+        $this->Parse_Route($route ?? "/");
     }
 
     #[\Override]
     public function Execute(): void {
         $this->Check_Route();
-
         $ctrl_object = new $this->class_fqn();
         $ctrl_object->{$this->action}();
     }
@@ -60,13 +53,9 @@ final class Router implements Interfaces\Router {
         return self::$args;
     }
 
-    #[\Override]
-    public static function Get_Route(): string {
-
-        return self::$route;
-    }
-
     private function Check_Route(): void {
+        $this->class_fqn = "{$this->namespace}\\{$this->controller}";
+
         if (!\class_exists($this->class_fqn)) {
 
             throw new Router_Exception("ROUTER: class '{$this->class_fqn}' does not exist");
@@ -83,39 +72,99 @@ final class Router implements Interfaces\Router {
         }
     }
 
-    private function Parse_Route(?string $route): void {
-        /** @todo format route string to be more safe */
-        if ($route == null || $route == "/") {
-            $this->controller = $this->default_controller;
-            $this->action = $this->default_action;
-        } else {
-            $path_array = \explode("/", $route);
+    private function Parse_Router_Config(array $config): void {
+        if (!key_exists("namespace", $config)) {
 
-            /*
-             * If the route begins with `/` the first element of array is an
-             * empty string. Remove it
-             */
-            if ($path_array[0] == "") {
-                $path_array = \array_slice($path_array, 1);
-            }
-
-            $this->controller = $path_array[0];
-
-            /*
-             * If the action is not specified or path string ends with `/`
-             */
-            if (!isset($path_array[1]) || $path_array[1] == "") {
-                $this->action = $this->default_action;
-            } else {
-                $this->action = $path_array[1];
-            }
-
-            if (\count($path_array) > 2 && $path_array[2] != "") {
-                self::$args = \array_slice($path_array, 2);
-            }
+            throw new \Error("ROUTER: no 'namespace' key in the 'router.json'");
         }
 
-        $this->class_fqn = $this->app_namespace . "\\" . $this->controller;
-        self::$route = "/{$this->controller}/{$this->action}";
+        $this->namespace = $config["namespace"];
+        $this->default_controller = $config["default_controller"] ?? "Main";
+        $this->default_action = $config["default_action"] ?? "Index";
+        $this->pointers_only = $config["pointers_only"] ?? false;
+
+        if (\key_exists("pointers", $config)) {
+            $this->Parse_Pointers($config["pointers"]);
+        } else {
+            $this->pointers = null;
+        }
+    }
+
+    private function Parse_Pointers(array $pointers): void {
+        foreach ($pointers as $name => $args) {
+            if (!\preg_match("#^[\p{L}\p{N}_-]+$#u", $name)) {
+
+                throw new \Error("ROUTER: Invalid pointer name '{$name}'");
+            }
+
+            if (!\key_exists("controller", $args)) {
+
+                throw new \Error("ROUTER: No controller specified in the pointer '{$name}'");
+            }
+
+            $this->pointers[$name] = [
+                "controller" => $args["controller"],
+                "action" => $args["action"] ?? $this->default_action
+            ];
+        }
+    }
+
+    private function Parse_Route(string $route): void {
+        if ($route == "/") {
+            $this->controller = $this->default_controller;
+            $this->action = $this->default_action;
+
+            return;
+        }
+
+        $preParts = $this->Route_Preprocess($route);
+        // pointers name are already preprocessed
+        if (\key_exists($preParts[0], $this->pointers)) {
+            $pointer = $this->pointers[$preParts[0]];
+            $this->controller = $pointer["controller"];
+            $this->action = $pointer["action"] ?? $this->default_action;
+            self::$args = \array_slice($preParts, 2);
+
+            return;
+        }
+
+        if ($this->pointers_only) {
+
+            throw new Router_Exception("ROUTER: invalid route");
+        }
+
+        $postParts = $this->Route_Postprocess($route);
+        $this->controller = $postParts["controller"];
+        $this->action = $postParts["action"] ?? $this->default_action;
+        self::$args = $postParts["args"];
+    }
+
+    private function Route_Postprocess(string $route): array {
+        $pattern = '#^(?:/|/(?:[A-Za-z][A-Za-z0-9_]*|[A-Za-z][A-Za-z0-9_]*'
+                . '/[A-Za-z][A-Za-z0-9_]*(?:/[\%\p{L}\p{N}_-]+)*))/*$#u';
+
+        if (!\preg_match($pattern, $route, $parts)) {
+
+            throw new Router_Exception("ROUTER: invalid route format");
+        }
+
+        $parts = \explode("/", \trim($route, "/"));
+
+        return [
+            "controller" => $parts[0] ?? null,
+            "action" => $parts[1] ?? null,
+            "args" => \array_slice($parts, 2)
+        ];
+    }
+
+    private function Route_Preprocess(string $route): array {
+        $pattern = "#^(?:/[\%\p{L}\p{N}_-]+)*/*$#u";
+
+        if (!\preg_match($pattern, $route)) {
+
+            throw new Router_Exception("ROUTER: invalid route format");
+        }
+
+        return \explode("/", trim($route, "/"));
     }
 }

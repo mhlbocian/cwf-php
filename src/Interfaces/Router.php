@@ -18,6 +18,4 @@ interface Router {
     public function Execute(): void;
 
     public static function Get_Args(): array;
-
-    public static function Get_Route(): string;
 }
