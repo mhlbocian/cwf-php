@@ -62,6 +62,8 @@ final class Url implements Interfaces\Url {
         // check including `index` in the url
         if (!self::$omit_index) {
             $url .= self::$index;
+        } else {
+            $url = \substr($url, 0, -1);
         }
         // check if path is absolute or relative
         if ($path[0] == "/") {
@@ -89,6 +91,6 @@ final class Url implements Interfaces\Url {
             $url .= ":" . self::$port;
         }
 
-        return $url . (($with_path) ? self::$path : "");
+        return $url . ($with_path) ? self::$path : "";
     }
 }
