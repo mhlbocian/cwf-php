@@ -61,14 +61,14 @@ final class Url implements Interfaces\Url {
         }
         // check including `index` in the url
         if (!self::$omit_index) {
-            $url .= self::$index . "/";
+            $url .= self::$index;
         }
         // check if path is absolute or relative
         if ($path[0] == "/") {
-            $path = \substr($path, 1);
             $url .= $path;
         } else {
-            $url .= Router::Get_Args(true)[0] . "/{$path}";
+            $ctrl = Router::Get_Args(true)[0] ?? null;
+            $url .= ($ctrl == null) ? "/{$path}" : "/{$ctrl}/{$path}";
         }
 
         return $url;

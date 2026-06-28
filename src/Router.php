@@ -14,18 +14,22 @@ namespace CwfPhp\CwfPhp;
 use CwfPhp\CwfPhp\Exceptions\Router_Exception;
 
 final class Router implements Interfaces\Router {
-    /* config values */
 
+    /** config values */
     private readonly string $default_action;
     private readonly string $default_controller;
     private readonly string $namespace;
     private readonly bool $pointers_only;
     private array $pointers = [];
-    /* current route values */
+
+    /** current route values */
     private static string $action;
     private static string $controller;
+    private static ?string $pointer = null;
+    private static bool $routed = false;
     private readonly string $class_fqn;
-    /* available outside via Get_Args() */
+
+    /** available outside via Get_Args() */
     private static array $args = [];
 
     #[\Override]
@@ -37,21 +41,29 @@ final class Router implements Interfaces\Router {
 
         $config = Config::Json("router")->Fetch();
         $this->Parse_Config($config);
-        $this->Parse_Route($route ?? "/");
+        $this->Route_Parse($route ?? "/");
+        $this->Check_Route();
+        self::$routed = true;
     }
 
     #[\Override]
     public function Execute(): void {
-        $this->Check_Route();
         $ctrl_object = new $this->class_fqn();
         $ctrl_object->{self::$action}();
     }
 
     #[\Override]
-    public static function Get_Args(bool $all = false): array {
-        if ($all) {
+    public static function Get_Args(bool $with_env = false): array {
+        if (!self::$routed) {
 
-            return array_merge([self::$controller, self::$action], self::$args);
+            return [];
+        }
+
+        if ($with_env) {
+
+            return array_merge([
+                self::$pointer ?? self::$controller,
+                self::$action], self::$args);
         }
 
         return self::$args;
@@ -111,10 +123,9 @@ final class Router implements Interfaces\Router {
         }
     }
 
-    private function Parse_Route(string $route): void {
+    private function Route_Parse(string $route): void {
         if ($route == "/") {
-            self::$controller = $this->default_controller;
-            self::$action = $this->default_action;
+            $this->Route_Set();
 
             return;
         }
@@ -123,9 +134,10 @@ final class Router implements Interfaces\Router {
         // pointers name are already preprocessed
         if (\key_exists($preParts[0], $this->pointers)) {
             $pointer = $this->pointers[$preParts[0]];
-            self::$controller = $pointer["controller"];
-            self::$action = $pointer["action"] ?? $this->default_action;
-            self::$args = \array_slice($preParts, 2);
+            $this->Route_Set($pointer["controller"],
+                    $pointer["action"],
+                    \array_slice($preParts, 1),
+                    $preParts[0]);
 
             return;
         }
@@ -136,16 +148,16 @@ final class Router implements Interfaces\Router {
         }
 
         $postParts = $this->Route_Postprocess($route);
-        self::$controller = $postParts["controller"];
-        self::$action = $postParts["action"] ?? $this->default_action;
-        self::$args = $postParts["args"];
+        $this->Route_Set($postParts["controller"],
+                $postParts["action"],
+                $postParts["args"]);
     }
 
     private function Route_Postprocess(string $route): array {
         $pattern = '#^(?:/|/(?:[A-Za-z][A-Za-z0-9_]*|[A-Za-z][A-Za-z0-9_]*'
                 . '/[A-Za-z][A-Za-z0-9_]*(?:/[\%\p{L}\p{N}_-]+)*))/*$#u';
 
-        if (!\preg_match($pattern, $route, $parts)) {
+        if (!\preg_match($pattern, $route)) {
 
             throw new Router_Exception("ROUTER: invalid route format");
         }
@@ -168,5 +180,17 @@ final class Router implements Interfaces\Router {
         }
 
         return \explode("/", trim($route, "/"));
+    }
+
+    private function Route_Set(
+            ?string $controller = null,
+            ?string $action = null,
+            array $args = [],
+            ?string $pointer = null): void {
+
+        self::$controller = $controller ?? $this->default_controller;
+        self::$action = $action ?? $this->default_action;
+        self::$args = $args;
+        self::$pointer = $pointer;
     }
 }
