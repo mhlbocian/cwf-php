@@ -4,7 +4,6 @@
  * CWF-PHP Framework
  * 
  * File: View.php
- * Description: Views class
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -15,6 +14,9 @@ use CwfPhp\CwfPhp\View\ViewType;
 use CwfPhp\CwfPhp\Interfaces\ViewInterface;
 use CwfPhp\CwfPhp\Interfaces\View\ObjectInterface;
 
+/**
+ * View class for handling HTML and PHP templates
+ */
 final class View implements ViewInterface {
 
     private ObjectInterface $view;

@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Interfaces\Framework.php
+ * File: Interfaces\FrameworkInterface.php
  * Description: Framework interface
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
@@ -17,7 +17,7 @@ interface FrameworkInterface {
 
     public static function application(string $appPath): void;
 
-    public static function getEnv(?string $key): array;
+    public static function getEnv(?string $key): mixed;
 
     public static function setDir(string $type, string $dirname): void;
 

@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Handlers.php
+ * File: Interfaces\HandlersInterface.php
  * Description: Error/Exception handlers interface.
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD

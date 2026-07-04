@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Interfaces\Url.php
+ * File: Interfaces\UrlInterface.php
  * Description: Url interface
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD

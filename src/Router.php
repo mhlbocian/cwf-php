@@ -4,7 +4,6 @@
  * CWF-PHP Framework
  * 
  * File: Router.php
- * Description: Router class
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -14,25 +13,83 @@ namespace CwfPhp\CwfPhp;
 use CwfPhp\CwfPhp\Exceptions\RouterException;
 use CwfPhp\CwfPhp\Interfaces\RouterInterface;
 
+/**
+ * Router class
+ */
 final class Router implements RouterInterface {
 
-    /** config values */
+    /**
+     * 
+     * @var string Default action, when is not specified in the URL
+     */
     private readonly string $defaultAction;
+
+    /**
+     * 
+     * @var string Default controller, when is not specified in the URL
+     */
     private readonly string $defaultController;
+
+    /**
+     * 
+     * @var string Namespace, where controllers are stored
+     */
     private readonly string $namespace;
+
+    /**
+     * 
+     * @var bool If true, only pointers (static routes) are accepted
+     */
     private readonly bool $onlyPointers;
+
+    /**
+     * 
+     * @var array An array of pointers (static routes)
+     */
     private array $pointers = [];
 
-    /** current route values */
+    /**
+     * 
+     * @var string Current action
+     */
     private static string $action;
+
+    /**
+     * 
+     * @var string Current controller
+     */
     private static string $controller;
+
+    /**
+     * 
+     * @var string|null Current pointer (if specified)
+     */
     private static ?string $pointer = null;
+
+    /**
+     * 
+     * @var bool Check, if the routing process is done
+     */
     private static bool $routed = false;
+
+    /**
+     * 
+     * @var string Controller class fully qualified name (with namespace)
+     */
     private readonly string $classFqn;
 
-    /** available outside via getArgs() */
+    /**
+     * 
+     * @var array Arguments that can be accessed via getArgs method
+     */
     private static array $args = [];
-
+    
+    /**
+     * Read router configuration and process the route
+     * 
+     * @param string|null $route Empty or like "/aaa[/bbb[/ccc[/..."
+     * @throws \Error
+     */
     #[\Override]
     public function __construct(?string $route) {
         if (!Config::file("router.json")->exists()) {
@@ -47,12 +104,23 @@ final class Router implements RouterInterface {
         self::$routed = true;
     }
 
+    /**
+     * Executes the route
+     * 
+     * @return void
+     */
     #[\Override]
     public function execute(): void {
         $ctrl_object = new $this->classFqn();
         $ctrl_object->{self::$action}();
     }
 
+    /**
+     * Get argumets for the action
+     * 
+     * @param bool $withEnv When specified, includes the controller and action
+     * @return array
+     */
     #[\Override]
     public static function getArgs(bool $withEnv = false): array {
         if (!self::$routed) {
@@ -70,6 +138,12 @@ final class Router implements RouterInterface {
         return self::$args;
     }
 
+    /**
+     * Check, if the controller and/or method exists
+     * 
+     * @return void
+     * @throws RouterException
+     */
     private function checkRoute(): void {
         $this->classFqn = "{$this->namespace}\\" . self::$controller;
 
@@ -92,6 +166,13 @@ final class Router implements RouterInterface {
         }
     }
 
+    /**
+     * Parses the router configuration
+     * 
+     * @param array $config Parsed JSON array from the router.json file
+     * @return void
+     * @throws \Error
+     */
     private function parseConfig(array $config): void {
         if (!key_exists("namespace", $config)) {
 
@@ -108,6 +189,14 @@ final class Router implements RouterInterface {
         }
     }
 
+    /**
+     * Parses the pointers array and check the valid name and the existance
+     * of the controller and/or action
+     * 
+     * @param array $pointers Pointers array from the configuration
+     * @return void
+     * @throws \Error
+     */
     private function parsePointers(array $pointers): void {
         foreach ($pointers as $name => $args) {
             if (!\preg_match("#^[\p{L}\p{N}_-]+$#u", $name)) {
@@ -128,6 +217,13 @@ final class Router implements RouterInterface {
         }
     }
 
+    /**
+     * Parses the route and sets the right properties in the class
+     * 
+     * @param string $route
+     * @return void
+     * @throws RouterException
+     */
     private function parseRoute(string $route): void {
         if ($route == "/") {
             $this->setRoute();
@@ -158,6 +254,13 @@ final class Router implements RouterInterface {
                 $postParts["args"]);
     }
 
+    /**
+     * Postprocessing for non-pointers routes
+     * 
+     * @param string $route
+     * @return array
+     * @throws RouterException
+     */
     private function postprocessRoute(string $route): array {
         $pattern = '#^(?:/|/(?:[A-Za-z][A-Za-z0-9_]*|[A-Za-z][A-Za-z0-9_]*'
                 . '/[A-Za-z][A-Za-z0-9_]*(?:/[\%\p{L}\p{N}_-]+)*))/*$#u';
@@ -176,6 +279,13 @@ final class Router implements RouterInterface {
         ];
     }
 
+    /**
+     * Preproceses the route. Check the right format and move on
+     * 
+     * @param string $route
+     * @return array
+     * @throws RouterException
+     */
     private function preprocessRoute(string $route): array {
         $pattern = "#^(?:/[\%\p{L}\p{N}_-]+)*/*$#u";
 
@@ -187,6 +297,15 @@ final class Router implements RouterInterface {
         return \explode("/", trim($route, "/"));
     }
 
+    /**
+     * Sets the class properties
+     * 
+     * @param string|null $controller
+     * @param string|null $action
+     * @param array $args
+     * @param string|null $pointer
+     * @return void
+     */
     private function setRoute(
             ?string $controller = null,
             ?string $action = null,

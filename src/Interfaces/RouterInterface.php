@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Interfaces\Router.php
+ * File: Interfaces\RouterInterface.php
  * Description: Router interface
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD

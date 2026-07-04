@@ -4,7 +4,6 @@
  * CWF-PHP Framework
  * 
  * File: Framework.php
- * Description: Core class of CWF-PHP framework.
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -13,9 +12,26 @@ namespace CwfPhp\CwfPhp;
 
 use CwfPhp\CwfPhp\Interfaces\FrameworkInterface;
 
+/**
+ * Core class of the CWF-PHP framework
+ */
 final class Framework implements FrameworkInterface {
 
+    /**
+     * 
+     * @var array Enviromental values that can be reached from app code
+     */
     private static array $appEnv = [];
+
+    /**
+     * "type_of_directory" => [
+     *     "name" => "name_of_directory",
+     *     "writeable" => "check_write_permissions",
+     *     "const" => "name_of_constant_if_required"
+     * ]
+     * 
+     * @var array Required directories for application
+     */
     private static array $appReqDirs = [
         "config" => [
             "name" => "Config",
@@ -45,8 +61,19 @@ final class Framework implements FrameworkInterface {
             "const" => "APP_VIEWS"
         ]
     ];
+
+    /**
+     * 
+     * @var FrameworkInterface|null The instance of framework (signleton)
+     */
     private static ?FrameworkInterface $instance = null;
 
+    /**
+     * Check if the framework is already initialised. If not, setup environment
+     * 
+     * @param string $appPath Application root directory
+     * @throws \Error
+     */
     #[\Override]
     public function __construct(private readonly string $appPath) {
         if (!is_null(self::$instance)) {
@@ -61,20 +88,33 @@ final class Framework implements FrameworkInterface {
         $this->setupSession();
     }
 
+    /**
+     * Static function to initialise application
+     * 
+     * @param string $appPath Application root directory
+     * @return void
+     */
     #[\Override]
     public static function application(string $appPath): void {
 
         new Framework($appPath);
     }
 
+    /**
+     * Get single or all environmental value(s).
+     * 
+     * @param string|null $key If null, get all environmental values
+     * @return mixed
+     * @throws \Error
+     */
     #[\Override]
-    public static function getEnv(?string $key = null): array {
-        if (is_null($key)) {
+    public static function getEnv(?string $key = null): mixed {
+        if (\is_null($key)) {
 
             return self::$appEnv;
         }
 
-        if (!key_exists($key, self::$appEnv)) {
+        if (!\key_exists($key, self::$appEnv)) {
 
             throw new \Error("CORE: environment key '{$key}' doesn't exist");
         }
@@ -82,9 +122,17 @@ final class Framework implements FrameworkInterface {
         return self::$appEnv[$key];
     }
 
+    /**
+     * Set custom name for required directory, instead of a default one
+     * 
+     * @param string $type Type of required directory (ie. config, data)
+     * @param string $name Name for custom directory name
+     * @return void
+     * @throws \Error
+     */
     #[\Override]
     public static function setDir(string $type, string $name): void {
-        if (!key_exists($type, self::$appReqDirs)) {
+        if (!\key_exists($type, self::$appReqDirs)) {
 
             throw new \Error("CORE: {$type} is not a valid type of directory");
         }
@@ -92,9 +140,17 @@ final class Framework implements FrameworkInterface {
         self::$appReqDirs[$type]["name"] = $name;
     }
 
+    /**
+     * Set an environmental value. Throws error, if the key already exists
+     * 
+     * @param string $key Key name
+     * @param mixed $value Key value
+     * @return void
+     * @throws \Error
+     */
     #[\Override]
     public static function setEnv(string $key, mixed $value): void {
-        if (key_exists($key, self::$appEnv)) {
+        if (\key_exists($key, self::$appEnv)) {
 
             throw new \Error("CORE: environment key '{$key}' already exists");
         }
@@ -102,6 +158,12 @@ final class Framework implements FrameworkInterface {
         self::$appEnv[$key] = $value;
     }
 
+    /**
+     * Sets up all the required constants, like CWF_ROOT (framework root),
+     * APP_ROOT (application root) and for other directories.
+     * 
+     * @return void
+     */
     private function setupConstants(): void {
         \define("DS", \DIRECTORY_SEPARATOR);
 
@@ -122,21 +184,27 @@ final class Framework implements FrameworkInterface {
         }
     }
 
+    /**
+     * Check if the directories exist and check the required permissions to them
+     * 
+     * @return void
+     * @throws \Error
+     */
     private function setupDirectories(): void {
         $missing_dirs = [];
 
         foreach (self::$appReqDirs as $type => $dir) {
             $path = \APP_ROOT . \DS . $dir["name"];
-            if (!is_dir($path)) {
+            if (!\is_dir($path)) {
                 $missing_dirs[] = $dir["name"];
 
                 continue;
             }
 
             if ($dir["writeable"] && !is_writeable($path)) {
-                $err_msg = "CORE: the '{$type}' directory is not writeable";
+                $errMsg = "CORE: the '{$type}' directory is not writeable";
 
-                throw new \Error($err_msg);
+                throw new \Error($errMsg);
             }
         }
 
@@ -145,13 +213,18 @@ final class Framework implements FrameworkInterface {
             return;
         }
 
-        $err_msg = "CORE: following directories '";
-        $err_msg .= implode(", ", $missing_dirs);
-        $err_msg .= "' don't exist in application root directory.";
+        $errMsg = "CORE: following directories '";
+        $errMsg .= \implode(", ", $missing_dirs);
+        $errMsg .= "' don't exist in application root directory.";
 
-        throw new \Error($err_msg);
+        throw new \Error($errMsg);
     }
 
+    /**
+     * Sets up error and exception handlers
+     * 
+     * @return void
+     */
     private function setupHandlers(): void {
         $namespace = "CwfPhp\\CwfPhp\\Handlers";
 
@@ -159,6 +232,11 @@ final class Framework implements FrameworkInterface {
         \set_exception_handler("{$namespace}::exceptionHandler");
     }
 
+    /**
+     * Sets up a session
+     * 
+     * @return void
+     */
     private function setupSession(): void {
         /** @todo enhance session security */
         \session_start();

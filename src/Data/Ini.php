@@ -93,7 +93,7 @@ final class Ini implements ConfigFileInterface {
             return;
         }
 
-        $this->Create();
+        $this->create();
 
         if (!$this->fileData = \parse_ini_file($this->file, $this->useSections)) {
             $this->fileData = [];

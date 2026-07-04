@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Interfaces\View.php
+ * File: Interfaces\ViewInterface.php
  * Description: View interface
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
