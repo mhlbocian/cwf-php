@@ -11,14 +11,14 @@
 
 namespace CwfPhp\CwfPhp\Interfaces;
 
-interface Handlers {
+interface HandlersInterface {
 
-    public static function Error_Handler(
+    public static function errorHandler(
             int $no,
             string $str,
             string $file,
             int $line): void;
 
-    public static function Exception_Handler(\Throwable $ex): void;
+    public static function exceptionHandler(\Throwable $ex): void;
     
 }

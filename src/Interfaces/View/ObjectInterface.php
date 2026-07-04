@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Interfaces/View/View_Object.php
+ * File: Interfaces/View/ObjectInterface.php
  * Description: View object interface
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
@@ -11,13 +11,13 @@
 
 namespace CwfPhp\CwfPhp\Interfaces\View;
 
-interface View_Object {
+interface ObjectInterface {
 
     public function __construct(string $file);
 
-    public function Bind(string $var, mixed $value): Object;
+    public function bind(string $var, mixed $value): ObjectInterface;
 
-    public function Render(): string;
+    public function render(): string;
 
     public function __toString(): string;
 }

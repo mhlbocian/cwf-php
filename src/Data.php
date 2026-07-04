@@ -18,12 +18,12 @@ final class Data {
 
     private const DIR = \APP_DATA . \DS;
 
-    public static function Ini(string $file): Ini {
+    public static function ini(string $file): Ini {
 
         return new Ini(self::DIR . "{$file}.ini");
     }
 
-    public static function Json(string $file): Json {
+    public static function json(string $file): Json {
 
         return new Json(self::DIR . "{$file}.json");
     }

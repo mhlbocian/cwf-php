@@ -11,22 +11,22 @@
 
 namespace CwfPhp\CwfPhp\View;
 
-use CwfPhp\CwfPhp\Interfaces\View\View_Object as IObject;
+use CwfPhp\CwfPhp\Interfaces\View\ObjectInterface;
 
-class Html implements IObject {
+class Html implements ObjectInterface {
 
     private array $data = [];
     private string $file;
 
     #[\Override]
-    public function Bind(string $var, mixed $value): Html {
+    public function bind(string $var, mixed $value): Html {
         $this->data[$var] = $value;
 
         return $this;
     }
 
     #[\Override]
-    public function Render(): string {
+    public function render(): string {
         foreach ($this->data as $var => $value) {
             $this->file = str_replace("{\$$var}", $value, $this->file);
         }
@@ -48,6 +48,6 @@ class Html implements IObject {
     #[\Override]
     public function __toString(): string {
 
-        return $this->Render();
+        return $this->render();
     }
 }

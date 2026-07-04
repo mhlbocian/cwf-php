@@ -11,11 +11,11 @@
 
 namespace CwfPhp\CwfPhp\Interfaces;
 
-interface View {
+interface ViewInterface {
 
     function __construct(string $view);
 
-    public function Bind(string $var, mixed $val): View;
+    public function bind(string $var, mixed $val): ViewInterface;
 
     public function __toString(): string;
 }

@@ -11,6 +11,7 @@
 
 namespace CwfPhp\CwfPhp;
 
+use CwfPhp\CwfPhp\Interfaces\Data\ConfigFileInterface;
 use CwfPhp\CwfPhp\Data\Json;
 use CwfPhp\CwfPhp\Data\Ini;
 
@@ -18,13 +19,19 @@ final class Config {
 
     private const DIR = \APP_CFG . \DS;
 
-    public static function Ini(string $file): Ini {
+    public static function file(string $file): ConfigFileInterface {
+        $fileParts = \explode(".", $file);
+        $fileType = \end($fileParts);
 
-        return new Ini(self::DIR . "{$file}.ini");
-    }
-
-    public static function Json(string $file): Json {
-        
-        return new Json(self::DIR . "{$file}.json");
+        try {
+            
+            return match ($fileType) {
+                "ini" => new Ini(self::DIR . $file),
+                "json" => new Json(self::DIR . $file)
+            };
+        } catch (\UnhandledMatchError) {
+            
+            throw new \Error("CONFIG: unknown file type");
+        }
     }
 }

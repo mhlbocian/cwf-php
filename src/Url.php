@@ -12,10 +12,12 @@
 namespace CwfPhp\CwfPhp;
 
 use CwfPhp\CwfPhp\Config;
+use CwfPhp\CwfPhp\Interfaces\UrlInterface;
 
-final class Url implements Interfaces\Url {
+final class Url implements UrlInterface {
 
-    private static bool $omit_index;
+    private static bool $configured = false;
+    private static bool $rewrite;
     private static int $port;
     private static string $host;
     private static string $index;
@@ -23,44 +25,27 @@ final class Url implements Interfaces\Url {
     private static string $protocol;
 
     #[\Override]
-    public static function Setup(): void {
-        if (!Config::Json("url")->Exists()) {
-
-            throw new \Error("URL: no configuration file 'url.json'");
-        }
-
-        $config = Config::Json("url")->Fetch();
-
-        if (!key_exists("host", $config)) {
-
-            throw new \Error("URL: you must specify at least 'host' key in "
-                            . "the 'url.json' configuration file");
-        }
-
-        self::$protocol = $config["protocol"] ?? "https";
-        self::$host = $config["host"];
-        self::$port = $config["port"] ?? "443";
-        self::$path = $config["path"] ?? "/";
-        self::$index = $config["index"] ?? "index.php";
-        self::$omit_index = $config["omit_index"] ?? false;
+    public static function redirect(string $path = ""): void {
+        \header("Location: " . self::site($path));
+        exit();
     }
 
     #[\Override]
-    public static function Resource(string $path): string {
+    public static function resource(string $path): string {
 
-        return self::Url($path[0] != "/") . $path;
+        return self::make($path[0] != "/") . $path;
     }
 
     #[\Override]
-    public static function Site(string $path = ""): string {
-        $url = self::Url();
+    public static function site(string $path = ""): string {
+        $url = self::make();
 
         if ($path == "") {
 
             return $url;
         }
         // check including `index` in the url
-        if (!self::$omit_index) {
+        if (!self::$rewrite) {
             $url .= self::$index;
         } else {
             $url = \substr($url, 0, -1);
@@ -76,21 +61,45 @@ final class Url implements Interfaces\Url {
         return $url;
     }
 
-    #[\Override]
-    public static function Redirect(string $path = ""): void {
-        \header("Location: " . self::Site($path));
-        exit();
+    private static function setup(): void {
+        if (self::$configured) {
+
+            return;
+        }
+
+        if (!Config::file("url.json")->exists()) {
+
+            throw new \Error("URL: no configuration file 'url.json'");
+        }
+
+        $config = Config::file("url.json")->fetch();
+
+        if (!key_exists("host", $config)) {
+
+            throw new \Error("URL: you must specify at least 'host' key in "
+                            . "the 'url.json' configuration file");
+        }
+
+        self::$protocol = $config["protocol"] ?? "https";
+        self::$host = $config["host"];
+        self::$port = $config["port"] ?? "443";
+        self::$path = $config["path"] ?? "/";
+        self::$index = $config["index"] ?? "index.php";
+        self::$rewrite = $config["rewrite"] ?? false;
+        self::$configured = true;
     }
 
-    private static function Url(bool $with_path = true): string {
+    private static function make(bool $withPath = true): string {
+        self::setup();
+
         $url = self::$protocol . "://";
         $url .= self::$host;
-        // omit port number if it's protocol's default
+
         if (!((self::$protocol == "http" && self::$port == 80) ||
                 (self::$protocol == "https" && self::$port == 443))) {
             $url .= ":" . self::$port;
         }
 
-        return $url . ($with_path) ? self::$path : "";
+        return $url . (($withPath) ? self::$path : "");
     }
 }

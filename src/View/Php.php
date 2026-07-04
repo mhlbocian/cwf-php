@@ -11,22 +11,22 @@
 
 namespace CwfPhp\CwfPhp\View;
 
-use CwfPhp\CwfPhp\Interfaces\View\View_Object as IObject;
+use CwfPhp\CwfPhp\Interfaces\View\ObjectInterface;
 
-class Php implements IObject {
+class Php implements ObjectInterface {
 
     private array $data = [];
     private string $file;
 
     #[\Override]
-    public function Bind(string $var, mixed $value): Php {
+    public function bind(string $var, mixed $value): Php {
         $this->data[$var] = $value;
 
         return $this;
     }
 
     #[\Override]
-    public function Render(): string {
+    public function render(): string {
         \extract($this->data);
         \ob_start();
 
@@ -54,6 +54,6 @@ class Php implements IObject {
     #[\Override]
     public function __toString(): string {
 
-        return $this->Render();
+        return $this->render();
     }
 }

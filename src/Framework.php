@@ -11,12 +11,12 @@
 
 namespace CwfPhp\CwfPhp;
 
-use CwfPhp\CwfPhp\Interfaces\Framework as IFramework;
+use CwfPhp\CwfPhp\Interfaces\FrameworkInterface;
 
-final class Framework implements IFramework {
+final class Framework implements FrameworkInterface {
 
-    private static array $app_env = [];
-    private static array $app_reqdirs = [
+    private static array $appEnv = [];
+    private static array $appReqDirs = [
         "config" => [
             "name" => "Config",
             "writeable" => true,
@@ -45,88 +45,87 @@ final class Framework implements IFramework {
             "const" => "APP_VIEWS"
         ]
     ];
-    private static ?Framework $instance = null;
+    private static ?FrameworkInterface $instance = null;
 
     #[\Override]
-    public function __construct(private readonly string $app_path) {
+    public function __construct(private readonly string $appPath) {
         if (!is_null(self::$instance)) {
 
             throw new \Error("CORE: cannot setup application more than once");
         }
 
         self::$instance = $this;
-        $this->Setup_Constants();
-        $this->Setup_Handlers();
-        $this->Setup_Directories();
-        $this->Setup_Classes();
-        $this->Setup_Session();
+        $this->setupConstants();
+        $this->setupHandlers();
+        $this->setupDirectories();
+        $this->setupSession();
     }
 
     #[\Override]
-    public static function App_Init(string $app_path): void {
+    public static function application(string $appPath): void {
 
-        new Framework($app_path);
+        new Framework($appPath);
     }
 
     #[\Override]
-    public static function Get_Env(?string $key = null): array {
+    public static function getEnv(?string $key = null): array {
         if (is_null($key)) {
 
-            return self::$app_env;
+            return self::$appEnv;
         }
 
-        if (!key_exists($key, self::$app_env)) {
+        if (!key_exists($key, self::$appEnv)) {
 
             throw new \Error("CORE: environment key '{$key}' doesn't exist");
         }
 
-        return self::$app_env[$key];
+        return self::$appEnv[$key];
     }
 
     #[\Override]
-    public static function Set_Dir(string $type, string $name): void {
-        if (!key_exists($type, self::$app_reqdirs)) {
+    public static function setDir(string $type, string $name): void {
+        if (!key_exists($type, self::$appReqDirs)) {
 
             throw new \Error("CORE: {$type} is not a valid type of directory");
         }
 
-        self::$app_reqdirs[$type]["name"] = $name;
+        self::$appReqDirs[$type]["name"] = $name;
     }
 
     #[\Override]
-    public static function Set_Env(string $key, mixed $value): void {
-        if (key_exists($key, self::$app_env)) {
+    public static function setEnv(string $key, mixed $value): void {
+        if (key_exists($key, self::$appEnv)) {
 
             throw new \Error("CORE: environment key '{$key}' already exists");
         }
 
-        self::$app_env[$key] = $value;
+        self::$appEnv[$key] = $value;
     }
 
-    private function Setup_Constants(): void {
+    private function setupConstants(): void {
         \define("DS", \DIRECTORY_SEPARATOR);
 
         $contants = [
             "CWF_ROOT" => __DIR__,
-            "APP_ROOT" => $this->app_path,
+            "APP_ROOT" => $this->appPath,
         ];
 
-        foreach (self::$app_reqdirs as $dir) {
+        foreach (self::$appReqDirs as $dir) {
             if (\key_exists("const", $dir)) {
-                $contants[$dir['const']] = $this->app_path . \DS . $dir["name"];
+                $contants[$dir['const']] = $this->appPath . \DS . $dir["name"];
             }
         }
 
         foreach ($contants as $name => $value) {
             \define($name, $value);
-            self::Set_Env($name, $value);
+            self::setEnv($name, $value);
         }
     }
 
-    private function Setup_Directories(): void {
+    private function setupDirectories(): void {
         $missing_dirs = [];
 
-        foreach (self::$app_reqdirs as $type => $dir) {
+        foreach (self::$appReqDirs as $type => $dir) {
             $path = \APP_ROOT . \DS . $dir["name"];
             if (!is_dir($path)) {
                 $missing_dirs[] = $dir["name"];
@@ -153,18 +152,14 @@ final class Framework implements IFramework {
         throw new \Error($err_msg);
     }
 
-    private function Setup_Classes(): void {
-        Url::Setup();
-    }
-
-    private function Setup_Handlers(): void {
+    private function setupHandlers(): void {
         $namespace = "CwfPhp\\CwfPhp\\Handlers";
 
-        \set_error_handler("{$namespace}::Error_Handler");
-        \set_exception_handler("{$namespace}::Exception_Handler");
+        \set_error_handler("{$namespace}::errorHandler");
+        \set_exception_handler("{$namespace}::exceptionHandler");
     }
 
-    private function Setup_Session(): void {
+    private function setupSession(): void {
         /** @todo enhance session security */
         \session_start();
     }

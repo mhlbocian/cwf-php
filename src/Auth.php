@@ -37,12 +37,12 @@ final class Auth implements IAuth {
     private string $username_fmt = "[\w][\w.]{4,}";
 
     public function __construct() {
-        if (!Config::Json("authentication")->Exists()) {
+        if (!Config::file("authapi.json")->exists()) {
 
             return;
         }
 
-        $this->config = Config::Json("authentication")->Fetch();
+        $this->config = Config::file("authapi.json")->fetch();
         // setup required string formats
         $this->Format_LoadConfig();
         // for custom drivers (stored outside CWF-PHP) namespace is required

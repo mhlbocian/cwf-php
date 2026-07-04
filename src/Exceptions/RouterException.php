@@ -11,6 +11,6 @@
 
 namespace CwfPhp\CwfPhp\Exceptions;
 
-class Router_Exception extends \Exception{
+class RouterException extends \Exception{
     
 }

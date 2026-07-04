@@ -11,16 +11,18 @@
 
 namespace CwfPhp\CwfPhp;
 
-class Handlers implements Interfaces\Handlers {
+use CwfPhp\CwfPhp\Interfaces\HandlersInterface;
+
+class Handlers implements HandlersInterface {
 
     #[\Override]
-    public static function Error_Handler(
+    public static function errorHandler(
             int $no,
             string $str,
             string $file,
             int $line): void {
 
-        echo self::Static_Template("error", [
+        echo self::staticTemplate("error", [
             "type" => "Error",
             "no" => $no,
             "file" => $file,
@@ -30,8 +32,8 @@ class Handlers implements Interfaces\Handlers {
     }
 
     #[\Override]
-    public static function Exception_Handler(\Throwable $ex): void {
-        echo self::Static_Template("error", [
+    public static function exceptionHandler(\Throwable $ex): void {
+        echo self::staticTemplate("error", [
             "type" => $ex::class,
             "no" => $ex->getCode(),
             "file" => $ex->getFile(),
@@ -40,7 +42,7 @@ class Handlers implements Interfaces\Handlers {
         ]);
     }
 
-    private static function Static_Template(string $template,
+    private static function staticTemplate(string $template,
             array $vars = []): string {
 
         $template = \CWF_ROOT . \DS . "static" . \DS . "{$template}.html";

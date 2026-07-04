@@ -11,7 +11,7 @@
 
 namespace CwfPhp\CwfPhp\View;
 
-enum Type {
+enum ViewType {
 
     case PHP;
     case HTML;

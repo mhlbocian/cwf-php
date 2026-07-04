@@ -11,11 +11,11 @@
 
 namespace CwfPhp\CwfPhp\Interfaces;
 
-interface Router {
+interface RouterInterface {
 
     public function __construct(?string $route);
 
-    public function Execute(): void;
+    public function execute(): void;
 
-    public static function Get_Args(bool $all): array;
+    public static function getArgs(bool $withEnv): array;
 }

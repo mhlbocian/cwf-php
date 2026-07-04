@@ -11,43 +11,42 @@
 
 namespace CwfPhp\CwfPhp;
 
-use CwfPhp\CwfPhp\View\Type;
-use CwfPhp\CwfPhp\Interfaces\View as IView;
-use CwfPhp\CwfPhp\Interfaces\View\View_Object as IObject;
+use CwfPhp\CwfPhp\View\ViewType;
+use CwfPhp\CwfPhp\Interfaces\ViewInterface;
+use CwfPhp\CwfPhp\Interfaces\View\ObjectInterface;
 
-final class View implements IView {
+final class View implements ViewInterface {
 
-    private IObject $view;
+    private ObjectInterface $view;
 
     #[\Override]
-    public function __construct(string $view, Type $type = Type::PHP) {
-        switch ($type) {
-            case Type::PHP:
-                $this->view = new View\Php($view);
-                break;
-            case Type::HTML:
-                $this->view = new View\Html($view);
-                break;
-            default:
-                throw new \Error("VIEW: unknown view type");
+    public function __construct(string $view, ViewType $type = ViewType::PHP) {
+        try {
+            $this->view = match ($type) {
+                ViewType::PHP => new View\Php($view),
+                ViewType::HTML => new View\Html($view)
+            };
+        } catch (\UnhandledMatchError) {
+            
+            throw new \Error("VIEW: unknown view type");
         }
     }
 
     #[\Override]
-    public function Bind(string $var, mixed $val): View {
-        $this->view->Bind($var, $val);
+    public function bind(string $var, mixed $val): View {
+        $this->view->bind($var, $val);
 
         return $this;
     }
 
-    private function Render(): string {
+    private function render(): string {
 
-        return $this->view->Render();
+        return $this->view->render();
     }
 
     #[\Override]
     public function __toString(): string {
 
-        return $this->Render();
+        return $this->render();
     }
 }

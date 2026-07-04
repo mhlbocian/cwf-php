@@ -28,7 +28,7 @@ final class Database implements IDatabase {
 
     #[\Override]
     public function __construct(string $conn_name = "default") {
-        $db_cfg = Config::Json("database")->Get($conn_name);
+        $db_cfg = Config::file("database.json")->get($conn_name);
         $this->conn_name = $conn_name;
         // both driver and database cannot be empty
         $this->driver = \strtolower($db_cfg["driver"]);
