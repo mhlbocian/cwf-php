@@ -54,7 +54,7 @@ final class Url implements UrlInterface {
         if ($path[0] == "/") {
             $url .= $path;
         } else {
-            $ctrl = Router::Get_Args(true)[0] ?? null;
+            $ctrl = Router::getArgs(true)[0] ?? null;
             $url .= ($ctrl == null) ? "/{$path}" : "/{$ctrl}/{$path}";
         }
 
