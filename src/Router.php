@@ -83,7 +83,7 @@ final class Router implements RouterInterface {
      * @var array Arguments that can be accessed via getArgs method
      */
     private static array $args = [];
-    
+
     /**
      * Read router configuration and process the route
      * 
@@ -100,19 +100,36 @@ final class Router implements RouterInterface {
         $config = Config::file("router.json")->fetch();
         $this->parseConfig($config);
         $this->parseRoute($route ?? "/");
-        $this->checkRoute();
         self::$routed = true;
     }
 
     /**
-     * Executes the route
+     * Executes the route. If the route is invalid, executes $onInvalidRoute.
+     * If an execution error occurs, executes $onError or, if is not specified
+     * $onInvalidRoute is executed.
      * 
+     * @param callable|null $onInvalidRoute Specify action, when route is wrong
+     * @param callable|null $onError Specify action for execution error
      * @return void
      */
     #[\Override]
-    public function execute(): void {
-        $ctrl_object = new $this->classFqn();
-        $ctrl_object->{self::$action}();
+    public function execute(
+            ?callable $onInvalidRoute,
+            ?callable $onError = null): void {
+
+        try {
+            $this->checkRoute();
+            $ctrl_object = new $this->classFqn();
+            $ctrl_object->{self::$action}();
+        } catch (RouterException) {
+            $onInvalidRoute();
+        } catch (\Throwable) {
+            if (\is_null($onError)) {
+                $onInvalidRoute();
+            } else {
+                $onError();
+            }
+        }
     }
 
     /**
@@ -149,20 +166,20 @@ final class Router implements RouterInterface {
 
         if (!\class_exists($this->classFqn)) {
 
-            throw new RouterException("ROUTER: class '{$this->classFqn}'"
-                            . " does not exist");
+            throw new RouterException(
+                            "ROUTER: class '{$this->classFqn}' does not exist");
         }
 
         if (!\method_exists($this->classFqn, self::$action)) {
 
-            throw new RouterException("ROUTER: method '" . self::$action
-                            . "' does not exist");
+            throw new RouterException(
+                            "ROUTER: method '" . self::$action . "' does not exist");
         }
 
         if (\str_starts_with(self::$action, "__")) {
 
-            throw new RouterException("ROUTER: action forbidden for magic"
-                            . "methods");
+            throw new RouterException(
+                            "ROUTER: action forbidden for magic methods");
         }
     }
 

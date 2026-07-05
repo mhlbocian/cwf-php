@@ -105,7 +105,6 @@ final class Framework implements FrameworkInterface {
      * 
      * @param string|null $key If null, get all environmental values
      * @return mixed
-     * @throws \Error
      */
     #[\Override]
     public static function getEnv(?string $key = null): mixed {
@@ -116,7 +115,7 @@ final class Framework implements FrameworkInterface {
 
         if (!\key_exists($key, self::$appEnv)) {
 
-            throw new \Error("CORE: environment key '{$key}' doesn't exist");
+            return null;
         }
 
         return self::$appEnv[$key];

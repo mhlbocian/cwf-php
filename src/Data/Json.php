@@ -33,7 +33,7 @@ final class Json implements ConfigFileInterface {
     #[\Override]
     public function create(): void {
         if (!$this->fileExists) {
-            if (!touch($this->file)) {
+            if (!\touch($this->file)) {
 
                 throw new \Error("DATA[Json]: couldn't create file");
             }
@@ -92,7 +92,7 @@ final class Json implements ConfigFileInterface {
             return;
         }
 
-        $this->Create();
+        $this->create();
         $file_content = \file_get_contents($this->file);
         $this->fileData = \json_decode($file_content, true) ?? [];
         $this->fileLoaded = true;

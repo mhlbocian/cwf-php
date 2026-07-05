@@ -4,7 +4,6 @@
  * CWF-PHP Framework
  * 
  * File: Url.php
- * Description: Class for actions on URLs
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
  */
@@ -14,6 +13,9 @@ namespace CwfPhp\CwfPhp;
 use CwfPhp\CwfPhp\Config;
 use CwfPhp\CwfPhp\Interfaces\UrlInterface;
 
+/**
+ * Class for creating URLs for sites and resources
+ */
 final class Url implements UrlInterface {
 
     private static bool $configured = false;
@@ -61,6 +63,20 @@ final class Url implements UrlInterface {
         return $url;
     }
 
+    private static function make(bool $withPath = true): string {
+        self::setup();
+
+        $url = self::$protocol . "://";
+        $url .= self::$host;
+
+        if (!((self::$protocol == "http" && self::$port == 80) ||
+                (self::$protocol == "https" && self::$port == 443))) {
+            $url .= ":" . self::$port;
+        }
+
+        return $url . (($withPath) ? self::$path : "");
+    }
+
     private static function setup(): void {
         if (self::$configured) {
 
@@ -76,7 +92,8 @@ final class Url implements UrlInterface {
 
         if (!key_exists("host", $config)) {
 
-            throw new \Error("URL: you must specify at least 'host' key in "
+            throw new \Error(
+                            "URL: you must specify at least 'host' key in "
                             . "the 'url.json' configuration file");
         }
 
@@ -87,19 +104,5 @@ final class Url implements UrlInterface {
         self::$index = $config["index"] ?? "index.php";
         self::$rewrite = $config["rewrite"] ?? false;
         self::$configured = true;
-    }
-
-    private static function make(bool $withPath = true): string {
-        self::setup();
-
-        $url = self::$protocol . "://";
-        $url .= self::$host;
-
-        if (!((self::$protocol == "http" && self::$port == 80) ||
-                (self::$protocol == "https" && self::$port == 443))) {
-            $url .= ":" . self::$port;
-        }
-
-        return $url . (($withPath) ? self::$path : "");
     }
 }

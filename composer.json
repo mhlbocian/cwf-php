@@ -22,11 +22,13 @@
         "ext-filter": "*",
         "ext-json": "*",
         "ext-pdo": "*",
+        "ext-readline": "*",
         "ext-session": "*"
     },
     "autoload": {
         "psr-4": {
             "CwfPhp\\CwfPhp\\": "src/"
         }
-    }
+    },
+    "bin": ["src/bin/cwfinit"]
 }

@@ -21,6 +21,15 @@ final class View implements ViewInterface {
 
     private ObjectInterface $view;
 
+    /**
+     * Load view and specify the type.
+     * 
+     * Supported types: HTML, PHP
+     * 
+     * @param string $view View name (without extension)
+     * @param ViewType $type Type of view (ViewType enum)
+     * @throws \Error
+     */
     #[\Override]
     public function __construct(string $view, ViewType $type = ViewType::PHP) {
         try {
@@ -29,11 +38,18 @@ final class View implements ViewInterface {
                 ViewType::HTML => new View\Html($view)
             };
         } catch (\UnhandledMatchError) {
-            
+
             throw new \Error("VIEW: unknown view type");
         }
     }
 
+    /**
+     * Bind the in-template variable with the values
+     * 
+     * @param string $var Name of the variable
+     * @param mixed $val Values to be binded with template value
+     * @return View
+     */
     #[\Override]
     public function bind(string $var, mixed $val): View {
         $this->view->bind($var, $val);
@@ -41,14 +57,14 @@ final class View implements ViewInterface {
         return $this;
     }
 
-    private function render(): string {
-
-        return $this->view->render();
-    }
-
+    /**
+     * Render (to string) the view
+     * 
+     * @return string
+     */
     #[\Override]
     public function __toString(): string {
 
-        return $this->render();
+        return $this->view->render();
     }
 }
