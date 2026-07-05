@@ -30,5 +30,5 @@
             "CwfPhp\\CwfPhp\\": "src/"
         }
     },
-    "bin": ["src/bin/cwfinit"]
+    "bin": ["src/bin/cwf-mkproj"]
 }

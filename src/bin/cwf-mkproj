@@ -1,0 +1,355 @@
+#!/usr/bin/env php
+<?php
+
+function writeln(string $line = "", int $color = 0) {
+    $colCmd = match ($color) {
+        0 => "\e[39m", // default foreground
+        1 => "\e[31m", // red
+        2 => "\e[32m", // green
+        3 => "\e[34m", // blue
+        4 => "\e[33m", // yellow
+        5 => "\e[35m", // magenta
+        6 => "\e[97m", // white
+        default => ""
+    };
+    echo "{$colCmd}{$line}\e[39m" . PHP_EOL;
+}
+
+function chkdir(string $name, array $dirs): bool {
+    if (!preg_match("#^[a-zA-Z0-9_-]+$#", $name)) {
+        return false;
+    }
+
+    return !in_array($name, $dirs);
+}
+
+writeln("CWF-PHP - Project initialisation script", 2);
+writeln("=======================================");
+writeln("1. Set project directory", 4);
+
+$projdir = getcwd();
+$directories = [];
+$protocol = "http";
+$hostname = "localhost";
+$port = 8000;
+$path = "/";
+$index = "index.php";
+$rewrite = false;
+$namespace = "Controllers";
+$controller = "Main";
+$action = "Index";
+
+writeln("Run in current directory [{$projdir}]?");
+
+step1:
+$resp = readline("(y/n) [y]: ");
+switch ($resp) {
+    case "":
+    case "y":
+        goto step2;
+    case "n":
+        break;
+    default:
+        goto step1;
+}
+
+step1a:
+$resp = readline("Please type working directory: ");
+if (is_dir($resp)) {
+    $projdir = $resp;
+} else {
+    writeln("Invalid directory. Please type again", 1);
+    goto step1a;
+}
+
+step2:
+if (!is_writable($projdir)) {
+    writeln("Directory [{$projdir}] is not writeable. Aborted.", 1);
+    goto end;
+}
+writeln("2. Set directory names", 4);
+writeln("Use default ones (like Config, Data, Controllers, ...)?");
+
+step2a:
+$resp = readline("(y/n) [y]: ");
+switch ($resp) {
+    case "":
+    case "y":
+        $directories = [
+            "config" => "Config",
+            "controllers" => "Controllers",
+            "data" => "Data",
+            "models" => "Models",
+            "public" => "Public",
+            "views" => "Views"];
+        goto step3;
+    case "n":
+        $customdirs = true;
+        break;
+    default:
+        goto step2a;
+}
+
+step2b:
+$resp = readline("Config directory: ");
+if (!chkdir($resp, $directories)) {
+    writeln("Invalid directory name or name is not unique.", 1);
+    goto step2b;
+}
+$directories["config"] = $resp;
+
+step2c:
+$resp = readline("Controllers directory: ");
+if (!chkdir($resp, $directories)) {
+    writeln("Invalid directory name or name is not unique.", 1);
+    goto step2c;
+}
+$directories["controllers"] = $resp;
+
+step2d:
+$resp = readline("Data directory: ");
+if (!chkdir($resp, $directories)) {
+    writeln("Invalid directory name or name is not unique.", 1);
+    goto step2d;
+}
+$directories["data"] = $resp;
+
+step2e:
+$resp = readline("Models directory: ");
+if (!chkdir($resp, $directories)) {
+    writeln("Invalid directory name or name is not unique.", 1);
+    goto step2e;
+}
+$directories["models"] = $resp;
+
+step2f:
+$resp = readline("Public www directory: ");
+if (!chkdir($resp, $directories)) {
+    writeln("Invalid directory name or name is not unique.", 1);
+    goto step2f;
+}
+$directories["public"] = $resp;
+
+step2g:
+$resp = readline("Views directory: ");
+if (!chkdir($resp, $directories)) {
+    writeln("Invalid directory name or name is not unique.", 1);
+    goto step2g;
+}
+$directories["views"] = $resp;
+
+step3:
+writeln("3. HTTP URL configuration", 4);
+
+step3a:
+$resp = readline("Protocol (http/https)? [{$protocol}]: ");
+if ($resp != "http" && $resp != "https" && $resp != "") {
+    writeln("Invalid protocol. Must be EXACTLY http or https.", 1);
+    goto step3a;
+} else if ($resp != "") {
+    $protocol = $resp;
+}
+
+step3b:
+$resp = readline("Hostname? [{$hostname}]: ");
+$pattern = "#^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*$#";
+if ($resp != "" && !preg_match($pattern, $resp)) {
+    writeln("Invalid hostname.", 1);
+    goto step3b;
+} else if ($resp != "") {
+    $hostname = $resp;
+}
+
+step3c:
+$resp = readline("Port? [{$port}]: ");
+if ($resp != "" && $resp < 1 || $resp > 65536) {
+    writeln("Invalid port number.", 1);
+    goto step3c;
+} else if ($resp != "") {
+    $port = $resp;
+}
+
+step3d:
+$resp = readline("Application URL path? [{$path}]: ");
+$pattern = "#^\/(?:[^\/]+\/)+$#";
+if ($resp != "" && !preg_match($pattern, $resp)) {
+    writeln("Invalid application path. Must be like (/aaa/bbb/.../).", 1);
+    goto step3d;
+} else if ($resp != "") {
+    $path = $resp;
+}
+
+writeln("4. Controllers namespace and router configuration", 4);
+
+step4:
+$resp = readline("Controllers namespace? [{$namespace}]: ");
+$pattern = "#^[A-Za-z_][A-Za-z0-9_]*(\\\\\\\\[A-Za-z_][A-Za-z0-9_]*)*$#";
+if ($resp != "" && !preg_match($pattern, $resp)) {
+    writeln("Invalid namespace. Must be like (aaa\\\\bbb\\\\ccc).", 1);
+    goto step4;
+} else if ($resp != "") {
+    $namespace = $resp;
+}
+
+step4a:
+$resp = readline("Default controller? [{$controller}]: ");
+$pattern = "#^[a-zA-Z_][a-zA-Z0-9_]+$#";
+if ($resp != "" && !preg_match($pattern, $resp)) {
+    writeln("Invalid controller name.", 1);
+    goto step4a;
+} else if ($resp != "") {
+    $controller = $resp;
+}
+
+step4b:
+$resp = readline("Default action? [{$action}]: ");
+$pattern = "#^[a-zA-Z_][a-zA-Z0-9_]+$#";
+if ($resp != "" && !preg_match($pattern, $resp)) {
+    writeln("Invalid action name.", 1);
+    goto step4a;
+} else if ($resp != "") {
+    $action = $resp;
+}
+
+writeln();
+writeln("Your configuration", 4);
+writeln("==================");
+writeln("Application directory: {$projdir}");
+writeln("Basic directories: " . implode(", ", $directories));
+writeln("Protocol: {$protocol}");
+writeln("Hostname: {$hostname}");
+writeln("Port: {$port}");
+writeln("URL application path: {$path}");
+writeln("Controllers namespace: {$namespace}");
+writeln("Default controller: {$controller}");
+writeln("Default action: {$action}");
+writeln("Ready to install?", 2);
+
+confirm:
+$resp = readline("(y/n): ");
+switch ($resp) {
+    case "y":
+        break;
+    case "n":
+        goto end;
+    default:
+        goto confirm;
+}
+
+if (!is_dir($projdir . DIRECTORY_SEPARATOR . "vendor")) {
+    writeln("No 'vendor' folder detected in the root project directory", 1);
+    writeln("REMEMBER to change 'init.php' to point to the 'autoload.php'.", 1);
+    readline("Ok? ");
+}
+
+writeln("");
+writeln("Installing project...", 5);
+echo "Making directories: ";
+
+foreach ($directories as $type => $name) {
+    mkdir($projdir . DIRECTORY_SEPARATOR . $name);
+    echo "{$type} ";
+}
+
+echo "done!" . PHP_EOL . "Making config: ";
+
+// url.json
+$url_json = <<<FILE
+{
+    "protocol": "{$protocol}",
+    "host": "{$hostname}",
+    "port": {$port},
+    "path": "{$path}",
+    "index": "{$index}",
+    "rewrite": false
+}
+FILE;
+echo "url ";
+$url_fh = fopen($projdir . DIRECTORY_SEPARATOR .
+        $directories["config"] . DIRECTORY_SEPARATOR . "url.json", "w");
+fwrite($url_fh, $url_json);
+fclose($url_fh);
+
+echo "router ";
+$router_json = <<<FILE
+{
+    "namespace": "{$namespace}",
+    "defaultController": "{$controller}",
+    "defaultAction": "{$action}"
+}
+FILE;
+$router_fh = fopen($projdir . DIRECTORY_SEPARATOR .
+        $directories["config"] . DIRECTORY_SEPARATOR . "router.json", "w");
+fwrite($router_fh, $router_json);
+fclose($router_fh);
+echo "done!" . PHP_EOL . "Making sample website: ";
+
+echo "init ";
+$init_php = <<<FILE
+<?php
+require_once __DIR__."/vendor/autoload.php";
+use CwfPhp\CwfPhp\Framework;
+
+FILE;
+
+if (isset($customdirs)) {
+    $init_php .= <<<FILE
+    Framework::setDir("config", "{$directories["config"]}");
+    Framework::setDir("controllers", "{$directories["controllers"]}");
+    Framework::setDir("data", "{$directories["data"]}");
+    Framework::setDir("models", "{$directories["models"]}");
+    Framework::setDir("public", "{$directories["public"]}");
+    Framework::setDir("views", "{$directories["views"]}");
+    
+    FILE;
+}
+
+$init_php .= "Framework::application(__DIR__);";
+$init_fh = fopen($projdir . DIRECTORY_SEPARATOR . "init.php", "w");
+fwrite($init_fh, $init_php);
+fclose($init_fh);
+
+echo "index ";
+$index_php = <<<FILE
+<?php
+require_once __DIR__ . '/../init.php';
+use CwfPhp\CwfPhp\Router;
+use CwfPhp\CwfPhp\View;
+
+new Router(\$_SERVER["PATH_INFO"] ?? null)
+        ->execute(function () {
+            // action on error
+            die("Invalid route! Action aborted.");
+        });
+
+FILE;
+$index_fh = fopen($projdir . DIRECTORY_SEPARATOR . $directories["public"] .
+        DIRECTORY_SEPARATOR . $index, "w");
+fwrite($index_fh, $index_php);
+fclose($index_fh);
+
+echo "controller ";
+$ctrlNamespace = str_replace("\\\\", "\\", $namespace);
+$main_php = <<<FILE
+<?php
+namespace {$ctrlNamespace};
+class {$controller} {
+    public function {$action}(): void {
+        echo "<h1>Hello, world!";
+    }
+}
+FILE;
+$main_fh = fopen($projdir . DIRECTORY_SEPARATOR . $directories["controllers"] .
+        DIRECTORY_SEPARATOR . "{$controller}.php", "w");
+fwrite($main_fh, $main_php);
+fclose($main_fh);
+echo "done!";
+
+writeln("");
+writeln("Installation complete!", 2);
+writeln("NOTICE: Remember to check PSR-4 directives in composer.json, to", 4);
+writeln("        avoid problems with autoloading.", 4);
+writeln("Run your app with public directory as the docroot.", 2);
+
+end:
+writeln();
