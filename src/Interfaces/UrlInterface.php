@@ -17,7 +17,7 @@ interface UrlInterface {
     
     public static function redirect(?string $path = null): void;
 
-    public static function resource(?string $path = null): string;
+    public static function resource(string $path): string;
 
-    public static function site(string $path = ""): string;
+    public static function site(?string $path = null): string;
 }
