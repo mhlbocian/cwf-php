@@ -16,7 +16,7 @@ interface RouterInterface {
     public function __construct(?string $route);
 
     public function execute(
-            ?callable $onInvalidRoute,
+            callable $onInvalidRoute,
             ?callable $onError): void;
 
     public static function getArgs(bool $withEnv): array;
