@@ -13,9 +13,11 @@ namespace CwfPhp\CwfPhp\Interfaces;
 
 interface UrlInterface {
 
-    public static function redirect(string $path = ""): void;
+    public static function base(bool $withPath = false): string;
+    
+    public static function redirect(?string $path = null): void;
 
-    public static function resource(string $path): string;
+    public static function resource(?string $path = null): string;
 
     public static function site(string $path = ""): string;
 }

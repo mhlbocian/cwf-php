@@ -10,7 +10,7 @@
 
 namespace CwfPhp\CwfPhp;
 
-use CwfPhp\CwfPhp\Exceptions\RouterException;
+use CwfPhp\CwfPhp\Exceptions\InvalidRouteException;
 use CwfPhp\CwfPhp\Interfaces\RouterInterface;
 
 /**
@@ -94,7 +94,7 @@ final class Router implements RouterInterface {
     public function __construct(?string $route) {
         if (!Config::file("router.json")->exists()) {
 
-            throw new \Error("ROUTER: no configuration file 'router.json'");
+            throw new \Error("[router.json] file not exists");
         }
 
         $config = Config::file("router.json")->fetch();
@@ -114,14 +114,14 @@ final class Router implements RouterInterface {
      */
     #[\Override]
     public function execute(
-            ?callable $onInvalidRoute,
+            callable $onInvalidRoute,
             ?callable $onError = null): void {
 
         try {
             $this->checkRoute();
             $ctrl_object = new $this->classFqn();
             $ctrl_object->{self::$action}();
-        } catch (RouterException) {
+        } catch (InvalidRouteException) {
             $onInvalidRoute();
         } catch (\Throwable) {
             if (\is_null($onError)) {
@@ -159,27 +159,24 @@ final class Router implements RouterInterface {
      * Check, if the controller and/or method exists
      * 
      * @return void
-     * @throws RouterException
+     * @throws InvalidRouteException
      */
     private function checkRoute(): void {
         $this->classFqn = "{$this->namespace}\\" . self::$controller;
 
         if (!\class_exists($this->classFqn)) {
 
-            throw new RouterException(
-                            "ROUTER: class '{$this->classFqn}' does not exist");
+            throw new InvalidRouteException("Unknown controller '" . self::$controller . "'");
         }
 
         if (!\method_exists($this->classFqn, self::$action)) {
 
-            throw new RouterException(
-                            "ROUTER: method '" . self::$action . "' does not exist");
+            throw new InvalidRouteException("Unknown action '" . self::$action . "'");
         }
 
         if (\str_starts_with(self::$action, "__")) {
 
-            throw new RouterException(
-                            "ROUTER: action forbidden for magic methods");
+            throw new InvalidRouteException("Action forbidden for magic methods");
         }
     }
 
@@ -193,7 +190,7 @@ final class Router implements RouterInterface {
     private function parseConfig(array $config): void {
         if (!key_exists("namespace", $config)) {
 
-            throw new \Error("ROUTER: no 'namespace' key in the 'router.json'");
+            throw new \Error("[router.json] no namespace key");
         }
 
         $this->namespace = $config["namespace"];
@@ -218,13 +215,12 @@ final class Router implements RouterInterface {
         foreach ($pointers as $name => $args) {
             if (!\preg_match("#^[\p{L}\p{N}_-]+$#u", $name)) {
 
-                throw new \Error("ROUTER: Invalid pointer name '{$name}'");
+                throw new \Error("[router.json] wrong pointer name '{$name}'");
             }
 
             if (!\key_exists("controller", $args)) {
 
-                throw new \Error("ROUTER: No controller specified in the "
-                                . "pointer '{$name}'");
+                throw new \Error("[router.json] no controller for pointer '{$name}'");
             }
 
             $this->pointers[$name] = [
@@ -239,7 +235,7 @@ final class Router implements RouterInterface {
      * 
      * @param string $route
      * @return void
-     * @throws RouterException
+     * @throws InvalidRouteException
      */
     private function parseRoute(string $route): void {
         if ($route == "/") {
@@ -262,7 +258,7 @@ final class Router implements RouterInterface {
 
         if ($this->onlyPointers) {
 
-            throw new RouterException("ROUTER: invalid route");
+            throw new InvalidRouteException("Unknown route");
         }
 
         $postParts = $this->postprocessRoute($route);
@@ -276,7 +272,7 @@ final class Router implements RouterInterface {
      * 
      * @param string $route
      * @return array
-     * @throws RouterException
+     * @throws InvalidRouteException
      */
     private function postprocessRoute(string $route): array {
         $pattern = '#^(?:/|/(?:[A-Za-z][A-Za-z0-9_]*|[A-Za-z][A-Za-z0-9_]*'
@@ -284,7 +280,7 @@ final class Router implements RouterInterface {
 
         if (!\preg_match($pattern, $route)) {
 
-            throw new RouterException("ROUTER: invalid route format");
+            throw new InvalidRouteException("Invalid route format");
         }
 
         $parts = \explode("/", \trim($route, "/"));
@@ -301,14 +297,14 @@ final class Router implements RouterInterface {
      * 
      * @param string $route
      * @return array
-     * @throws RouterException
+     * @throws InvalidRouteException
      */
     private function preprocessRoute(string $route): array {
         $pattern = "#^(?:/[\%\p{L}\p{N}_-]+)*/*$#u";
 
         if (!\preg_match($pattern, $route)) {
 
-            throw new RouterException("ROUTER: invalid route format");
+            throw new InvalidRouteException("Invalid route format");
         }
 
         return \explode("/", trim($route, "/"));

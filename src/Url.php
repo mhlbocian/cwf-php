@@ -27,7 +27,13 @@ final class Url implements UrlInterface {
     private static string $protocol;
 
     #[\Override]
-    public static function redirect(string $path = ""): void {
+    public static function base(bool $withPath = false): string {
+
+        return self::makeBase() . (($withPath) ? self::$path : "");
+    }
+
+    #[\Override]
+    public static function redirect(?string $path = null): void {
         \header("Location: " . self::site($path));
         exit();
     }
@@ -35,14 +41,14 @@ final class Url implements UrlInterface {
     #[\Override]
     public static function resource(string $path): string {
 
-        return self::make($path[0] != "/") . $path;
+        return self::makeBase($path[0] != "/") . $path;
     }
 
     #[\Override]
-    public static function site(string $path = ""): string {
-        $url = self::make();
+    public static function site(?string $path = null): string {
+        $url = self::base(true);
 
-        if ($path == "") {
+        if (\is_null($path)) {
 
             return $url;
         }
@@ -63,8 +69,13 @@ final class Url implements UrlInterface {
         return $url;
     }
 
-    private static function make(bool $withPath = true): string {
-        self::setup();
+    /**
+     * Create base for further URL functions
+     * 
+     * @return string http[s]://{hostname}[:port]
+     */
+    private static function makeBase(): string {
+        self::loadConfig();
 
         $url = self::$protocol . "://";
         $url .= self::$host;
@@ -74,10 +85,16 @@ final class Url implements UrlInterface {
             $url .= ":" . self::$port;
         }
 
-        return $url . (($withPath) ? self::$path : "");
+        return $url;
     }
 
-    private static function setup(): void {
+    /**
+     * If any URL function is invoked first time, read config and load values
+     * 
+     * @return void
+     * @throws \Error
+     */
+    private static function loadConfig(): void {
         if (self::$configured) {
 
             return;
@@ -85,16 +102,14 @@ final class Url implements UrlInterface {
 
         if (!Config::file("url.json")->exists()) {
 
-            throw new \Error("URL: no configuration file 'url.json'");
+            throw new \Error("[url.json] file not exists");
         }
 
         $config = Config::file("url.json")->fetch();
 
         if (!key_exists("host", $config)) {
 
-            throw new \Error(
-                            "URL: you must specify at least 'host' key in "
-                            . "the 'url.json' configuration file");
+            throw new \Error("[url.json] no 'host' key");
         }
 
         self::$protocol = $config["protocol"] ?? "https";

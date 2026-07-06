@@ -3,7 +3,7 @@
 /*
  * CWF-PHP Framework
  * 
- * File: Exceptions\Router_Exception.php
+ * File: Exceptions\InvalidRouteException.php
  * Description: Router exception class
  * Author: Michal Bocian <bocian.michal@outlook.com>
  * License: 3-Clause BSD
@@ -11,6 +11,6 @@
 
 namespace CwfPhp\CwfPhp\Exceptions;
 
-class RouterException extends \Exception{
+class InvalidRouteException extends \Exception{
     
 }
