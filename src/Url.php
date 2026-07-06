@@ -96,7 +96,7 @@ final class Url implements UrlInterface {
     #[\Override]
     public static function resource(string $path): string {
 
-        return self::makeBase($path[0] != "/") . $path;
+        return self::base($path[0] != "/") . $path;
     }
 
     /**
