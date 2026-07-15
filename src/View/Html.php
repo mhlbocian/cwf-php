@@ -31,12 +31,29 @@ class Html implements ObjectInterface {
             $this->file = str_replace("{\$$var}", $value, $this->file);
         }
 
+        $this->file = preg_replace_callback(
+                '/\{\%\s*View:HTML\s+"([^"]+)"\s*\%\}/',
+                function ($matches) {
+                    $file = $matches[1];
+
+                    try {
+
+                        return new Html($file);
+                    } catch (\Throwable) {
+
+                        return "[No view: '$file']";
+                    }
+                },
+                $this->file
+        );
+
         return $this->file;
     }
 
     #[\Override]
     public function __construct(string $file) {
         $filepath = \APP_VIEWS . \DS . "{$file}.html";
+
         if (!\file_exists($filepath)) {
 
             throw new \Error("VIEW: '{$file}.html' does not exist");
