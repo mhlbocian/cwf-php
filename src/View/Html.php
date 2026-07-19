@@ -37,13 +37,7 @@ class Html implements ViewTypeInterface {
                 function ($matches) {
                     $file = $matches[1];
 
-                    try {
-
-                        return new Html($file);
-                    } catch (\Throwable) {
-
-                        throw new ViewException($file);
-                    }
+                    return new Html($file);
                 },
                 $this->file
         );
