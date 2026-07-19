@@ -15,7 +15,7 @@ interface ViewTypeInterface {
 
     public function __construct(string $file);
 
-    public function bind(string $var, mixed $value): ObjectInterface;
+    public function bind(string $var, mixed $value): ViewTypeInterface;
 
     public function render(): string;
 

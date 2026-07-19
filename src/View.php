@@ -23,7 +23,7 @@ final class View implements ViewInterface {
     private ViewTypeInterface $view;
 
     /**
-     * Load view and specify the type.ObjectInterface
+     * Load view and specify the type of it
      * 
      * Supported types: HTML, PHP
      * 
