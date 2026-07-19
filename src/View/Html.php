@@ -11,9 +11,10 @@
 
 namespace CwfPhp\CwfPhp\View;
 
-use CwfPhp\CwfPhp\Interfaces\View\ObjectInterface;
+use CwfPhp\CwfPhp\Exceptions\ViewException;
+use CwfPhp\CwfPhp\Interfaces\View\ViewTypeInterface;
 
-class Html implements ObjectInterface {
+class Html implements ViewTypeInterface {
 
     private array $data = [];
     private string $file;
@@ -28,11 +29,11 @@ class Html implements ObjectInterface {
     #[\Override]
     public function render(): string {
         foreach ($this->data as $var => $value) {
-            $this->file = str_replace("{\$$var}", $value, $this->file);
+            $this->file = \str_replace("{\$$var}", $value, $this->file);
         }
-
-        $this->file = preg_replace_callback(
-                '/\{\%\s*View:HTML\s+"([^"]+)"\s*\%\}/',
+        /** process the {% View "path/to/view" %} expression */
+        $this->file = \preg_replace_callback(
+                '/\{\%\s*View\s+"([^"]+)"\s*\%\}/',
                 function ($matches) {
                     $file = $matches[1];
 
@@ -41,7 +42,7 @@ class Html implements ObjectInterface {
                         return new Html($file);
                     } catch (\Throwable) {
 
-                        return "[No view: '$file']";
+                        throw new ViewException($file);
                     }
                 },
                 $this->file
@@ -56,7 +57,7 @@ class Html implements ObjectInterface {
 
         if (!\file_exists($filepath)) {
 
-            throw new \Error("VIEW: '{$file}.html' does not exist");
+            throw new ViewException($file, "File not exists");
         }
 
         $this->file = \file_get_contents($filepath);

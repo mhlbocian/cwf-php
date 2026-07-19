@@ -11,9 +11,10 @@
 
 namespace CwfPhp\CwfPhp\View;
 
-use CwfPhp\CwfPhp\Interfaces\View\ObjectInterface;
+use CwfPhp\CwfPhp\Exceptions\ViewException;
+use CwfPhp\CwfPhp\Interfaces\View\ViewTypeInterface;
 
-class Php implements ObjectInterface {
+class Php implements ViewTypeInterface {
 
     private array $data = [];
     private string $file;
@@ -45,7 +46,7 @@ class Php implements ObjectInterface {
     public function __construct(string $file) {
         if (!\file_exists(\APP_VIEWS . \DS . "{$file}.php")) {
 
-            throw new \Error("VIEW: '{$file}.php' does not exist");
+            throw new ViewException($file, "File not exists");
         }
 
         $this->file = $file;

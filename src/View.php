@@ -10,19 +10,20 @@
 
 namespace CwfPhp\CwfPhp;
 
+use CwfPhp\CwfPhp\Exceptions\ViewException;
 use CwfPhp\CwfPhp\View\ViewType;
 use CwfPhp\CwfPhp\Interfaces\ViewInterface;
-use CwfPhp\CwfPhp\Interfaces\View\ObjectInterface;
+use CwfPhp\CwfPhp\Interfaces\View\ViewTypeInterface;
 
 /**
  * View class for handling HTML and PHP templates
  */
 final class View implements ViewInterface {
 
-    private ObjectInterface $view;
+    private ViewTypeInterface $view;
 
     /**
-     * Load view and specify the type.
+     * Load view and specify the type.ObjectInterface
      * 
      * Supported types: HTML, PHP
      * 
@@ -39,7 +40,7 @@ final class View implements ViewInterface {
             };
         } catch (\UnhandledMatchError) {
 
-            throw new \Error("VIEW: unknown view type");
+            throw new ViewException($view, "Unknown view type");
         }
     }
 
