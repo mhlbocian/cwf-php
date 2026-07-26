@@ -13,6 +13,7 @@ namespace CwfPhp\CwfPhp;
 
 use CwfPhp\CwfPhp\Data\Json;
 use CwfPhp\CwfPhp\Data\Ini;
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 
 final class Data {
 
@@ -38,7 +39,8 @@ final class Data {
 
         if (!\mkdir($dirPath, recursive: true)) {
 
-            throw new \Error("DATA: cannot create the directory '{$dirName}'");
+            throw new FrameworkException("data",
+                            "could not create the directory '{$dirName}'");
         }
     }
 }

@@ -11,7 +11,7 @@
 
 namespace CwfPhp\CwfPhp\View;
 
-use CwfPhp\CwfPhp\Exceptions\ViewException;
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Interfaces\View\ViewTypeInterface;
 
 class Html implements ViewTypeInterface {
@@ -51,7 +51,7 @@ class Html implements ViewTypeInterface {
 
         if (!\file_exists($filepath)) {
 
-            throw new ViewException($file, "File not exists");
+            throw new FrameworkException("view.html", "file not exists");
         }
 
         $this->file = \file_get_contents($filepath);

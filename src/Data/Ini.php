@@ -11,6 +11,7 @@
 
 namespace CwfPhp\CwfPhp\Data;
 
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Interfaces\Data\ConfigFileInterface;
 
 final class Ini implements ConfigFileInterface {
@@ -26,7 +27,7 @@ final class Ini implements ConfigFileInterface {
         if (!$this->fileExists) {
             $this->create();
         }
-        
+
         $this->fileData = [];
         $this->save();
     }
@@ -36,7 +37,8 @@ final class Ini implements ConfigFileInterface {
         if (!$this->fileExists) {
             if (!touch($this->file)) {
 
-                throw new \Error("DATA[Ini]: couldn't create file");
+                throw new FrameworkException("data.ini",
+                                "could not create the file '{$this->file}'");
             }
         }
 
@@ -61,10 +63,9 @@ final class Ini implements ConfigFileInterface {
         $this->load();
 
         if (!\key_exists($key, $this->fileData)) {
-            $err_msg = "DATA[Ini]: the key '{$key}' does not exist in the "
-                    . "file '{$this->file}'";
 
-            throw new \Exception($err_msg);
+            throw new FrameworkException("data.ini",
+                            "missing key '{$key}' in the file '{$this->file}'");
         }
 
         return $this->fileData[$key];
@@ -124,10 +125,9 @@ final class Ini implements ConfigFileInterface {
         }
 
         if (!($fh = \fopen($this->file, "w"))) {
-            $err_msg = "DATA[Ini]: write error in the file "
-                    . "'{$this->file}'";
 
-            throw new \Error($err_msg);
+            throw new FrameworkException("data.ini",
+                            "write error in the file '{$this->file}'");
         }
 
         \fwrite($fh, $output);

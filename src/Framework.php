@@ -10,6 +10,7 @@
 
 namespace CwfPhp\CwfPhp;
 
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Interfaces\FrameworkInterface;
 
 /**
@@ -78,7 +79,8 @@ final class Framework implements FrameworkInterface {
     public function __construct(private readonly string $appPath) {
         if (!is_null(self::$instance)) {
 
-            throw new \Error("CORE: cannot setup application more than once");
+            throw new FrameworkException("core",
+                            "framework can not be initialised more than once");
         }
 
         self::$instance = $this;
@@ -133,7 +135,8 @@ final class Framework implements FrameworkInterface {
     public static function setDir(string $type, string $name): void {
         if (!\key_exists($type, self::$appReqDirs)) {
 
-            throw new \Error("CORE: {$type} is not a valid type of directory");
+            throw new FrameworkException("core",
+                            "'{$type}' is not a valid directory type");
         }
 
         self::$appReqDirs[$type]["name"] = $name;
@@ -151,7 +154,8 @@ final class Framework implements FrameworkInterface {
     public static function setEnv(string $key, mixed $value): void {
         if (\key_exists($key, self::$appEnv)) {
 
-            throw new \Error("CORE: environment key '{$key}' already exists");
+            throw new FrameworkException("core",
+                            "environment key '{$key}' already exists");
         }
 
         self::$appEnv[$key] = $value;
@@ -201,9 +205,9 @@ final class Framework implements FrameworkInterface {
             }
 
             if ($dir["writeable"] && !is_writeable($path)) {
-                $errMsg = "CORE: the '{$type}' directory is not writeable";
 
-                throw new \Error($errMsg);
+                throw new FrameworkException("core",
+                                "the '{$type}' directory is not writeable");
             }
         }
 
@@ -212,11 +216,11 @@ final class Framework implements FrameworkInterface {
             return;
         }
 
-        $errMsg = "CORE: following directories '";
+        $errMsg = "following directories '";
         $errMsg .= \implode(", ", $missing_dirs);
-        $errMsg .= "' don't exist in application root directory.";
+        $errMsg .= "' don't exist in the application root directory.";
 
-        throw new \Error($errMsg);
+        throw new FrameworkException("core", $errMsg);
     }
 
     /**

@@ -11,6 +11,7 @@
 
 namespace CwfPhp\CwfPhp\Data;
 
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Interfaces\Data\ConfigFileInterface;
 
 final class Json implements ConfigFileInterface {
@@ -22,20 +23,21 @@ final class Json implements ConfigFileInterface {
 
     #[\Override]
     public function clear(): void {
-        if(!$this->fileExists){
+        if (!$this->fileExists) {
             $this->create();
         }
-        
+
         $this->fileData = [];
         $this->save();
     }
-    
+
     #[\Override]
     public function create(): void {
         if (!$this->fileExists) {
             if (!\touch($this->file)) {
 
-                throw new \Error("DATA[Json]: couldn't create file");
+                throw new FrameworkException("data.json",
+                                "could not create the file '{$this->file}'");
             }
         }
 
@@ -60,10 +62,9 @@ final class Json implements ConfigFileInterface {
         $this->load();
 
         if (!\key_exists($key, $this->fileData)) {
-            $err_msg = "DATA[Json]: the key '{$key}' does not exist in the "
-                    . "file '{$this->file}'";
 
-            throw new \Exception($err_msg);
+            throw new FrameworkException("data.json",
+                            "missing key '{$key}' in the file '{$this->file}'");
         }
 
         return $this->fileData[$key];
@@ -100,10 +101,9 @@ final class Json implements ConfigFileInterface {
 
     private function save(): void {
         if (!($fh = \fopen($this->file, "w"))) {
-            $err_msg = "DATA[Json]: write error in the file "
-                    . "'{$this->file}'";
 
-            throw new \Error($err_msg);
+            throw new FrameworkException("data.json",
+                            "write error in the file '{$this->file}'");
         }
 
         \fwrite($fh, \json_encode($this->fileData));

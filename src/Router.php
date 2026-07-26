@@ -10,6 +10,7 @@
 
 namespace CwfPhp\CwfPhp;
 
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Exceptions\InvalidRouteException;
 use CwfPhp\CwfPhp\Interfaces\RouterInterface;
 
@@ -94,7 +95,7 @@ final class Router implements RouterInterface {
     public function __construct(?string $route) {
         if (!Config::file("router.json")->exists()) {
 
-            throw new \Error("[router.json] file not exists");
+            throw new FrameworkException("router", "missing 'router.json' file");
         }
 
         $config = Config::file("router.json")->fetch();
@@ -190,7 +191,8 @@ final class Router implements RouterInterface {
     private function parseConfig(array $config): void {
         if (!key_exists("namespace", $config)) {
 
-            throw new \Error("[router.json] no namespace key");
+            throw new FrameworkException("router",
+                            "no 'namespace' key in 'router.json");
         }
 
         $this->namespace = $config["namespace"];
@@ -215,12 +217,14 @@ final class Router implements RouterInterface {
         foreach ($pointers as $name => $args) {
             if (!\preg_match("#^[\p{L}\p{N}_-]+$#u", $name)) {
 
-                throw new \Error("[router.json] wrong pointer name '{$name}'");
+                throw new FrameworkException("router",
+                                "invalid pointer name '{$name}'");
             }
 
             if (!\key_exists("controller", $args)) {
 
-                throw new \Error("[router.json] no controller for pointer '{$name}'");
+                throw new \Error("router",
+                                "no 'controller' for the pointer '{$name}'");
             }
 
             $this->pointers[$name] = [

@@ -11,6 +11,7 @@
 namespace CwfPhp\CwfPhp;
 
 use CwfPhp\CwfPhp\Config;
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Interfaces\UrlInterface;
 
 /**
@@ -165,14 +166,14 @@ final class Url implements UrlInterface {
 
         if (!Config::file("url.json")->exists()) {
 
-            throw new \Error("[url.json] file not exists");
+            throw new FrameworkException("url", "missing 'url.json' file");
         }
 
         $config = Config::file("url.json")->fetch();
 
         if (!key_exists("host", $config)) {
 
-            throw new \Error("[url.json] no 'host' key");
+            throw new FrameworkException("url", "no 'host' key in 'url.json'");
         }
 
         self::$protocol = $config["protocol"] ?? "https";

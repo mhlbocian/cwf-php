@@ -10,6 +10,7 @@
 
 namespace CwfPhp\CwfPhp;
 
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Interfaces\Data\ConfigFileInterface;
 use CwfPhp\CwfPhp\Data\Json;
 use CwfPhp\CwfPhp\Data\Ini;
@@ -34,14 +35,14 @@ final class Config {
         $fileType = \end($fileParts);
 
         try {
-            
+
             return match ($fileType) {
                 "ini" => new Ini(self::DIR . $file),
                 "json" => new Json(self::DIR . $file)
             };
         } catch (\UnhandledMatchError) {
-            
-            throw new \Error("CONFIG: unknown file type");
+
+            throw new FrameworkException("core", "unknown config file type");
         }
     }
 }

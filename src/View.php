@@ -10,7 +10,7 @@
 
 namespace CwfPhp\CwfPhp;
 
-use CwfPhp\CwfPhp\Exceptions\ViewException;
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\View\ViewType;
 use CwfPhp\CwfPhp\Interfaces\ViewInterface;
 use CwfPhp\CwfPhp\Interfaces\View\ViewTypeInterface;
@@ -40,7 +40,7 @@ final class View implements ViewInterface {
             };
         } catch (\UnhandledMatchError) {
 
-            throw new ViewException($view, "Unknown view type");
+            throw new FrameworkException("view", "unknown view type");
         }
     }
 

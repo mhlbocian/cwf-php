@@ -11,7 +11,7 @@
 
 namespace CwfPhp\CwfPhp\View;
 
-use CwfPhp\CwfPhp\Exceptions\ViewException;
+use CwfPhp\CwfPhp\Exceptions\FrameworkException;
 use CwfPhp\CwfPhp\Interfaces\View\ViewTypeInterface;
 
 class Php implements ViewTypeInterface {
@@ -46,7 +46,7 @@ class Php implements ViewTypeInterface {
     public function __construct(string $file) {
         if (!\file_exists(\APP_VIEWS . \DS . "{$file}.php")) {
 
-            throw new ViewException($file, "File not exists");
+            throw new FrameworkException("view.php", "file not exists");
         }
 
         $this->file = $file;
