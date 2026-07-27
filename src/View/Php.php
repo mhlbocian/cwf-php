@@ -46,7 +46,8 @@ class Php implements ViewTypeInterface {
     public function __construct(string $file) {
         if (!\file_exists(\APP_VIEWS . \DS . "{$file}.php")) {
 
-            throw new FrameworkException("view.php", "file not exists");
+            throw new FrameworkException("view.php",
+                    "file '{$file}' not exists");
         }
 
         $this->file = $file;

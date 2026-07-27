@@ -51,7 +51,8 @@ class Html implements ViewTypeInterface {
 
         if (!\file_exists($filepath)) {
 
-            throw new FrameworkException("view.html", "file not exists");
+            throw new FrameworkException("view.html",
+                            "file '{$file}' not exists");
         }
 
         $this->file = \file_get_contents($filepath);

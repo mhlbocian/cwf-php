@@ -35,8 +35,8 @@ $port = 8000;
 $path = "/";
 $index = "index.php";
 $rewrite = false;
-$namespace = "Controllers";
-$controller = "Main";
+$namespace = "Sites";
+$site = "Main";
 $action = "Index";
 
 writeln("Run in current directory [{$projdir}]?");
@@ -68,7 +68,7 @@ if (!is_writable($projdir)) {
     goto end;
 }
 writeln("2. Set directory names", 4);
-writeln("Use default ones (like Config, Data, Controllers, ...)?");
+writeln("Use default ones (like Config, Data, Public, Sites, Views)?");
 
 step2a:
 $resp = readline("(y/n) [y]: ");
@@ -77,10 +77,9 @@ switch ($resp) {
     case "y":
         $directories = [
             "config" => "Config",
-            "controllers" => "Controllers",
             "data" => "Data",
-            "models" => "Models",
             "public" => "Public",
+            "sites" => "Sites",
             "views" => "Views"];
         goto step3;
     case "n":
@@ -99,36 +98,36 @@ if (!chkdir($resp, $directories)) {
 $directories["config"] = $resp;
 
 step2c:
-$resp = readline("Controllers directory: ");
+$resp = readline("Data directory: ");
 if (!chkdir($resp, $directories)) {
     writeln("Invalid directory name or name is not unique.", 1);
     goto step2c;
 }
-$directories["controllers"] = $resp;
+$directories["data"] = $resp;
 
 step2d:
-$resp = readline("Data directory: ");
+$resp = readline("Models directory: ");
 if (!chkdir($resp, $directories)) {
     writeln("Invalid directory name or name is not unique.", 1);
     goto step2d;
 }
-$directories["data"] = $resp;
+$directories["models"] = $resp;
 
 step2e:
-$resp = readline("Models directory: ");
+$resp = readline("Public www directory: ");
 if (!chkdir($resp, $directories)) {
     writeln("Invalid directory name or name is not unique.", 1);
     goto step2e;
 }
-$directories["models"] = $resp;
+$directories["public"] = $resp;
 
 step2f:
-$resp = readline("Public www directory: ");
+$resp = readline("Sites directory: ");
 if (!chkdir($resp, $directories)) {
     writeln("Invalid directory name or name is not unique.", 1);
     goto step2f;
 }
-$directories["public"] = $resp;
+$directories["sites"] = $resp;
 
 step2g:
 $resp = readline("Views directory: ");
@@ -179,10 +178,10 @@ if ($resp != "" && !preg_match($pattern, $resp)) {
     $path = $resp;
 }
 
-writeln("4. Controllers namespace and router configuration", 4);
+writeln("4. Sites namespace and router configuration", 4);
 
 step4:
-$resp = readline("Controllers namespace? [{$namespace}]: ");
+$resp = readline("Sites namespace? [{$namespace}]: ");
 $pattern = "#^[A-Za-z_][A-Za-z0-9_]*(\\\\\\\\[A-Za-z_][A-Za-z0-9_]*)*$#";
 if ($resp != "" && !preg_match($pattern, $resp)) {
     writeln("Invalid namespace. Must be like (aaa\\\\bbb\\\\ccc).", 1);
@@ -192,13 +191,13 @@ if ($resp != "" && !preg_match($pattern, $resp)) {
 }
 
 step4a:
-$resp = readline("Default controller? [{$controller}]: ");
+$resp = readline("Default site? [{$site}]: ");
 $pattern = "#^[a-zA-Z_][a-zA-Z0-9_]+$#";
 if ($resp != "" && !preg_match($pattern, $resp)) {
-    writeln("Invalid controller name.", 1);
+    writeln("Invalid site name.", 1);
     goto step4a;
 } else if ($resp != "") {
-    $controller = $resp;
+    $site = $resp;
 }
 
 step4b:
@@ -220,8 +219,8 @@ writeln("Protocol: {$protocol}");
 writeln("Hostname: {$hostname}");
 writeln("Port: {$port}");
 writeln("URL application path: {$path}");
-writeln("Controllers namespace: {$namespace}");
-writeln("Default controller: {$controller}");
+writeln("Sites namespace: {$namespace}");
+writeln("Default site: {$site}");
 writeln("Default action: {$action}");
 writeln("Ready to install?", 2);
 
@@ -274,7 +273,7 @@ echo "router ";
 $router_json = <<<FILE
 {
     "namespace": "{$namespace}",
-    "defaultController": "{$controller}",
+    "defaultSite": "{$site}",
     "defaultAction": "{$action}"
 }
 FILE;
@@ -295,10 +294,9 @@ FILE;
 if (isset($customdirs)) {
     $init_php .= <<<FILE
     Framework::setDir("config", "{$directories["config"]}");
-    Framework::setDir("controllers", "{$directories["controllers"]}");
     Framework::setDir("data", "{$directories["data"]}");
-    Framework::setDir("models", "{$directories["models"]}");
     Framework::setDir("public", "{$directories["public"]}");
+    Framework::setDir("sites", "{$directories["sites"]}");
     Framework::setDir("views", "{$directories["views"]}");
     
     FILE;
@@ -328,19 +326,19 @@ $index_fh = fopen($projdir . DIRECTORY_SEPARATOR . $directories["public"] .
 fwrite($index_fh, $index_php);
 fclose($index_fh);
 
-echo "controller ";
-$ctrlNamespace = str_replace("\\\\", "\\", $namespace);
+echo "site ";
+$sitesNamespace = str_replace("\\\\", "\\", $namespace);
 $main_php = <<<FILE
 <?php
-namespace {$ctrlNamespace};
-class {$controller} {
+namespace {$sitesNamespace};
+class {$site} {
     public function {$action}(): void {
         echo "<h1>Hello, world!";
     }
 }
 FILE;
-$main_fh = fopen($projdir . DIRECTORY_SEPARATOR . $directories["controllers"] .
-        DIRECTORY_SEPARATOR . "{$controller}.php", "w");
+$main_fh = fopen($projdir . DIRECTORY_SEPARATOR . $directories["sites"] .
+        DIRECTORY_SEPARATOR . "{$site}.php", "w");
 fwrite($main_fh, $main_php);
 fclose($main_fh);
 echo "done!";

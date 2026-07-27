@@ -27,13 +27,13 @@ final class Router implements RouterInterface {
 
     /**
      * 
-     * @var string Default controller, when is not specified in the URL
+     * @var string Default site, when is not specified in the URL
      */
-    private readonly string $defaultController;
+    private readonly string $defaultSite;
 
     /**
      * 
-     * @var string Namespace, where controllers are stored
+     * @var string Namespace, where the sites are stored
      */
     private readonly string $namespace;
 
@@ -57,9 +57,9 @@ final class Router implements RouterInterface {
 
     /**
      * 
-     * @var string Current controller
+     * @var string Current site
      */
-    private static string $controller;
+    private static string $site;
 
     /**
      * 
@@ -75,7 +75,7 @@ final class Router implements RouterInterface {
 
     /**
      * 
-     * @var string Controller class fully qualified name (with namespace)
+     * @var string Sites class fully qualified name (with namespace)
      */
     private readonly string $classFqn;
 
@@ -136,7 +136,7 @@ final class Router implements RouterInterface {
     /**
      * Get argumets for the action
      * 
-     * @param bool $withEnv When specified, includes the controller and action
+     * @param bool $withEnv When specified, includes the site and action
      * @return array
      */
     #[\Override]
@@ -149,7 +149,7 @@ final class Router implements RouterInterface {
         if ($withEnv) {
 
             return array_merge([
-                self::$pointer ?? self::$controller,
+                self::$pointer ?? self::$site,
                 self::$action], self::$args);
         }
 
@@ -157,17 +157,17 @@ final class Router implements RouterInterface {
     }
 
     /**
-     * Check, if the controller and/or method exists
+     * Check, if the site and/or method exists
      * 
      * @return void
      * @throws InvalidRouteException
      */
     private function checkRoute(): void {
-        $this->classFqn = "{$this->namespace}\\" . self::$controller;
+        $this->classFqn = "{$this->namespace}\\" . self::$site;
 
         if (!\class_exists($this->classFqn)) {
 
-            throw new InvalidRouteException("Unknown controller '" . self::$controller . "'");
+            throw new InvalidRouteException("Unknown site '" . self::$site . "'");
         }
 
         if (!\method_exists($this->classFqn, self::$action)) {
@@ -186,7 +186,7 @@ final class Router implements RouterInterface {
      * 
      * @param array $config Parsed JSON array from the router.json file
      * @return void
-     * @throws \Error
+     * @throws FrameworkException
      */
     private function parseConfig(array $config): void {
         if (!key_exists("namespace", $config)) {
@@ -196,7 +196,7 @@ final class Router implements RouterInterface {
         }
 
         $this->namespace = $config["namespace"];
-        $this->defaultController = $config["defaultController"] ?? "Main";
+        $this->defaultSite = $config["defaultSite"] ?? "Main";
         $this->defaultAction = $config["defaultAction"] ?? "Index";
         $this->onlyPointers = $config["pointersOnly"] ?? false;
 
@@ -207,11 +207,11 @@ final class Router implements RouterInterface {
 
     /**
      * Parses the pointers array and check the valid name and the existance
-     * of the controller and/or action
+     * of the site and/or action
      * 
      * @param array $pointers Pointers array from the configuration
      * @return void
-     * @throws \Error
+     * @throws FrameworkException
      */
     private function parsePointers(array $pointers): void {
         foreach ($pointers as $name => $args) {
@@ -221,14 +221,14 @@ final class Router implements RouterInterface {
                                 "invalid pointer name '{$name}'");
             }
 
-            if (!\key_exists("controller", $args)) {
+            if (!\key_exists("site", $args)) {
 
-                throw new \Error("router",
-                                "no 'controller' for the pointer '{$name}'");
+                throw new FrameworkException("router",
+                                "no 'site' for the pointer '{$name}'");
             }
 
             $this->pointers[$name] = [
-                "controller" => $args["controller"],
+                "site" => $args["site"],
                 "action" => $args["action"] ?? $this->defaultAction
             ];
         }
@@ -252,7 +252,7 @@ final class Router implements RouterInterface {
 
         if (\key_exists($preParts[0], $this->pointers)) {
             $pointer = $this->pointers[$preParts[0]];
-            $this->setRoute($pointer["controller"],
+            $this->setRoute($pointer["site"],
                     $pointer["action"],
                     \array_slice($preParts, 1),
                     $preParts[0]);
@@ -266,7 +266,7 @@ final class Router implements RouterInterface {
         }
 
         $postParts = $this->postprocessRoute($route);
-        $this->setRoute($postParts["controller"],
+        $this->setRoute($postParts["site"],
                 $postParts["action"],
                 $postParts["args"]);
     }
@@ -290,7 +290,7 @@ final class Router implements RouterInterface {
         $parts = \explode("/", \trim($route, "/"));
 
         return [
-            "controller" => $parts[0] ?? null,
+            "site" => $parts[0] ?? null,
             "action" => $parts[1] ?? null,
             "args" => \array_slice($parts, 2)
         ];
@@ -317,19 +317,19 @@ final class Router implements RouterInterface {
     /**
      * Sets the class properties
      * 
-     * @param string|null $controller
+     * @param string|null $site
      * @param string|null $action
      * @param array $args
      * @param string|null $pointer
      * @return void
      */
     private function setRoute(
-            ?string $controller = null,
+            ?string $site = null,
             ?string $action = null,
             array $args = [],
             ?string $pointer = null): void {
 
-        self::$controller = $controller ?? $this->defaultController;
+        self::$site = $site ?? $this->defaultSite;
         self::$action = $action ?? $this->defaultAction;
         self::$args = $args;
         self::$pointer = $pointer;

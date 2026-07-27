@@ -32,11 +32,11 @@ final class View implements ViewInterface {
      * @throws \Error
      */
     #[\Override]
-    public function __construct(string $view, ViewType $type = ViewType::PHP) {
+    public function __construct(string $view, ViewType $type = ViewType::Php) {
         try {
             $this->view = match ($type) {
-                ViewType::PHP => new View\Php($view),
-                ViewType::HTML => new View\Html($view)
+                ViewType::Html => new View\Html($view),
+                ViewType::Php => new View\Php($view)
             };
         } catch (\UnhandledMatchError) {
 

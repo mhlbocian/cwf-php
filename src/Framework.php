@@ -39,22 +39,20 @@ final class Framework implements FrameworkInterface {
             "writeable" => true,
             "const" => "APP_CFG"
         ],
-        "controllers" => [
-            "name" => "Controllers",
-            "writeable" => false,
-        ],
         "data" => [
             "name" => "Data",
             "writeable" => true,
             "const" => "APP_DATA"
         ],
-        "models" => [
-            "name" => "Models",
-            "writeable" => false
-        ],
         "public" => [
             "name" => "Public",
             "writeable" => false,
+            "const" => "APP_PUBLIC"
+        ],
+        "sites" => [
+            "name" => "Sites",
+            "writeable" => false,
+            "const" => "APP_SITES"
         ],
         "views" => [
             "name" => "Views",
@@ -73,7 +71,7 @@ final class Framework implements FrameworkInterface {
      * Check if the framework is already initialised. If not, setup environment
      * 
      * @param string $appPath Application root directory
-     * @throws \Error
+     * @throws FrameworkException
      */
     #[\Override]
     public function __construct(private readonly string $appPath) {
@@ -129,7 +127,7 @@ final class Framework implements FrameworkInterface {
      * @param string $type Type of required directory (ie. config, data)
      * @param string $name Name for custom directory name
      * @return void
-     * @throws \Error
+     * @throws FrameworkException
      */
     #[\Override]
     public static function setDir(string $type, string $name): void {
@@ -148,7 +146,7 @@ final class Framework implements FrameworkInterface {
      * @param string $key Key name
      * @param mixed $value Key value
      * @return void
-     * @throws \Error
+     * @throws FrameworkException
      */
     #[\Override]
     public static function setEnv(string $key, mixed $value): void {
@@ -191,7 +189,7 @@ final class Framework implements FrameworkInterface {
      * Check if the directories exist and check the required permissions to them
      * 
      * @return void
-     * @throws \Error
+     * @throws FrameworkException
      */
     private function setupDirectories(): void {
         $missing_dirs = [];
