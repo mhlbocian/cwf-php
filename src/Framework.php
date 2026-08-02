@@ -80,7 +80,7 @@ final class Framework implements FrameworkInterface {
         $this->setupHandlers();
         $this->setupDirectories();
         $this->setupSession();
-        
+
         self::$initalised = true;
     }
 
@@ -94,6 +94,21 @@ final class Framework implements FrameworkInterface {
     public static function application(string $appDir): void {
 
         new Framework($appDir);
+    }
+    
+    /**
+     * Method for optional modules, that needs framwework to work.
+     * 
+     * @return void
+     * @throws FrameworkException
+     */
+    #[\Override]
+    public static function checkEnv(): void {
+        if (!self::$initalised) {
+
+            throw new FrameworkException(__CLASS__,
+                            "the application is not initialised");
+        }
     }
 
     /**

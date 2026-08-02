@@ -16,6 +16,8 @@ interface FrameworkInterface {
     public function __construct(string $appPath);
 
     public static function application(string $appPath): void;
+    
+    public static function checkEnv(): void;
 
     public static function getEnv(?string $key): mixed;
 
