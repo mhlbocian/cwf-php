@@ -39,7 +39,7 @@ final class Data {
 
         if (!\mkdir($dirPath, recursive: true)) {
 
-            throw new FrameworkException("data",
+            throw new FrameworkException(__CLASS__,
                             "could not create the directory '{$dirName}'");
         }
     }

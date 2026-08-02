@@ -60,44 +60,40 @@ final class Framework implements FrameworkInterface {
             "const" => "APP_VIEWS"
         ]
     ];
-
-    /**
-     * 
-     * @var FrameworkInterface|null The instance of framework (signleton)
-     */
-    private static ?FrameworkInterface $instance = null;
+    private static bool $initalised = false;
 
     /**
      * Check if the framework is already initialised. If not, setup environment
      * 
-     * @param string $appPath Application root directory
+     * @param string $appDir Application root directory
      * @throws FrameworkException
      */
     #[\Override]
-    public function __construct(private readonly string $appPath) {
-        if (!is_null(self::$instance)) {
+    public function __construct(private readonly string $appDir) {
+        if (self::$initalised) {
 
-            throw new FrameworkException("core",
-                            "framework can not be initialised more than once");
+            throw new FrameworkException(__CLASS__,
+                            "framework is already initialised");
         }
 
-        self::$instance = $this;
         $this->setupConstants();
         $this->setupHandlers();
         $this->setupDirectories();
         $this->setupSession();
+        
+        self::$initalised = true;
     }
 
     /**
      * Static function to initialise application
      * 
-     * @param string $appPath Application root directory
+     * @param string $appDir Application root directory
      * @return void
      */
     #[\Override]
-    public static function application(string $appPath): void {
+    public static function application(string $appDir): void {
 
-        new Framework($appPath);
+        new Framework($appDir);
     }
 
     /**
@@ -133,7 +129,7 @@ final class Framework implements FrameworkInterface {
     public static function setDir(string $type, string $name): void {
         if (!\key_exists($type, self::$appReqDirs)) {
 
-            throw new FrameworkException("core",
+            throw new FrameworkException(__CLASS__,
                             "'{$type}' is not a valid directory type");
         }
 
@@ -152,7 +148,7 @@ final class Framework implements FrameworkInterface {
     public static function setEnv(string $key, mixed $value): void {
         if (\key_exists($key, self::$appEnv)) {
 
-            throw new FrameworkException("core",
+            throw new FrameworkException(__CLASS__,
                             "environment key '{$key}' already exists");
         }
 
@@ -170,12 +166,12 @@ final class Framework implements FrameworkInterface {
 
         $contants = [
             "CWF_ROOT" => __DIR__,
-            "APP_ROOT" => $this->appPath,
+            "APP_ROOT" => $this->appDir,
         ];
 
         foreach (self::$appReqDirs as $dir) {
             if (\key_exists("const", $dir)) {
-                $contants[$dir['const']] = $this->appPath . \DS . $dir["name"];
+                $contants[$dir['const']] = $this->appDir . \DS . $dir["name"];
             }
         }
 
@@ -204,7 +200,7 @@ final class Framework implements FrameworkInterface {
 
             if ($dir["writeable"] && !is_writeable($path)) {
 
-                throw new FrameworkException("core",
+                throw new FrameworkException(__CLASS__,
                                 "the '{$type}' directory is not writeable");
             }
         }
@@ -218,7 +214,7 @@ final class Framework implements FrameworkInterface {
         $errMsg .= \implode(", ", $missing_dirs);
         $errMsg .= "' don't exist in the application root directory.";
 
-        throw new FrameworkException("core", $errMsg);
+        throw new FrameworkException(__CLASS__, $errMsg);
     }
 
     /**

@@ -42,7 +42,7 @@ final class Config {
             };
         } catch (\UnhandledMatchError) {
 
-            throw new FrameworkException("core", "unknown config file type");
+            throw new FrameworkException(__CLASS__, "unknown config file type");
         }
     }
 }

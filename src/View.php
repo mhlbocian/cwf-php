@@ -40,7 +40,7 @@ final class View implements ViewInterface {
             };
         } catch (\UnhandledMatchError) {
 
-            throw new FrameworkException("view", "unknown view type");
+            throw new FrameworkException(__CLASS__, "unknown view type");
         }
     }
 

@@ -166,14 +166,16 @@ final class Url implements UrlInterface {
 
         if (!Config::file("url.json")->exists()) {
 
-            throw new FrameworkException("url", "missing 'url.json' file");
+            throw new FrameworkException(__CLASS__,
+                            "missing 'url.json' file");
         }
 
         $config = Config::file("url.json")->fetch();
 
         if (!key_exists("host", $config)) {
 
-            throw new FrameworkException("url", "no 'host' key in 'url.json'");
+            throw new FrameworkException(__CLASS__,
+                            "no 'host' key in 'url.json'");
         }
 
         self::$protocol = $config["protocol"] ?? "https";

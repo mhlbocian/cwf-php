@@ -11,7 +11,7 @@
 namespace CwfPhp\CwfPhp;
 
 use CwfPhp\CwfPhp\Exceptions\FrameworkException;
-use CwfPhp\CwfPhp\Exceptions\InvalidRouteException;
+use CwfPhp\CwfPhp\Exceptions\RouterException;
 use CwfPhp\CwfPhp\Interfaces\RouterInterface;
 
 /**
@@ -122,11 +122,11 @@ final class Router implements RouterInterface {
             $this->checkRoute();
             $ctrl_object = new $this->classFqn();
             $ctrl_object->{self::$action}();
-        } catch (InvalidRouteException) {
+        } catch (RouterException) {
             $onInvalidRoute();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             if (\is_null($onError)) {
-                $onInvalidRoute();
+                throw $e;
             } else {
                 $onError();
             }
@@ -160,24 +160,24 @@ final class Router implements RouterInterface {
      * Check, if the site and/or method exists
      * 
      * @return void
-     * @throws InvalidRouteException
+     * @throws RouterException
      */
     private function checkRoute(): void {
         $this->classFqn = "{$this->namespace}\\" . self::$site;
 
         if (!\class_exists($this->classFqn)) {
 
-            throw new InvalidRouteException("Unknown site '" . self::$site . "'");
+            throw new RouterException("Unknown site '" . self::$site . "'");
         }
 
         if (!\method_exists($this->classFqn, self::$action)) {
 
-            throw new InvalidRouteException("Unknown action '" . self::$action . "'");
+            throw new RouterException("Unknown action '" . self::$action . "'");
         }
 
         if (\str_starts_with(self::$action, "__")) {
 
-            throw new InvalidRouteException("Action forbidden for magic methods");
+            throw new RouterException("Action forbidden for magic methods");
         }
     }
 
@@ -239,7 +239,7 @@ final class Router implements RouterInterface {
      * 
      * @param string $route
      * @return void
-     * @throws InvalidRouteException
+     * @throws RouterException
      */
     private function parseRoute(string $route): void {
         if ($route == "/") {
@@ -262,7 +262,7 @@ final class Router implements RouterInterface {
 
         if ($this->onlyPointers) {
 
-            throw new InvalidRouteException("Unknown route");
+            throw new RouterException("Unknown route");
         }
 
         $postParts = $this->postprocessRoute($route);
@@ -276,7 +276,7 @@ final class Router implements RouterInterface {
      * 
      * @param string $route
      * @return array
-     * @throws InvalidRouteException
+     * @throws RouterException
      */
     private function postprocessRoute(string $route): array {
         $pattern = '#^(?:/|/(?:[A-Za-z][A-Za-z0-9_]*|[A-Za-z][A-Za-z0-9_]*'
@@ -284,7 +284,7 @@ final class Router implements RouterInterface {
 
         if (!\preg_match($pattern, $route)) {
 
-            throw new InvalidRouteException("Invalid route format");
+            throw new RouterException("Invalid route format");
         }
 
         $parts = \explode("/", \trim($route, "/"));
@@ -301,14 +301,14 @@ final class Router implements RouterInterface {
      * 
      * @param string $route
      * @return array
-     * @throws InvalidRouteException
+     * @throws RouterException
      */
     private function preprocessRoute(string $route): array {
         $pattern = "#^(?:/[\%\p{L}\p{N}_-]+)*/*$#u";
 
         if (!\preg_match($pattern, $route)) {
 
-            throw new InvalidRouteException("Invalid route format");
+            throw new RouterException("Invalid route format");
         }
 
         return \explode("/", trim($route, "/"));
